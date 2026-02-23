@@ -1,0 +1,130 @@
+import { Media, MediaType } from "../utiles/enums/mediaTypes";
+import { ChatParticipant, ChatType } from "./Chat";
+import { Template, TemplatePayload } from "./Template";
+
+export type Context = {
+  id: string;
+  from?: string;
+  message?: string;
+}
+
+export type LocationType = {
+  latitude: number;
+  longitude: number;
+  name?: string;
+  address?: string;
+}
+
+export type Message = {
+  _id?: string;
+  userId: string;
+  chatId: string;
+  waAccountId?: string;
+  parentMessageId?: string;
+  to: string;
+  from: string;
+  message?: string;
+  template?: Template;
+  media?: Media;
+  location?: LocationType;
+  waMessageId?: string;
+  status?: MessageStatus;
+  sentAt?: string;
+  deliveredAt?: string;
+  readAt?: string;
+  failedAt?: string;
+  type?: MessageType;
+  context?: Context;
+  tag?: string;
+  participants?: ChatParticipant[];
+  aiUsageId?: string;
+  isCreditDebited?: boolean,
+  isBroadcastMaster?: boolean;
+  errorMessage?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export enum MessageType {
+  TEXT = "text",
+  MEDIA = "media",
+  LOCATION = "location",
+  TEMPLATE = "template",
+  STICKER = "sticker"
+}
+
+export enum MessageStatus {
+  Sent = "sent",
+  Pending = "pending",
+  Delivered = "delivered",
+  Read = "read",
+  Failed = "failed",
+  Received = "received",
+}
+
+export const STATUS_PRIORITY: Record<MessageStatus, number> = {
+  [MessageStatus.Pending]: 0,
+  [MessageStatus.Sent]: 1,
+  [MessageStatus.Delivered]: 2,
+  [MessageStatus.Read]: 3,
+  [MessageStatus.Failed]: 4,
+  [MessageStatus.Received]: 5, // incoming messages only
+};
+
+export enum IncomingMessageType {
+  TEXT = "text",
+  IMAGE = "image",
+  VIDEO = "video",
+  AUDIO = "audio",
+  DOCUMENT = "document",
+  STICKER = "sticker",
+  LOCATION = "location",
+  CONTACTS = "contacts",
+  INTERACTIVE = "interactive",
+  BUTTON = "button",
+  REACTION = "reaction",
+  UNSUPPORTED = "unsupported",
+  SYSTEM = "system"
+}
+
+export type MessagePayload = {
+  participants: ChatParticipant[];
+  messageType: MessageType;
+  message?: string;
+  template?: Template | TemplatePayload;
+  media?: Media;
+  location?: LocationType;
+  context?: Context;
+  chatType?: ChatType;
+  chatId?: string;
+  tag?: string;
+}
+
+// types/MessageDTO.ts Data Transfer Object
+export interface MessageDTO {
+  _id: string;
+  userId: string;
+  chatId: string;
+  to: string;
+  from: string;
+  message?: string;
+  type: MessageType;
+  status: MessageStatus;
+  waMessageId?: string;
+  createdAt: string;
+}
+
+// whatsapp.types.ts
+export type WhatsAppPayload = {
+  messaging_product: "whatsapp";
+  to: string;
+  type: string;
+  text?: { body: string };
+  context?: { message_id: string };
+  [key: string]: any;
+};
+
+export type MediaSelection = {
+  type: MediaType;
+  file?: File;
+}

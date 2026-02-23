@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "wa_api_app",
-    "slug": "wa_api_app",
+    "name": "WA-API AI",
+    "slug": "waapi_ai",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -9,9 +9,11 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
+      "bundleIdentifier": "com.waapi.ai",
       "supportsTablet": true
     },
     "android": {
+      "package": "com.waapi.ai",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
@@ -38,11 +40,18 @@
             "backgroundColor": "#000000"
           }
         }
-      ]
+      ],
+      "expo-font"
     ],
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "3622e8ba-256f-4981-aa76-2612cde2934a"
+      }
     }
   }
 }
