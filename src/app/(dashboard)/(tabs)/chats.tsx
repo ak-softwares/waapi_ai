@@ -1,6 +1,8 @@
 import ChatTile from "@/src/component/chats/widgets/ChatTile";
+import { useTheme } from "@/src/context/ThemeContext";
 import { useChats } from "@/src/hooks/chat/useChats";
 import { useChatStore } from "@/src/store/chatStore";
+import { darkColors, lightColors } from "@/src/theme/colors";
 import { FILTERS } from "@/src/types/Chat";
 import { router } from "expo-router";
 import { ScrollView } from "moti";
@@ -9,14 +11,31 @@ import {
   ActivityIndicator,
   FlatList,
   StyleSheet,
-  Text, TextInput, TouchableOpacity, View
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
 } from "react-native";
 
 export default function ChatListScreen() {
-  const { chats, loading, loadingMore, loadMore, refreshChats, searchChats, filter, setFilter } = useChats();
-  const { activeChat, setActiveChat } = useChatStore();
+  const {
+    chats,
+    loading,
+    loadingMore,
+    loadMore,
+    refreshChats,
+    searchChats,
+    filter,
+    setFilter,
+  } = useChats();
+
+  const { setActiveChat } = useChatStore();
 
   const [search, setSearch] = useState("");
+
+  const { theme } = useTheme();
+  const colors = theme === "dark" ? darkColors : lightColors;
+  const styles = getStyles(colors);
 
   const handleSearch = (text: string) => {
     setSearch(text);
@@ -25,13 +44,14 @@ export default function ChatListScreen() {
 
   return (
     <View style={styles.container}>
-
       {/* 🔍 Search Bar */}
       <View style={styles.searchContainer}>
         <TextInput
           value={search}
           onChangeText={handleSearch}
           placeholder="Search chats..."
+          placeholderTextColor={colors.placeHolderText}
+          cursorColor={colors.cursorColor}
           style={styles.searchInput}
         />
       </View>
@@ -55,7 +75,10 @@ export default function ChatListScreen() {
               ]}
             >
               <Text
-                style={ styles.chipText }
+                style={[
+                  styles.chipText,
+                  active && { color: colors.primary },
+                ]}
               >
                 {item.label}
               </Text>
@@ -64,6 +87,7 @@ export default function ChatListScreen() {
         })}
       </ScrollView>
 
+      {/* ✅ Chat List */}
       <FlatList
         data={chats}
         keyExtractor={(chat) => chat._id!}
@@ -75,68 +99,79 @@ export default function ChatListScreen() {
               router.push({
                 pathname: "/(dashboard)/messages",
                 params: { chatId: chat._id },
-              })
-            }
-
-            }
+              });
+            }}
           />
         )}
-        // contentContainerStyle={{ paddingBottom: 15 }}
         ItemSeparatorComponent={() => <View style={{ height: 4 }} />}
         onEndReached={loadMore}
         onEndReachedThreshold={0.5}
         ListFooterComponent={
-          loadingMore ? <ActivityIndicator /> : null
+          loadingMore ? (
+            <ActivityIndicator color={colors.primary} />
+          ) : null
         }
         refreshing={loading}
         onRefresh={refreshChats}
+        // style={{ flex: 1 }}
+        contentContainerStyle={{
+          paddingBottom: 20,
+        }}
       />
     </View>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-  },
-  searchContainer: {
-    paddingHorizontal: 15,
-    // paddingVertical: 0,
-    paddingBottom: 10
-  },
-  searchInput: {
-    backgroundColor: "#f2f2f2",
-    borderRadius: 999,
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    fontSize: 14,
-  },
-  filterContainer: {
-    paddingHorizontal: 15,
-    gap: 8,
-    marginTop: 5,
-    marginBottom: 10,
-    height: 30,
-  },
-  chip: {
-    paddingHorizontal: 14,
-    paddingVertical: 6,
-    borderRadius: 999,
-    borderWidth: 0.5,
-    borderColor: "#ccc",
-    backgroundColor: "#fff",
-  },
+const getStyles = (colors: typeof lightColors) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
 
-  activeChip: {
-    backgroundColor: "#23cf6238",
-    borderColor: "transparent",
-  },
+    searchContainer: {
+      paddingHorizontal: 15,
+      paddingBottom: 10,
+    },
 
-  chipText: {
-    fontSize: 13,
-    fontWeight: "600",
-    color: "#555",
-  },
+    searchInput: {
+      backgroundColor: colors.inputBackground,
+      borderRadius: 999,
+      paddingHorizontal: 20,
+      paddingVertical: 10,
+      fontSize: 14,
+      color: colors.inputText,
+      borderWidth: 1,
+      borderColor: colors.inputBorder,
+    },
 
-});
+    filterContainer: {
+      paddingHorizontal: 15,
+      gap: 8,
+      marginTop: 5,
+      marginBottom: 10,
+      height: 30,
+    },
+
+    chip: {
+      paddingHorizontal: 14,
+      paddingVertical: 6,
+      borderRadius: 999,
+      borderWidth: 1,
+      borderColor: colors.border,
+      backgroundColor: colors.surface,
+      justifyContent: "center",
+      alignItems: "center",
+    },
+
+    activeChip: {
+      backgroundColor: colors.primary + "22", // soft primary
+      borderColor: colors.primary + "22",
+    },
+
+    chipText: {
+      fontSize: 13,
+      fontWeight: "600",
+      color: colors.text,
+    },
+  });

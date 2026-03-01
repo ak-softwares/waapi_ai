@@ -1,5 +1,7 @@
 import { useAuth } from "@/src/context/AuthContext";
+import { useTheme } from "@/src/context/ThemeContext";
 import { useOtpLogin } from "@/src/hooks/auth/useOtpLogin";
+import { darkColors, lightColors } from "@/src/theme/colors";
 import { Ionicons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
 import React, { useEffect, useState } from "react";
@@ -9,7 +11,7 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  View,
+  View
 } from "react-native";
 
 export default function VerifyOtpScreen() {
@@ -17,9 +19,14 @@ export default function VerifyOtpScreen() {
 
   const [otp, setOtp] = useState("");
   const [counter, setCounter] = useState(60);
+
   const { sendOtp, loading: isResending } = useOtpLogin();
   const { verifyOtp, loading: isVerifing } = useAuth();
-  
+
+  const { theme } = useTheme();
+  const colors = theme === "dark" ? darkColors : lightColors;
+  const styles = getStyles(colors);
+
   // Countdown
   useEffect(() => {
     if (counter <= 0) return;
@@ -55,13 +62,13 @@ export default function VerifyOtpScreen() {
         style={styles.backButton}
         onPress={() => router.back()}
       >
-        <Ionicons name="arrow-back" size={24} color="#000" />
+        <Ionicons name="arrow-back" size={24} color={colors.text} />
       </TouchableOpacity>
 
       <Text style={styles.title}>Verify OTP</Text>
 
       <Text style={styles.subtitle}>
-        Enter the 4-digit code sent to{"  "}
+        Enter the 4-digit code sent to{" "}
         <Text
           style={styles.phone}
           onPress={() =>
@@ -79,6 +86,9 @@ export default function VerifyOtpScreen() {
       <TextInput
         style={styles.input}
         placeholder="XXXX"
+        placeholderTextColor={colors.placeHolderText}
+        cursorColor={colors.cursorColor}
+        selectionColor={colors.cursorColor}
         keyboardType="number-pad"
         maxLength={4}
         value={otp}
@@ -92,7 +102,7 @@ export default function VerifyOtpScreen() {
         disabled={isVerifing}
       >
         {isVerifing ? (
-          <ActivityIndicator color="#fff" />
+          <ActivityIndicator color={colors.butttonText} />
         ) : (
           <Text style={styles.buttonText}>Verify OTP</Text>
         )}
@@ -116,87 +126,90 @@ export default function VerifyOtpScreen() {
         )}
       </View>
 
-      {/* Signin */}
+      {/* Email Login */}
       <Text style={styles.alignCenter}>
-        Login with email instead?{" "}
+        Singin with email instead?{" "}
         <Text
           style={styles.link}
           onPress={() => router.push("/(auth)/signin")}
         >
-          Login
+          Sign in
         </Text>
       </Text>
     </View>
   );
 }
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 24,
-    justifyContent: "center",
-    backgroundColor: "#f5f5f5",
-  },
-  backButton: {
-    position: "absolute",
-    top: 50,
-    left: 20,
-    zIndex: 10,
-  },
-  title: {
-    fontSize: 26,
-    fontWeight: "bold",
-    marginBottom: 10,
-  },
-  subtitle: {
-    fontSize: 14,
-    color: "#666",
-    marginBottom: 20,
-  },
-  phone: {
-    fontWeight: "600",
-    textDecorationLine: "underline",
-  },
-  input: {
-    backgroundColor: "#fff",
-    borderWidth: 1,
-    borderColor: "#ddd",
-    borderRadius: 8,
-    padding: 14,
-    marginBottom: 10,
-    fontSize: 18,
-    textAlign: "center",
-    letterSpacing: 8,
-  },
-  button: {
-    backgroundColor: "#111",
-    padding: 14,
-    borderRadius: 8,
-    alignItems: "center",
-    marginTop: 10,
-  },
-  buttonText: {
-    color: "#fff",
-    fontWeight: "600",
-  },
-  counter: {
-    textAlign: "center",
-    color: "#666",
-  },
-  resend: {
-    textAlign: "center",
-    fontWeight: "600",
-  },
-  footerText: {
-    marginTop: 25,
-    textAlign: "center",
-    color: "#666",
-  },
-  link: {
-    textDecorationLine: "underline",
-    fontWeight: "600",
-  },
-  alignCenter: {
-    marginTop: 15,
-    textAlign: "center",
-  },
-});
+
+const getStyles = (colors: typeof lightColors) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      padding: 24,
+      justifyContent: "center",
+      backgroundColor: colors.background,
+    },
+    backButton: {
+      position: "absolute",
+      top: 50,
+      left: 20,
+      zIndex: 10,
+    },
+    title: {
+      fontSize: 26,
+      fontWeight: "bold",
+      marginBottom: 10,
+      color: colors.text,
+    },
+    subtitle: {
+      fontSize: 14,
+      color: colors.mutedText,
+      marginBottom: 20,
+    },
+    phone: {
+      fontWeight: "600",
+      textDecorationLine: "underline",
+      color: colors.link,
+    },
+    input: {
+      backgroundColor: colors.inputBackground,
+      borderWidth: 1,
+      borderColor: colors.inputBorder,
+      borderRadius: 8,
+      padding: 14,
+      marginBottom: 10,
+      fontSize: 18,
+      textAlign: "center",
+      letterSpacing: 8,
+      color: colors.inputText,
+    },
+    button: {
+      backgroundColor: colors.buttonBackground,
+      padding: 14,
+      borderRadius: 8,
+      alignItems: "center",
+      marginTop: 10,
+    },
+    buttonText: {
+      color: colors.butttonText,
+      fontWeight: "600",
+    },
+    counter: {
+      textAlign: "center",
+      color: colors.mutedText,
+    },
+    resend: {
+      textAlign: "center",
+      fontWeight: "600",
+      color: colors.link,
+    },
+    alignCenter: {
+      marginTop: 15,
+      textAlign: "center",
+      color: colors.mutedText,
+    },
+    link: {
+      textDecorationLine: "underline",
+      fontWeight: "600",
+      color: colors.link,
+    },
+  });

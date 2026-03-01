@@ -25,10 +25,10 @@ export function useOtpLogin() {
       setLoading(true);
       const response = await api.post<ApiResponse>("/auth/send-otp", { phone });
 
-      showToast({
-        type: "success",
-        message: "OTP sent successfully",
-      });
+      // showToast({
+      //   type: "success",
+      //   message: "OTP sent successfully",
+      // });
       return response.data;
 
     } catch (error: any) {
@@ -60,10 +60,10 @@ export function useOtpLogin() {
     try {
       setLoading(true);
       const response = await api.post<ApiResponse>("/auth/verify-otp", params);
-      Toast.show({
-        type: "success",
-        text1: response.data.message || "Login successful",
-      });
+      // Toast.show({
+      //   type: "success",
+      //   text1: response.data.message || "Login successful",
+      // });
       return response.data;
     } catch (error: any) {
       const message = error?.response?.data?.message || "Invalid OTP";

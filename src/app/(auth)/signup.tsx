@@ -1,6 +1,8 @@
 import AppPhoneInput from "@/src/component/common/AppPhoneInput";
 import { useAuth } from "@/src/context/AuthContext";
+import { useTheme } from "@/src/context/ThemeContext";
 import { signUpSchema } from "@/src/schemas/signUpSchema";
+import { darkColors, lightColors } from "@/src/theme/colors";
 import { Ionicons } from "@expo/vector-icons";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { router } from "expo-router";
@@ -12,7 +14,7 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  View,
+  View
 } from "react-native";
 import z from "zod";
 
@@ -20,6 +22,10 @@ type FormData = z.infer<typeof signUpSchema>;
 
 export default function SignUpScreen() {
   const { signup, loading } = useAuth();
+
+  const { theme } = useTheme();
+  const colors = theme === "dark" ? darkColors : lightColors;
+  const styles = getStyles(colors);
 
   const {
     control,
@@ -35,9 +41,8 @@ export default function SignUpScreen() {
     },
   });
 
-  // ✅ Submit Handler
   const onSubmit = async (data: FormData) => {
-    const success = await signup({
+    await signup({
       name: data.name,
       email: data.email,
       phone: data.phone,
@@ -51,8 +56,9 @@ export default function SignUpScreen() {
         style={styles.backButton}
         onPress={() => router.back()}
       >
-        <Ionicons name="arrow-back" size={24} color="#000" />
+        <Ionicons name="arrow-back" size={24} color={colors.text} />
       </TouchableOpacity>
+
       <Text style={styles.title}>Create your account</Text>
       <Text style={styles.subtitle}>
         Enter your details to get started.
@@ -66,8 +72,9 @@ export default function SignUpScreen() {
           <TextInput
             style={styles.input}
             placeholder="Full Name"
-            keyboardType="default"
-            autoCapitalize="words"
+            placeholderTextColor={colors.placeHolderText}
+            cursorColor={colors.cursorColor}
+            selectionColor={colors.cursorColor}
             value={value}
             onChangeText={onChange}
           />
@@ -76,17 +83,19 @@ export default function SignUpScreen() {
       {errors.name && <Text style={styles.error}>{errors.name.message}</Text>}
 
       {/* Phone */}
-      <Controller
-        control={control}
-        name="phone"
-        render={({ field: { onChange, value } }) => (
-          <AppPhoneInput
-            value={value}
-            onChange={onChange}
-          />
-        )}
-      />
-      {errors.phone && <Text style={styles.error}>{errors.phone.message}</Text>}
+      <View
+        style={{ marginVertical: 5 }}
+      >
+        <Controller
+          control={control}
+          name="phone"
+          render={({ field: { onChange, value } }) => (
+            <AppPhoneInput value={value} onChange={onChange} />
+          )}
+        />
+        {errors.phone && <Text style={styles.error}>{errors.phone.message}</Text>}
+      </View>
+
 
       {/* Email */}
       <Controller
@@ -96,6 +105,9 @@ export default function SignUpScreen() {
           <TextInput
             style={styles.input}
             placeholder="Enter email"
+            placeholderTextColor={colors.placeHolderText}
+            cursorColor={colors.cursorColor}
+            selectionColor={colors.cursorColor}
             keyboardType="email-address"
             autoCapitalize="none"
             value={value}
@@ -113,6 +125,9 @@ export default function SignUpScreen() {
           <TextInput
             style={styles.input}
             placeholder="Enter password"
+            placeholderTextColor={colors.placeHolderText}
+            cursorColor={colors.cursorColor}
+            selectionColor={colors.cursorColor}
             secureTextEntry
             value={value}
             onChangeText={onChange}
@@ -128,7 +143,7 @@ export default function SignUpScreen() {
         disabled={loading}
       >
         {loading ? (
-          <ActivityIndicator color="#fff" />
+          <ActivityIndicator color={colors.butttonText} />
         ) : (
           <Text style={styles.buttonText}>Sign Up</Text>
         )}
@@ -140,107 +155,74 @@ export default function SignUpScreen() {
           style={styles.link}
           onPress={() => router.push("/(auth)/signin")}
         >
-          Login
+          Sign in
         </Text>
       </Text>
-
     </View>
   );
 }
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 24,
-    justifyContent: "center",
-    backgroundColor: "#fff",
-  },
-  backButton: {
-    position: "absolute",
-    top: 50,
-    left: 20,
-    zIndex: 10,
-  },
-  title: {
-    fontSize: 26,
-    fontWeight: "bold",
-    marginBottom: 8,
-  },
-  subtitle: {
-    fontSize: 14,
-    color: "#666",
-    marginBottom: 20,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: "#ddd",
-    borderRadius: 8,
-    padding: 12,
-    marginBottom: 10,
-  },
-  error: {
-    color: "red",
-    marginBottom: 10,
-  },
-  button: {
-    backgroundColor: "#111",
-    padding: 14,
-    borderRadius: 8,
-    alignItems: "center",
-    marginVertical: 5,
-  },
-  forgotContainer: {
-    alignSelf: "flex-end",
-    marginBottom: 10,
-  },
-  forgotText: {
-    color: "#111",
-    fontWeight: "600",
-    textDecorationLine: "underline",
-  },
-  buttonText: {
-    color: "#fff",
-    fontWeight: "600",
-  },
-  outlineButton: {
-    backgroundColor: "#fff",
-    borderWidth: 1,
-    borderColor: "#111",
-  },
-  outlineText: {
-    color: "#111",
-    fontWeight: "600",
-  },
-  link: {
-    fontWeight: "600",
-    textAlign: "center",
-    textDecorationLine: "underline"
-  },
-  alignCenter: {
-    marginTop: 15,
-    textAlign: "center",
-  },
-  dividerContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginVertical: 20,
-  },
 
-  line: {
-    flex: 1,
-    height: 1,
-    backgroundColor: "#ddd",
-  },
-
-  orText: {
-    marginHorizontal: 10,
-    color: "#666",
-    fontSize: 14,
-  },
-  socialButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 6
-  },
-});
-
+const getStyles = (colors: typeof lightColors) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      padding: 24,
+      justifyContent: "center",
+      backgroundColor: colors.background,
+    },
+    backButton: {
+      position: "absolute",
+      top: 50,
+      left: 20,
+      zIndex: 10,
+    },
+    title: {
+      fontSize: 26,
+      fontWeight: "bold",
+      marginBottom: 8,
+      color: colors.text,
+    },
+    subtitle: {
+      fontSize: 14,
+      color: colors.mutedText,
+      marginBottom: 20,
+    },
+    input: {
+      fontSize: 14,
+      fontWeight: "500",
+      backgroundColor: colors.inputBackground,
+      borderWidth: 1,
+      borderColor: colors.inputBorder,
+      borderRadius: 8,
+      padding: 12,
+      marginVertical: 5,
+      color: colors.inputText,
+    },
+    error: {
+      color: colors.error,
+      marginBottom: 10,
+    },
+    button: {
+      borderWidth: 1,
+      borderColor: colors.buttonBorder,
+      backgroundColor: colors.buttonBackground,
+      padding: 14,
+      borderRadius: 8,
+      alignItems: "center",
+      marginVertical: 5,
+    },
+    buttonText: {
+      color: colors.butttonText,
+      fontWeight: "600",
+    },
+    link: {
+      fontWeight: "600",
+      textDecorationLine: "underline",
+      color: colors.link,
+    },
+    alignCenter: {
+      marginTop: 15,
+      textAlign: "center",
+      color: colors.text,
+    },
+  });

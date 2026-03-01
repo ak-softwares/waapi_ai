@@ -25,7 +25,7 @@ import MessageMetaInfo from "../widgets/MessageMetaInfo";
 import TemplateMediaPreview from "./TemplateMediaPreview";
 
 // SVG Icons
-import CopyIcon from "@/assets/commanIcons/copy.svg";
+import CopyIcon from "@/assets/menuIcons/copy.svg";
 import CallIcon from "@/assets/messageIcons/call.svg";
 import LaunchIcon from "@/assets/messageIcons/launch.svg";
 import ReplyIcon from "@/assets/messageIcons/reply.svg";

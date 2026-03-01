@@ -1,5 +1,7 @@
 import { useAuth } from "@/src/context/AuthContext";
+import { useTheme } from "@/src/context/ThemeContext";
 import { signInSchema } from "@/src/schemas/signInSchema";
+import { darkColors, lightColors } from "@/src/theme/colors";
 import { AntDesign } from "@expo/vector-icons";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "expo-router";
@@ -12,6 +14,10 @@ type FormData = z.infer<typeof signInSchema>;
 export default function SignInScreen() {
   const router = useRouter();
   const { signin, loading } = useAuth();
+
+  const { theme } = useTheme();
+  const colors = theme === "dark" ? darkColors : lightColors;
+  const styles = getStyles(colors);
 
   const {
     control,
@@ -52,6 +58,9 @@ export default function SignInScreen() {
         name="email"
         render={({ field: { onChange, value } }) => (
           <TextInput
+            placeholderTextColor={colors.placeHolderText}
+            selectionColor={colors.cursorColor}
+            cursorColor={colors.cursorColor}      // Android
             style={styles.input}
             placeholder="Enter email"
             keyboardType="email-address"
@@ -69,6 +78,9 @@ export default function SignInScreen() {
         name="password"
         render={({ field: { onChange, value } }) => (
           <TextInput
+            placeholderTextColor={colors.placeHolderText}
+            selectionColor={colors.cursorColor}
+            cursorColor={colors.cursorColor}      // Android
             style={styles.input}
             placeholder="Enter password"
             secureTextEntry
@@ -110,7 +122,7 @@ export default function SignInScreen() {
         // onPress={gotoPhoneLogin}
         onPress={() => router.push("/login" as any)}
       >
-        <AntDesign name="mobile" size={20} />
+        <AntDesign name="mobile" size={20} color={colors.text} />
         <Text style={styles.outlineText}>Continue with Phone</Text>
       </TouchableOpacity>
 
@@ -119,7 +131,7 @@ export default function SignInScreen() {
         style={[styles.button, styles.outlineButton, styles.socialButton]}
         onPress={() => console.log("Google Sign In")}
       >
-        <AntDesign name="google" size={20} />
+        <AntDesign name="google" size={20} color={colors.text} />
         <Text style={styles.outlineText}>
           {loading ? "Signing in..." : "Continue with Google"}
         </Text>
@@ -139,12 +151,12 @@ export default function SignInScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors: typeof lightColors) => StyleSheet.create({
   container: {
     flex: 1,
     padding: 24,
     justifyContent: "center",
-    backgroundColor: "#fff",
+    backgroundColor: colors.background,
   },
   backButton: {
     position: "absolute",
@@ -156,25 +168,33 @@ const styles = StyleSheet.create({
     fontSize: 26,
     fontWeight: "bold",
     marginBottom: 8,
+    color: colors.text,
   },
   subtitle: {
     fontSize: 14,
-    color: "#666",
+    color: colors.mutedText,
     marginBottom: 20,
   },
   input: {
     borderWidth: 1,
-    borderColor: "#ddd",
+    backgroundColor: colors.inputBackground,
+    borderColor: colors.inputBorder,
     borderRadius: 8,
     padding: 12,
     marginBottom: 10,
+    paddingLeft: 16,
+    color: colors.inputText,
+    fontSize: 14,
+    fontWeight: "500",
   },
   error: {
-    color: "red",
+    color: colors.error,
     marginBottom: 10,
   },
   button: {
-    backgroundColor: "#111",
+    borderWidth: 1,
+    borderColor: colors.buttonBorder,
+    backgroundColor: colors.buttonBackground,
     padding: 14,
     borderRadius: 8,
     alignItems: "center",
@@ -185,29 +205,31 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   forgotText: {
-    color: "#111",
+    color: colors.link,
     fontWeight: "600",
     textDecorationLine: "underline",
   },
   buttonText: {
-    color: "#fff",
+    color: colors.butttonText,
     fontWeight: "600",
   },
   outlineButton: {
-    backgroundColor: "#fff",
+    backgroundColor: "transparent",
     borderWidth: 1,
-    borderColor: "#111",
+    borderColor: colors.buttonBorder,
   },
   outlineText: {
-    color: "#111",
+    color: colors.text,
     fontWeight: "600",
   },
   link: {
     fontWeight: "600",
     textAlign: "center",
-    textDecorationLine: "underline"
+    textDecorationLine: "underline",
+    color: colors.link,
   },
   alignCenter: {
+    color: colors.text,
     marginTop: 15,
     textAlign: "center",
   },
@@ -220,12 +242,12 @@ const styles = StyleSheet.create({
   line: {
     flex: 1,
     height: 1,
-    backgroundColor: "#ddd",
+    backgroundColor: colors.border,
   },
 
   orText: {
     marginHorizontal: 10,
-    color: "#666",
+    color: colors.mutedText,
     fontSize: 14,
   },
   socialButton: {

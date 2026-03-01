@@ -26,10 +26,10 @@ export function useSignup() {
     try {
       setLoading(true);
       const response = await api.post<ApiResponse>("/auth/signup", params);
-      showToast({
-        type: "success",
-        message: response.data.message || "Signup successful",
-      });
+      // showToast({
+      //   type: "success",
+      //   message: response.data.message || "Signup successful",
+      // });
       return response.data;
     } catch (error: any) {
       const message = error?.response?.data?.message || "Signup failed";

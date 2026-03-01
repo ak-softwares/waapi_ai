@@ -1,61 +1,45 @@
-// src/hooks/useProfile.ts
+"use client";
 
-import { API_BASE_URL } from "@/src/constants/apiConstants/apiConstants";
-import { ApiResponse } from "@/src/types/ApiResponse";
+import { api } from "@/src/lib/api/apiClient";
 import { User } from "@/src/types/User";
-import axios from "axios";
-import { useState } from "react";
+import { showToast } from "@/src/utiles/toastHelper/toast";
+import { useCallback, useEffect, useState } from "react";
 
 export function useProfile() {
+  const [profile, setProfile] = useState<User | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const getProfile = async (): Promise<ApiResponse> => {
+  const fetchProfile = useCallback(async () => {
     try {
       setLoading(true);
 
-      const res = await axios.get<ApiResponse>(
-        `${API_BASE_URL}/user/profile`
-      );
+      const res = await api.get("/user/profile");
+      if (!res.data?.success) {
+        showToast({
+          type: "error",
+          message: res.data?.message || "Failed to load profile",
+        });
+        return;
+      }
 
-      return res.data;
-    } catch (error: any) {
-      return {
-        success: false,
-        message:
-          error?.response?.data?.message || "Failed to load profile",
-      };
+      setProfile(res.data.data);
+    } catch (err: any) {
+      showToast({
+        type: "error",
+        message: err.message || "Something went wrong",
+      });
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const updateProfile = async (
-    data: User
-  ): Promise<ApiResponse> => {
-    try {
-      setLoading(true);
-
-      const res = await axios.put<ApiResponse>(
-        `${API_BASE_URL}/user/profile`,
-        data
-      );
-
-      return res.data;
-    } catch (error: any) {
-      return {
-        success: false,
-        message:
-          error?.response?.data?.message ||
-          "Failed to update profile",
-      };
-    } finally {
-      setLoading(false);
-    }
-  };
+  useEffect(() => {
+    fetchProfile();
+  }, [fetchProfile]);
 
   return {
-    getProfile,
-    updateProfile,
+    profile,
     loading,
+    refreshProfile: fetchProfile,
   };
 }

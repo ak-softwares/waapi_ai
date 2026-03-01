@@ -1,5 +1,7 @@
+import { useTheme } from "@/src/context/ThemeContext";
 import { useForgotPassword } from "@/src/hooks/auth/useForgotPassword";
 import { forgotPasswordSchema } from "@/src/schemas/forgotPassword";
+import { darkColors, lightColors } from "@/src/theme/colors";
 import { Ionicons } from "@expo/vector-icons";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "expo-router";
@@ -20,6 +22,10 @@ export default function ForgotPasswordScreen() {
   const router = useRouter();
   const { sendResetLink, loading, counter } = useForgotPassword();
 
+  const { theme } = useTheme();
+  const colors = theme === "dark" ? darkColors : lightColors;
+  const styles = getStyles(colors);
+
   const {
     control,
     handleSubmit,
@@ -32,7 +38,7 @@ export default function ForgotPasswordScreen() {
   });
 
   const onSubmit = async (data: FormData) => {
-    const res = await sendResetLink({ email: data.email });
+    await sendResetLink({ email: data.email });
   };
 
   return (
@@ -41,8 +47,9 @@ export default function ForgotPasswordScreen() {
         style={styles.backButton}
         onPress={() => router.back()}
       >
-        <Ionicons name="arrow-back" size={24} color="#000" />
+        <Ionicons name="arrow-back" size={24} color={colors.text} />
       </TouchableOpacity>
+
       <Text style={styles.title}>Forgot Password?</Text>
 
       <Text style={styles.subtitle}>
@@ -57,6 +64,9 @@ export default function ForgotPasswordScreen() {
           <TextInput
             style={styles.input}
             placeholder="Enter email"
+            placeholderTextColor={colors.placeHolderText}
+            cursorColor={colors.cursorColor}
+            selectionColor={colors.cursorColor}
             keyboardType="email-address"
             autoCapitalize="none"
             value={value}
@@ -75,7 +85,7 @@ export default function ForgotPasswordScreen() {
         onPress={handleSubmit(onSubmit)}
       >
         {loading ? (
-          <ActivityIndicator color="#fff" />
+          <ActivityIndicator color={colors.butttonText} />
         ) : (
           <Text style={styles.buttonText}>
             {counter > 0
@@ -86,64 +96,76 @@ export default function ForgotPasswordScreen() {
       </TouchableOpacity>
 
       {/* Sign In Link */}
-      <TouchableOpacity onPress={() => router.push("/(auth)/signin")}>
-        <Text style={styles.link}>
-          Already have an account? Sign In
+      <Text style={styles.footerText}>
+        Don’t have an account?{" "}
+        <Text
+          style={styles.link}
+          onPress={() => router.push("/(auth)/signup")}
+        >
+          Sign up
         </Text>
-      </TouchableOpacity>
+      </Text>
     </View>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 24,
-    justifyContent: "center",
-    backgroundColor: "#fff",
-  },
-  backButton: {
-    position: "absolute",
-    top: 50,
-    left: 20,
-    zIndex: 10,
-  },
-  title: {
-    fontSize: 26,
-    fontWeight: "bold",
-    marginBottom: 8,
-  },
-  subtitle: {
-    fontSize: 14,
-    color: "#666",
-    marginBottom: 20,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: "#ddd",
-    borderRadius: 8,
-    padding: 12,
-    marginBottom: 10,
-  },
-  error: {
-    color: "red",
-    marginBottom: 10,
-  },
-  button: {
-    backgroundColor: "#111",
-    padding: 14,
-    borderRadius: 8,
-    alignItems: "center",
-    marginVertical: 10,
-  },
-  buttonText: {
-    color: "#fff",
-    fontWeight: "600",
-  },
-  link: {
-    marginTop: 15,
-    textAlign: "center",
-    textDecorationLine: "underline",
-    fontWeight: "600",
-  },
-});
+const getStyles = (colors: typeof lightColors) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      padding: 24,
+      justifyContent: "center",
+      backgroundColor: colors.background,
+    },
+    backButton: {
+      position: "absolute",
+      top: 50,
+      left: 20,
+      zIndex: 10,
+    },
+    title: {
+      fontSize: 26,
+      fontWeight: "bold",
+      marginBottom: 8,
+      color: colors.text,
+    },
+    subtitle: {
+      fontSize: 14,
+      color: colors.mutedText,
+      marginBottom: 20,
+    },
+    input: {
+      backgroundColor: colors.inputBackground,
+      borderWidth: 1,
+      borderColor: colors.inputBorder,
+      borderRadius: 8,
+      padding: 12,
+      marginBottom: 10,
+      color: colors.inputText,
+    },
+    error: {
+      color: colors.error,
+      marginBottom: 10,
+    },
+    button: {
+      backgroundColor: colors.buttonBackground,
+      padding: 14,
+      borderRadius: 8,
+      alignItems: "center",
+      marginVertical: 10,
+    },
+    buttonText: {
+      color: colors.butttonText,
+      fontWeight: "600",
+    },
+    footerText: {
+      marginTop: 20,
+      textAlign: "center",
+      color: colors.mutedText,
+    },
+    link: {
+      textDecorationLine: "underline",
+      fontWeight: "600",
+      color: colors.link,
+    },
+  });

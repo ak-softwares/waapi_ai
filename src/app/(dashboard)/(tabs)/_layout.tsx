@@ -1,5 +1,12 @@
+import AiIcon from "@/assets/appIcons/ai.svg";
 import ActiveChatIcon from "@/assets/appIcons/chat-active.svg";
 import ChatIcon from "@/assets/appIcons/chat.svg";
+import SettingActiveIcon from "@/assets/appIcons/setting-active.svg";
+import SettingIcon from "@/assets/appIcons/setting.svg";
+import TemplateIcon from "@/assets/appIcons/template.svg";
+import { useTheme } from "@/src/context/ThemeContext";
+
+import { darkColors, lightColors } from "@/src/theme/colors";
 import { Ionicons } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
 import { TouchableOpacity, View } from "react-native";
@@ -11,48 +18,60 @@ import {
 } from "react-native-popup-menu";
 
 export default function RootLayout() {
+  const { theme } = useTheme();
+  const colors = theme === "dark" ? darkColors : lightColors;
+
   return (
     <Tabs
       screenOptions={{
-        // headerShown: false,
-        tabBarActiveTintColor: "#1DAA57",
-        tabBarInactiveTintColor: "#999",
-        tabBarShowLabel: false,   // ✅ force label
-        // tabBarActiveTintColor: "#0B8576",
-        headerShadowVisible: false,   // ✅ removes bottom border
+        tabBarActiveTintColor: colors.tabLabelActive,
+        tabBarInactiveTintColor: colors.tabLabelInactive,
 
-        // headerStyle: {
-        //   backgroundColor: "#100692", // header background
-        // },
-        tabBarIconStyle: {
-          marginTop: 6,
+        tabBarStyle: {
+          height: 70,
+          backgroundColor: colors.tabBackground,
+          borderTopWidth: 0,
         },
 
-        // headerTintColor: "#b91e1e", // icon + text color
+        headerStyle: {
+          backgroundColor: colors.headerBackground,
+        },
 
         headerTitleStyle: {
+          color: colors.text,
           fontWeight: "600",
+        },
+
+        headerShadowVisible: false,
+        tabBarShowLabel: true,
+
+        tabBarIconStyle: {
+          marginTop: 5,
         },
       }}
     >
+      {/* ================= Chats ================= */}
       <Tabs.Screen
         name="chats"
         options={{
           title: "Chats",
+
           headerRight: () => (
             <View style={{ flexDirection: "row", alignItems: "center" }}>
-              {/* ✅ Scanner Icon */}
-              <TouchableOpacity
-                // onPress={() => router.push("/scanner")}
-                style={{ marginRight: 14 }}
-              >
-                <Ionicons name="qr-code-outline" size={22} />
+              <TouchableOpacity style={{ marginRight: 14 }}>
+                <Ionicons
+                  name="qr-code-outline"
+                  size={22}
+                  color={colors.headerIcon}
+                />
               </TouchableOpacity>
+
               <Menu>
                 <MenuTrigger>
                   <Ionicons
                     name="ellipsis-vertical"
                     size={22}
+                    color={colors.headerIcon}
                     style={{ marginRight: 12 }}
                   />
                 </MenuTrigger>
@@ -65,51 +84,166 @@ export default function RootLayout() {
               </Menu>
             </View>
           ),
-          // tabBarShowLabel: false, // 👈 hides text
-          // tabBarLabelStyle: {
-          //   fontSize: 12,   // increase size here
-          //   fontWeight: "600",
-          // },
-          tabBarIcon: ({ color, size, focused }) => {
+
+          tabBarLabelStyle: {
+            marginTop: 4,
+            fontSize: 10,
+          },
+
+          tabBarIcon: ({ size, focused }) => {
             const Icon = focused ? ActiveChatIcon : ChatIcon;
+
             return (
               <View
-                // style={{
-                //   backgroundColor: focused ? "#26cc6b73" : "transparent",
-                //   borderRadius: 20,
-                //   paddingVertical: 5,
-                //   paddingHorizontal: 10,
-                //   alignItems: "center",
-                //   justifyContent: "center",
-                // }}
+                style={{
+                  backgroundColor: focused
+                    ? colors.tabIconBgActive
+                    : "transparent",
+                  borderRadius: 20,
+                  paddingVertical: 5,
+                  paddingHorizontal: 10,
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
               >
                 <Icon
                   width={size}
                   height={size}
-                  fill={focused ? "#038338" : "#a0af9c"}
+                  fill={
+                    focused
+                      ? colors.tabIconActive
+                      : colors.tabIconInactive
+                  }
                 />
               </View>
+            );
+          },
+        }}
+      />
+
+      {/* ================= Templates ================= */}
+      <Tabs.Screen
+        name="templates"
+        options={{
+          title: "Templates",
+          headerRight: () => (
+            <View style={{ flexDirection: "row", alignItems: "center" }}>
+              <TouchableOpacity style={{ marginRight: 14 }}>
+                <Ionicons
+                  name="add-circle"
+                  size={22}
+                  color={colors.primary}
+                />
+              </TouchableOpacity>
+            </View>
+          ),
+          tabBarLabelStyle: {
+            marginTop: 4,
+            fontSize: 10,
+          },
+
+          tabBarIcon: ({ size, focused }) => (
+            <View
+              style={{
+                backgroundColor: focused
+                  ? colors.tabIconBgActive
+                  : "transparent",
+                borderRadius: 20,
+                paddingVertical: 5,
+                paddingHorizontal: 10,
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <TemplateIcon
+                width={size}
+                height={size}
+                fill={
+                  focused
+                    ? colors.tabIconActive
+                    : colors.tabIconInactive
+                }
+              />
+            </View>
+          ),
+        }}
+      />
+
+      {/* ================= AI ================= */}
+      <Tabs.Screen
+        name="ai"
+        options={{
+          title: "AI",
+
+          tabBarLabelStyle: {
+            marginTop: 4,
+            fontSize: 10,
+          },
+
+          tabBarIcon: ({ size, focused }) => (
+            <View
+              style={{
+                backgroundColor: focused
+                  ? colors.tabIconBgActive
+                  : "transparent",
+                borderRadius: 20,
+                paddingVertical: 5,
+                paddingHorizontal: 10,
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <AiIcon
+                width={size}
+                height={size}
+                fill={
+                  focused
+                    ? colors.tabIconActive
+                    : colors.tabIconInactive
+                }
+              />
+            </View>
+          ),
+        }}
+      />
+
+      {/* ================= Profile ================= */}
+      <Tabs.Screen
+        name="settings"
+        options={{
+          title: "Settings",
+
+          tabBarLabelStyle: {
+            marginTop: 4,
+            fontSize: 10,
+          },
+
+          tabBarIcon: ({ size, focused }) => {
+             const Icon = focused ? SettingActiveIcon : SettingIcon;
+            return (
+            <View
+              style={{
+                backgroundColor: focused
+                  ? colors.tabIconBgActive
+                  : "transparent",
+                borderRadius: 20,
+                paddingVertical: 5,
+                paddingHorizontal: 10,
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <Icon
+                width={size}
+                height={size}
+                fill={
+                  focused
+                    ? colors.tabIconActive
+                    : colors.tabIconInactive
+                }
+              />
+            </View>
           )},
-        }}
-      />
-
-      <Tabs.Screen
-        name="contacts"
-        options={{
-          title: "Contacts",
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="people-outline" size={size} color={color} />
-          ),
-        }}
-      />
-
-      <Tabs.Screen
-        name="profile"
-        options={{
-          title: "Profile",
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="person-outline" size={size} color={color} />
-          ),
         }}
       />
     </Tabs>

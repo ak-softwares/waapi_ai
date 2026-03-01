@@ -1,3 +1,5 @@
+import { useTheme } from "@/src/context/ThemeContext";
+import { darkColors, lightColors } from "@/src/theme/colors";
 import { Chat, ChatType } from "@/src/types/Chat";
 import { formatMessageDateOrTime } from "@/src/utiles/formatTime/formatTime";
 import { CountryCode, parsePhoneNumberFromString } from "libphonenumber-js";
@@ -8,7 +10,7 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  View,
+  View
 } from "react-native";
 
 type Props = {
@@ -17,20 +19,38 @@ type Props = {
 };
 
 export default function ChatTile({ chat, onPress }: Props) {
-  const formatPhone = ( number: string, defaultCountry: CountryCode = "IN") => {
-    const phoneNumber = parsePhoneNumberFromString(number, defaultCountry);
-    return phoneNumber ? phoneNumber.formatInternational() : number;
-  }
+  const { theme } = useTheme();
+  const colors = theme === "dark" ? darkColors : lightColors;
+  const styles = getStyles(colors);
+
+  const formatPhone = (
+    number: string,
+    defaultCountry: CountryCode = "IN"
+  ) => {
+    const phoneNumber = parsePhoneNumberFromString(
+      number,
+      defaultCountry
+    );
+    return phoneNumber
+      ? phoneNumber.formatInternational()
+      : number;
+  };
+
   const isUnread = (chat.unreadCount ?? 0) > 0;
   const isBroadcast = chat.type === ChatType.BROADCAST;
+
   const partner = chat.participants[0];
+
   const displayName = isBroadcast
     ? chat.chatName || ChatType.BROADCAST
-    : partner?.name || formatPhone(String(partner?.number)) || "Unknown";
+    : partner?.name ||
+      formatPhone(String(partner?.number)) ||
+      "Unknown";
 
   const displayImage = isBroadcast
     ? chat?.chatImage
     : partner?.imageUrl;
+
   return (
     <TouchableOpacity style={styles.container} onPress={onPress}>
       {/* Avatar */}
@@ -41,27 +61,41 @@ export default function ChatTile({ chat, onPress }: Props) {
             style={styles.avatarImage}
           />
         ) : isBroadcast ? (
-          <Users2 style={styles.avatarImage} size={20} color="#9CA3AF" />
+          <Users2 size={20} color={colors.mutedText} />
         ) : (
-          <User2 style={styles.avatarImage} size={20} color="#9CA3AF" />
+          <User2 size={20} color={colors.mutedText} />
         )}
       </View>
 
-      {/* Center Content */}
+      {/* Content */}
       <View style={styles.content}>
         <View style={styles.row}>
-          <Text style={styles.name} numberOfLines={1}>
+          <Text
+            style={[
+              styles.name,
+              isUnread && { color: colors.text, fontWeight: "700" },
+            ]}
+            numberOfLines={1}
+          >
             {displayName}
           </Text>
 
-          <Text style={[styles.time, isUnread && styles.unreadTextColor]}>
+          <Text
+            style={[
+              styles.time,
+              isUnread && { color: colors.primary },
+            ]}
+          >
             {formatMessageDateOrTime(chat.lastMessageAt)}
           </Text>
         </View>
 
         <View style={styles.row}>
           <Text
-            style={ styles.message }
+            style={[
+              styles.message,
+              isUnread && { color: colors.text },
+            ]}
             numberOfLines={1}
           >
             {chat.lastMessage || "No messages yet"}
@@ -70,7 +104,9 @@ export default function ChatTile({ chat, onPress }: Props) {
           {isUnread && (
             <View style={styles.unread}>
               <Text style={styles.unreadText}>
-                {(chat.unreadCount ?? 0) > 99 ? "99+" : chat.unreadCount}
+                {(chat.unreadCount ?? 0) > 99
+                  ? "99+"
+                  : chat.unreadCount}
               </Text>
             </View>
           )}
@@ -80,87 +116,79 @@ export default function ChatTile({ chat, onPress }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flexDirection: "row",
-    paddingVertical: 12,
-    paddingHorizontal: 14,
-    backgroundColor: "#fff",
-  },
+const getStyles = (colors: typeof lightColors) =>
+  StyleSheet.create({
+    container: {
+      flexDirection: "row",
+      paddingVertical: 12,
+      paddingHorizontal: 14,
+      backgroundColor: colors.background,
+    },
 
-  content: {
-    flex: 1,
-    paddingBottom: 10,
-  },
+    avatar: {
+      width: 52,
+      height: 52,
+      borderRadius: 26,
+      backgroundColor: colors.surface,
+      justifyContent: "center",
+      alignItems: "center",
+      overflow: "hidden",
+      marginRight: 12,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
 
-  row: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
+    avatarImage: {
+      width: 52,
+      height: 52,
+      borderRadius: 26,
+    },
 
-  name: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#111",
-    flex: 1,
-    marginRight: 10,
-  },
+    content: {
+      flex: 1,
+      paddingBottom: 10,
+    },
 
-  time: {
-    fontSize: 12,
-    color: "#999",
-  },
+    row: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+    },
 
-  message: {
-    fontSize: 14,
-    color: "#666",
-    flex: 1,
-    marginTop: 2,
-    marginRight: 10,
-  },
+    name: {
+      fontSize: 16,
+      fontWeight: "600",
+      color: colors.text,
+      flex: 1,
+      marginRight: 10,
+    },
 
-  unread: {
-    backgroundColor: "#1DAA57",
-    borderRadius: 20,
-    minWidth: 22,
-    height: 22,
-    justifyContent: "center",
-    alignItems: "center",
-    paddingHorizontal: 6,
-  },
+    time: {
+      fontSize: 12,
+      color: colors.mutedText,
+    },
 
-  unreadText: {
-    color: "#fff",
-    fontSize: 12,
-    fontWeight: "600",
-  },
-  unreadTextColor: {
-    color: "#1DAA57", // WhatsApp green
-    fontWeight: "600",
-  },
+    message: {
+      fontSize: 14,
+      color: colors.mutedText,
+      flex: 1,
+      marginTop: 2,
+      marginRight: 10,
+    },
 
-  unreadCountText: {
-    color: "#fff",
-    fontSize: 12,
-    fontWeight: "600",
-  },
-  avatar: {
-    width: 52,
-    height: 52,
-    borderRadius: 26,
-    backgroundColor: "#E5E7EB",
-    justifyContent: "center",
-    alignItems: "center",
-    overflow: "hidden",
-    marginRight: 12,
-    borderWidth: 0.5,
-    borderColor: "#ddd",
-  },
-  avatarImage: {
-    width: 30,
-    height: 30,
-    borderRadius: 26,
-  },
+    unread: {
+      backgroundColor: colors.primary,
+      borderRadius: 20,
+      minWidth: 22,
+      height: 22,
+      justifyContent: "center",
+      alignItems: "center",
+      paddingHorizontal: 6,
+    },
 
-});
+    unreadText: {
+      color: "#fff",
+      fontSize: 12,
+      fontWeight: "600",
+    },
+  });
