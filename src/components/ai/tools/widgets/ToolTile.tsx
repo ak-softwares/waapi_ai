@@ -12,8 +12,8 @@ import {
   View
 } from "react-native";
 import { SvgUri } from "react-native-svg";
-import { AppSwitch } from "../../common/AppSwitch";
-import ConfirmSheet from "../../common/ConfirmSheet";
+import { AppSwitch } from "../../../common/AppSwitch";
+import ConfirmSheet from "../../../common/ConfirmSheet";
 
 type ToolTileProps = {
   tool: ToolCatalog;
@@ -76,8 +76,6 @@ export function ToolTile({
   const handleDelete = () => {
     setShowDelete(true);
   };
-
-  console.log("Tool Logo: ", tool.logo);
 
   return (
     <View style={styles.card}>

@@ -11,7 +11,7 @@ import {
   View,
 } from "react-native";
 
-import MessageBubble from "@/src/component/messages/widgets/MessageBubble";
+import MessageBubble from "@/src/components/messages/widgets/MessageBubble";
 import { useMessages } from "@/src/hooks/messages/useMessages";
 import { useChatStore } from "@/src/store/chatStore";
 import { Ionicons } from "@expo/vector-icons";

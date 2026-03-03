@@ -5,7 +5,6 @@ import React, { useEffect, useLayoutEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import {
   ActivityIndicator,
-  Alert,
   RefreshControl,
   ScrollView,
   StyleSheet,
@@ -16,9 +15,9 @@ import {
 } from "react-native";
 import { z } from "zod";
 
-import AppMenu from "@/src/component/common/AppMenu";
-import AppPhoneInput from "@/src/component/common/AppPhoneInput";
-import ConfirmSheet from "@/src/component/common/ConfirmSheet";
+import AppMenu from "@/src/components/common/AppMenu";
+import AppPhoneInput from "@/src/components/common/AppPhoneInput";
+import ConfirmSheet from "@/src/components/common/ConfirmSheet";
 import { useAuth } from "@/src/context/AuthContext";
 import { useTheme } from "@/src/context/ThemeContext";
 import { useProfile } from "@/src/hooks/profile/useProfile";
@@ -105,11 +104,7 @@ export default function ProfileScreen() {
   const onSubmit = async (values: FormData) => {
     await updateProfile(values);
   };
-
-  const onForgotPassword = () => {
-    Alert.alert("Reset Password", "Password reset flow coming soon.");
-  };
-
+  
   const onDeleteAccount = () => {
     setShowDelete(true);
   };

@@ -44,7 +44,7 @@ export default function MessageBubble({
   const isLocation =
     !!message?.location || message?.type === MessageType.LOCATION;
 
-  const isMine = !activeChat?.participants?.some(
+  const isMine = activeChat?.participants?.some(
     (p: ChatParticipant) => p.number === message.from
   );
 
@@ -73,6 +73,7 @@ export default function MessageBubble({
         style={[
           styles.bubble,
           isMine ? styles.mine : styles.other,
+          isPreviewMode ? { width: "100%", } : { maxWidth: "80%", },
         ]}
       >
         {/* Reply Context */}
@@ -163,7 +164,6 @@ const styles = StyleSheet.create({
   },
 
   bubble: {
-    maxWidth: "80%",
     borderRadius: 10,
     padding: 10,
   },

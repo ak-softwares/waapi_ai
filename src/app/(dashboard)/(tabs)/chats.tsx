@@ -1,4 +1,4 @@
-import ChatTile from "@/src/component/chats/widgets/ChatTile";
+import ChatTile from "@/src/components/chats/widgets/ChatTile";
 import { useTheme } from "@/src/context/ThemeContext";
 import { useChats } from "@/src/hooks/chat/useChats";
 import { useChatStore } from "@/src/store/chatStore";

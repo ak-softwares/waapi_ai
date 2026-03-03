@@ -1,4 +1,3 @@
-// Template Categories
 export enum TemplateCategory {
   MARKETING = "MARKETING",
   UTILITY = "UTILITY",

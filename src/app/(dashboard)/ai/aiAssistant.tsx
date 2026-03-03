@@ -1,4 +1,4 @@
-import SettingsTile from "@/src/component/settings/widgets/SettingsTile";
+import SettingsTile from "@/src/components/settings/widgets/SettingsTile";
 import { useTheme } from "@/src/context/ThemeContext";
 import { useAiAssistant } from "@/src/hooks/ai/useAiAssistant";
 import { darkColors, lightColors } from "@/src/theme/colors";

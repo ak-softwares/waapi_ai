@@ -14,7 +14,7 @@ import {
   View,
 } from "react-native";
 
-import ConfirmSheet from "@/src/component/common/ConfirmSheet";
+import ConfirmSheet from "@/src/components/common/ConfirmSheet";
 import { useTheme } from "@/src/context/ThemeContext";
 import { useApiToken } from "@/src/hooks/apiToken/useApiToken";
 import { darkColors, lightColors } from "@/src/theme/colors";

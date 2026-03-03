@@ -40,6 +40,7 @@ export const lightColors = {
   info: "#2196f3",
   error: "#d32f2f",
 
+  danger: "#d32f2f",        // main red (text / button)
   link: "#111111",
 };
 
@@ -83,6 +84,8 @@ export const darkColors = {
   warning: "#ff9800",
   info: "#2196f3",
   error: "#ef5350",
+
+  danger: "#ef5350",        // slightly brighter red for dark mode
 
   link: "#fff",
 };

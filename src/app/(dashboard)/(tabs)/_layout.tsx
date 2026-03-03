@@ -4,12 +4,20 @@ import ChatIcon from "@/assets/appIcons/chat.svg";
 import SettingActiveIcon from "@/assets/appIcons/setting-active.svg";
 import SettingIcon from "@/assets/appIcons/setting.svg";
 import TemplateIcon from "@/assets/appIcons/template.svg";
-import { useTheme } from "@/src/context/ThemeContext";
 
+import { useTheme } from "@/src/context/ThemeContext";
 import { darkColors, lightColors } from "@/src/theme/colors";
+
 import { Ionicons } from "@expo/vector-icons";
-import { Tabs } from "expo-router";
-import { TouchableOpacity, View } from "react-native";
+import { router, Tabs } from "expo-router";
+import {
+  Pressable,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+
 import {
   Menu,
   MenuOption,
@@ -20,6 +28,8 @@ import {
 export default function RootLayout() {
   const { theme } = useTheme();
   const colors = theme === "dark" ? darkColors : lightColors;
+
+  const styles = getStyles(colors); // ✅ FIX
 
   return (
     <Tabs
@@ -110,9 +120,7 @@ export default function RootLayout() {
                   width={size}
                   height={size}
                   fill={
-                    focused
-                      ? colors.tabIconActive
-                      : colors.tabIconInactive
+                    focused ? colors.tabIconActive : colors.tabIconInactive
                   }
                 />
               </View>
@@ -126,17 +134,18 @@ export default function RootLayout() {
         name="templates"
         options={{
           title: "Templates",
+
           headerRight: () => (
-            <View style={{ flexDirection: "row", alignItems: "center" }}>
-              <TouchableOpacity style={{ marginRight: 14 }}>
-                <Ionicons
-                  name="add-circle"
-                  size={22}
-                  color={colors.primary}
-                />
-              </TouchableOpacity>
-            </View>
+            <Pressable
+              style={styles.addButton}
+              onPress={() =>
+                router.push("/(dashboard)/template/templateEditor?mode=create")
+              }
+            >
+              <Text style={styles.addText}>+ Add</Text>
+            </Pressable>
           ),
+
           tabBarLabelStyle: {
             marginTop: 4,
             fontSize: 10,
@@ -159,9 +168,7 @@ export default function RootLayout() {
                 width={size}
                 height={size}
                 fill={
-                  focused
-                    ? colors.tabIconActive
-                    : colors.tabIconInactive
+                  focused ? colors.tabIconActive : colors.tabIconInactive
                 }
               />
             </View>
@@ -197,9 +204,7 @@ export default function RootLayout() {
                 width={size}
                 height={size}
                 fill={
-                  focused
-                    ? colors.tabIconActive
-                    : colors.tabIconInactive
+                  focused ? colors.tabIconActive : colors.tabIconInactive
                 }
               />
             </View>
@@ -207,7 +212,7 @@ export default function RootLayout() {
         }}
       />
 
-      {/* ================= Profile ================= */}
+      {/* ================= Settings ================= */}
       <Tabs.Screen
         name="settings"
         options={{
@@ -219,33 +224,49 @@ export default function RootLayout() {
           },
 
           tabBarIcon: ({ size, focused }) => {
-             const Icon = focused ? SettingActiveIcon : SettingIcon;
+            const Icon = focused ? SettingActiveIcon : SettingIcon;
+
             return (
-            <View
-              style={{
-                backgroundColor: focused
-                  ? colors.tabIconBgActive
-                  : "transparent",
-                borderRadius: 20,
-                paddingVertical: 5,
-                paddingHorizontal: 10,
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <Icon
-                width={size}
-                height={size}
-                fill={
-                  focused
-                    ? colors.tabIconActive
-                    : colors.tabIconInactive
-                }
-              />
-            </View>
-          )},
+              <View
+                style={{
+                  backgroundColor: focused
+                    ? colors.tabIconBgActive
+                    : "transparent",
+                  borderRadius: 20,
+                  paddingVertical: 5,
+                  paddingHorizontal: 10,
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <Icon
+                  width={size}
+                  height={size}
+                  fill={
+                    focused ? colors.tabIconActive : colors.tabIconInactive
+                  }
+                />
+              </View>
+            );
+          },
         }}
       />
     </Tabs>
   );
 }
+
+const getStyles = (colors: typeof lightColors) =>
+  StyleSheet.create({
+    addButton: {
+      backgroundColor: colors.primary,
+      paddingHorizontal: 14,
+      paddingVertical: 6,
+      borderRadius: 8,
+      marginRight: 12,
+    },
+
+    addText: {
+      color: "#fff",
+      fontWeight: "600",
+    },
+  });

@@ -1,4 +1,4 @@
-import { ToolTile } from "@/src/component/tools/widgets/ToolTile";
+import { ToolTile } from "@/src/components/ai/tools/widgets/ToolTile";
 import { useEditTool } from "@/src/hooks/tools/useEditTool";
 import { useTools } from "@/src/hooks/tools/useTools";
 import { darkColors, lightColors } from "@/src/theme/colors";
@@ -132,7 +132,7 @@ export default function AiScreen() {
   }) => (
   <ToolTile
     tool={item}
-    onConnect={(tool) =>
+    onConnect={(tool: ToolCatalog) =>
       router.push({
         pathname: "/(dashboard)/ai/tools/toolConnect",
         params: {
@@ -141,7 +141,7 @@ export default function AiScreen() {
         },
       })
     }
-    onManage={(tool) =>
+    onManage={(tool: ToolCatalog) =>
       router.push({
         pathname: "/(dashboard)/ai/tools/toolConnect",
         params: {
@@ -153,11 +153,11 @@ export default function AiScreen() {
     onToggleActive={handleToggleActive}
     onDelete={handleDelete}
 
-    onToggleLoading={(tool) =>
+    onToggleLoading={(tool: ToolCatalog) =>
       selectedTool?.id === tool.id && updateLoading
     }
 
-    onDeleteLoading={(tool) =>
+    onDeleteLoading={(tool: ToolCatalog) =>
       selectedTool?.id === tool.id && isDeleteLoading
     }
   />

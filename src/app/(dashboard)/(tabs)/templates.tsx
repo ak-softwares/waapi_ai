@@ -1,4 +1,4 @@
-import TemplateTile from "@/src/component/templates/widgets/TemplateTile";
+import TemplateTile from "@/src/components/templates/widgets/TemplateTile";
 import { useTheme } from "@/src/context/ThemeContext";
 import { useTemplates } from "@/src/hooks/template/useTemplates";
 import { darkColors, lightColors } from "@/src/theme/colors";
@@ -56,8 +56,10 @@ export default function Templates() {
             template={item}
             onPress={() =>
               router.push({
-                pathname: "/(dashboard)/messages",
-                params: { id: item.id },
+                pathname: "/(dashboard)/template/TemplateViewScreen",
+                  params: {
+                    template: JSON.stringify(item),
+                  },
               })
             }
           />

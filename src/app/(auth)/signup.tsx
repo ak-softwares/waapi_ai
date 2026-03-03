@@ -1,4 +1,4 @@
-import AppPhoneInput from "@/src/component/common/AppPhoneInput";
+import AppPhoneInput from "@/src/components/common/AppPhoneInput";
 import { useAuth } from "@/src/context/AuthContext";
 import { useTheme } from "@/src/context/ThemeContext";
 import { signUpSchema } from "@/src/schemas/signUpSchema";

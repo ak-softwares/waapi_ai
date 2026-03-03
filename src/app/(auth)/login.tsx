@@ -1,4 +1,4 @@
-import AppPhoneInput from "@/src/component/common/AppPhoneInput";
+import AppPhoneInput from "@/src/components/common/AppPhoneInput";
 import { useTheme } from "@/src/context/ThemeContext";
 import { useOtpLogin } from "@/src/hooks/auth/useOtpLogin";
 import { darkColors, lightColors } from "@/src/theme/colors";

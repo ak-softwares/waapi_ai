@@ -1,5 +1,5 @@
-import ConfirmSheet from "@/src/component/common/ConfirmSheet";
-import SettingsTile from "@/src/component/settings/widgets/SettingsTile";
+import ConfirmSheet from "@/src/components/common/ConfirmSheet";
+import SettingsTile from "@/src/components/settings/widgets/SettingsTile";
 import { useAuth } from "@/src/context/AuthContext";
 import { useTheme } from "@/src/context/ThemeContext";
 import { darkColors, lightColors } from "@/src/theme/colors";

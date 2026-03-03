@@ -25,7 +25,7 @@ import {
   ToolStatus,
 } from "@/src/types/Tool";
 
-import { AppSwitch } from "@/src/component/common/AppSwitch";
+import { AppSwitch } from "@/src/components/common/AppSwitch";
 import { useTheme } from "@/src/context/ThemeContext";
 import { darkColors, lightColors } from "@/src/theme/colors";
 
