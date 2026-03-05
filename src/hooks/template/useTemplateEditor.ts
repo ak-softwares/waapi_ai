@@ -1,4 +1,3 @@
-import { api } from "@/src/lib/api/apiClient";
 import {
   Template,
   TemplateBodyComponentCreate,
@@ -16,6 +15,8 @@ import {
 } from "@/src/utiles/enums/template";
 import { showToast } from "@/src/utiles/toastHelper/toast";
 import { useEffect, useMemo, useState } from "react";
+import { useHeaderMediaUpload } from "./useHeaderMediaUpload";
+import { useTemplateMutation } from "./useTemplateMutation";
 
 export type HeaderMediaState = {
   uri: string | null;
@@ -35,8 +36,6 @@ export function useTemplateEditor({
   initialTemplate?: Template | null;
   onSaved?: () => void;
 }) {
-  const [isSaving, setIsSaving] = useState(false);
-  const [isUploading, setIsUploading] = useState(false);
   const [templateId, setTemplateId] = useState("");
   const [templateName, setTemplateName] = useState("");
   const [templateCategory, setTemplateCategory] = useState<TemplateCategory>(TemplateCategory.UTILITY);
@@ -51,7 +50,8 @@ export function useTemplateEditor({
   const [isVariableAddedInButtonUrl, setIsVariableAddedInButtonUrl] = useState(false);
   const [urlSampleValues, setUrlSampleValues] = useState("");
   const [copyCodeSampleValues, setCopyCodeSampleValues] = useState("");
-  const [headerMedia, setHeaderMedia] = useState<HeaderMediaState>({ uri: null, fileName: "", mimeType: "" });
+  const { headerMedia, isUploading, uploadHeaderMedia, removeMedia } = useHeaderMediaUpload();
+  const { isSaving, createTemplate, updateTemplate } = useTemplateMutation(onSaved);
 
   useEffect(() => {
     if (!initialTemplate) return;
@@ -77,7 +77,7 @@ export function useTemplateEditor({
     setBodySampleValues(bodyExamples);
     setHeaderSampleValues(headerComp?.example?.header_text?.[0] || "");
 
-    setHeaderMedia({ uri: null, fileName: "", mimeType: "" });
+    removeMedia();
   }, [initialTemplate, mode]);
 
   const toMetaTemplateName = (input: string): string =>
@@ -164,43 +164,8 @@ export function useTemplateEditor({
     );
   }, [copyCodeSampleValues]);
 
-  const uploadHeaderMedia = async (file: { uri: string; name: string; type: string }) => {
-    setIsUploading(true);
-    try {
-      const form = new FormData();
-      form.append("file", {
-        uri: file.uri,
-        name: file.name,
-        type: file.type,
-      } as any);
-
-      const { data } = await api.post("/wa-accounts/templates/upload-media", form, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-
-      if (!data?.success) throw new Error(data?.message || "Failed to upload media");
-
-      setHeaderMedia({
-        uri: file.uri,
-        fileName: file.name,
-        mimeType: file.type,
-        handle: data.data.header_handle,
-      });
-      showToast({ type: "success", message: "Media uploaded successfully" });
-    } catch (error: any) {
-      showToast({ type: "error", message: error?.message || "Media upload failed" });
-    } finally {
-      setIsUploading(false);
-    }
-  };
-
-  const removeMedia = () => {
-    setHeaderMedia({ uri: null, fileName: "", mimeType: "" });
-  };
-
   const saveTemplate = async () => {
     try {
-      setIsSaving(true);
 
       if (!templateName.trim()) {
         showToast({ type: "error", message: "Template name is required" });
@@ -266,17 +231,14 @@ export function useTemplateEditor({
         components,
       };
 
-      const { data } = mode === "edit" && templateId
-        ? await api.put(`/wa-accounts/templates/${templateId}`, payload)
-        : await api.post("/wa-accounts/templates", payload);
-
-      if (!data?.success) throw new Error(data?.message || "Save failed");
-      showToast({ type: "success", message: data.message || "Template saved" });
+      if (mode === "edit" && templateId) {
+        await updateTemplate(templateId, payload);
+      } else {
+        await createTemplate(payload);
+      }
       onSaved?.();
     } catch (error: any) {
-      showToast({ type: "error", message: error?.message || "Something went wrong" });
-    } finally {
-      setIsSaving(false);
+      // showToast({ type: "error", message: error?.message || "Something went wrong" });
     }
   };
 

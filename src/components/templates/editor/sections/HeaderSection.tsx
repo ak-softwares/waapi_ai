@@ -2,8 +2,9 @@ import { useTheme } from "@/src/context/ThemeContext";
 import { darkColors, lightColors } from "@/src/theme/colors";
 import { TemplateHeaderType } from "@/src/utiles/enums/template";
 import { Picker } from "@react-native-picker/picker";
-import { useEffect, useState } from "react";
-import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import * as DocumentPicker from "expo-document-picker";
+import * as ImagePicker from "expo-image-picker";
+import { Image, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 
 type Props = {
   headerFormat: TemplateHeaderType;
@@ -21,27 +22,61 @@ type Props = {
 };
 
 export default function HeaderSection(props: Props) {
-  const [mediaUri, setMediaUri] = useState("");
   const { headerFormat, uploadHeaderMedia } = props;
   const { theme } = useTheme();
   const colors = theme === "dark" ? darkColors : lightColors;
   const styles = getStyles(colors);
 
-  useEffect(() => {
-    const isMedia = [TemplateHeaderType.IMAGE, TemplateHeaderType.VIDEO, TemplateHeaderType.DOCUMENT].includes(headerFormat);
-    if (!isMedia || !mediaUri.trim()) return;
+  const pickMedia = async () => {
+    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
-    uploadHeaderMedia({
-      uri: mediaUri.trim(),
-      name: mediaUri.split("/").pop() || "header-file",
-      type:
+    if (!permission.granted) {
+      alert("Permission required to access gallery");
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes:
         headerFormat === TemplateHeaderType.IMAGE
-          ? "image/jpeg"
+          ? ImagePicker.MediaTypeOptions.Images
           : headerFormat === TemplateHeaderType.VIDEO
+          ? ImagePicker.MediaTypeOptions.Videos
+          : ImagePicker.MediaTypeOptions.All,
+      allowsEditing: false,
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      const asset = result.assets[0];
+      uploadHeaderMedia({
+        uri: asset.uri,
+        name: asset.fileName || "header-file",
+        type:
+          headerFormat === TemplateHeaderType.IMAGE
+            ? "image/jpeg"
+            : headerFormat === TemplateHeaderType.VIDEO
             ? "video/mp4"
             : "application/pdf",
+      });
+    }
+  };
+
+  const pickDocument = async () => {
+    const result = await DocumentPicker.getDocumentAsync({
+      type: "application/pdf",
+      copyToCacheDirectory: true,
     });
-  }, [mediaUri, headerFormat, uploadHeaderMedia]);
+
+    if (!result.canceled) {
+      const file = result.assets[0];
+
+      uploadHeaderMedia({
+        uri: file.uri,
+        name: file.name || "document.pdf",
+        type: file.mimeType || "application/pdf",
+      });
+    }
+  };
 
   return (
     <View style={styles.card}>
@@ -96,24 +131,82 @@ export default function HeaderSection(props: Props) {
 
       {[TemplateHeaderType.IMAGE, TemplateHeaderType.VIDEO, TemplateHeaderType.DOCUMENT].includes(props.headerFormat) && (
         <>
-          <Text style={styles.label}>Media URI (upload starts immediately when entered)</Text>
-          <TextInput
-            placeholderTextColor={colors.placeHolderText}
-            selectionColor={colors.cursorColor}
-            cursorColor={colors.cursorColor}      // Android
-            style={styles.input}
-            value={mediaUri}
-            onChangeText={setMediaUri}
-            placeholder="file:///... or https://..."
-            autoCapitalize="none"
-          />
-          {props.isUploading ? <Text>Uploading...</Text> : null}
-          {props.headerMedia.uri ? (
-            <View style={styles.rowBetween}>
-              <Text numberOfLines={1} style={{ flex: 1 }}>{props.headerMedia.fileName}</Text>
-              <Pressable onPress={props.removeMedia}><Text style={styles.danger}>Remove</Text></Pressable>
+          <Text style={styles.label}>Header Media</Text>
+
+          {/* Upload Card */}
+          {!props.headerMedia.uri && !props.isUploading && (
+            <Pressable
+              style={styles.uploadCard}
+              onPress={
+                props.headerFormat === TemplateHeaderType.DOCUMENT
+                  ? pickDocument
+                  : pickMedia
+              }
+            >
+              <Text style={styles.uploadIcon}>⬆️</Text>
+              <Text style={styles.uploadTitle}>
+                {props.headerFormat === TemplateHeaderType.DOCUMENT
+                  ? "Upload PDF"
+                  : "Upload Media"}
+              </Text>
+              <Text style={styles.uploadSubtitle}>Tap to select file</Text>
+            </Pressable>
+          )}
+
+          {/* Uploading */}
+          {props.isUploading && (
+            <View style={styles.uploadingWrap}>
+              <Text style={styles.uploading}>Uploading media...</Text>
             </View>
-          ) : null}
+          )}
+
+          {/* Media Preview */}
+          {props.headerMedia.uri && !props.isUploading && (
+            <View style={styles.mediaPreview}>
+
+              {/* Top Row */}
+              <View style={styles.mediaRow}>
+                <Text numberOfLines={1} style={styles.fileName}>
+                  {props.headerMedia.fileName}
+                </Text>
+
+                <View style={styles.actions}>
+                  <Pressable
+                    style={styles.changeBtn}
+                    onPress={
+                      props.headerFormat === TemplateHeaderType.DOCUMENT
+                        ? pickDocument
+                        : pickMedia
+                    }
+                  >
+                    <Text style={styles.changeText}>Change</Text>
+                  </Pressable>
+
+                  <Pressable onPress={props.removeMedia}>
+                    <Text style={styles.removeText}>Remove</Text>
+                  </Pressable>
+                </View>
+              </View>
+
+              {/* Image Preview */}
+              {props.headerFormat === TemplateHeaderType.IMAGE && (
+                <Image
+                  source={{ uri: props.headerMedia.uri }}
+                  style={styles.imagePreview}
+                />
+              )}
+
+              {/* Video / PDF preview */}
+              {props.headerFormat !== TemplateHeaderType.IMAGE && (
+                <View style={styles.filePreview}>
+                  <Text style={{ fontSize: 26 }}>
+                    {props.headerFormat === TemplateHeaderType.VIDEO ? "🎬" : "📄"}
+                  </Text>
+                </View>
+              )}
+
+            </View>
+          )}
         </>
       )}
 
@@ -187,6 +280,121 @@ const getStyles = (colors: typeof lightColors) =>
     danger: { 
       color: colors.error, 
       fontWeight: "700" 
+    },
+    mediaButton: {
+      marginTop: 10,
+      backgroundColor: colors.primary,
+      padding: 12,
+      borderRadius: 10,
+      alignItems: "center",
+    },
+    mediaButtonText: {
+      color: "#fff",
+      fontWeight: "600",
+    },
+    uploadCard: {
+      marginTop: 6,
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderStyle: "dashed",
+      borderRadius: 12,
+      paddingVertical: 26,
+      alignItems: "center",
+      backgroundColor: colors.background,
+    },
+
+    uploadIcon: {
+      fontSize: 24,
+      marginBottom: 6,
+    },
+
+    uploadTitle: {
+      fontSize: 14,
+      fontWeight: "600",
+      color: colors.text,
+    },
+
+    uploadSubtitle: {
+      fontSize: 12,
+      color: colors.mutedText,
+      marginTop: 4,
+    },
+    
+    fileName: {
+      color: colors.text,
+      fontWeight: "500",
+    },
+
+    uploading: {
+      fontSize: 12,
+      color: colors.mutedText,
+      marginTop: 3,
+    },
+
+    changeBtn: {
+      paddingHorizontal: 10,
+      paddingVertical: 6,
+      borderRadius: 6,
+      backgroundColor: colors.primary,
+    },
+
+    changeText: {
+      color: "#fff",
+      fontSize: 12,
+      fontWeight: "600",
+    },
+
+    removeBtn: {
+      paddingHorizontal: 10,
+      paddingVertical: 6,
+    },
+
+    removeText: {
+      color: colors.error,
+      fontSize: 12,
+      fontWeight: "600",
+    },
+
+    uploadingWrap: {
+      paddingVertical: 12,
+    },
+
+   mediaPreview: {
+      marginTop: 10,
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: 10,
+      padding: 10,
+      backgroundColor: colors.background,
+    },
+
+    mediaRow: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+    },
+
+    actions: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 12,
+    },
+
+    imagePreview: {
+      width: "100%",
+      height: 180,
+      borderRadius: 8,
+      marginTop: 10,
+    },
+
+    filePreview: {
+      width: "100%",
+      height: 100,
+      borderRadius: 8,
+      marginTop: 10,
+      justifyContent: "center",
+      alignItems: "center",
+      backgroundColor: colors.surface,
     },
   });
 

@@ -1,38 +1,38 @@
-import { ApiResponse } from "@/src/types/ApiResponse";
+import { api } from "@/src/lib/api/apiClient";
 import { showToast } from "@/src/utiles/toastHelper/toast";
 import { useState } from "react";
 
-export function useTemplateDelete(onSuccess?: () => void) {
-  const [loading, setLoading] = useState(false);
+export function useTemplateDelete(onDeleted?: () => void) {
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // -----------------------------
   // SINGLE DELETE
   // -----------------------------
   const deleteTemplate = async (name: string) => {
-    if (!name) return false;
-
-    setLoading(true);
+    if (!name) return;
 
     try {
-      const res = await fetch(`/api/wa-accounts/templates/${name}`, {
-        method: "DELETE",
-      });
+      setIsDeleting(true);
 
-      const json: ApiResponse = await res.json();
+      const { data } = await api.delete(`/wa-accounts/templates/${name}`);
 
-      if (!json.success) {
-        showToast({ type: "error", message: json.message || "Failed to delete template." });
-        return false;
+      if (!data?.success) {
+        throw new Error(data?.message || "Delete failed");
       }
 
-      showToast({ type: "success", message: "Template deleted successfully." });
-      onSuccess?.();
-      return true;
-    } catch (error) {
-      showToast({ type: "error", message: "Delete failed." });
-      return false;
+      showToast({
+        type: "success",
+        message: data.message || "Template deleted",
+      });
+
+      onDeleted?.();
+    } catch (error: any) {
+      showToast({
+        type: "error",
+        message: error?.message || "Something went wrong",
+      });
     } finally {
-      setLoading(false);
+      setIsDeleting(false);
     }
   };
 
@@ -40,40 +40,38 @@ export function useTemplateDelete(onSuccess?: () => void) {
   // BULK DELETE
   // -----------------------------
   const bulkDeleteTemplates = async (names: string[]) => {
-    if (!names.length) return false;
-
-    setLoading(true);
+    if (!names.length) return;
 
     try {
-      const res = await fetch(`/api/wa-accounts/templates/bulk-delete`, {
-        method: "DELETE",
-        body: JSON.stringify({ names }),
-        headers: {
-          "Content-Type": "application/json",
-        },
+      setIsDeleting(true);
+
+      const { data } = await api.delete("/wa-accounts/templates/bulk-delete", {
+        data: { names },
       });
 
-      const json: ApiResponse = await res.json();
-
-      if (!json.success) {
-        showToast({ type: "error", message: json.message || "Bulk delete failed." });
-        return false;
+      if (!data?.success) {
+        throw new Error(data?.message || "Bulk delete failed");
       }
 
-      showToast({ type: "success", message: "Selected templates deleted." });
-      onSuccess?.();
-      return true;
-    } catch (error) {
-      showToast({ type: "error", message: "Bulk delete failed." });
-      return false;
+      showToast({
+        type: "success",
+        message: data.message || "Templates deleted",
+      });
+
+      onDeleted?.();
+    } catch (error: any) {
+      showToast({
+        type: "error",
+        message: error?.message || "Something went wrong",
+      });
     } finally {
-      setLoading(false);
+      setIsDeleting(false);
     }
   };
 
   return {
+    isDeleting,
     deleteTemplate,
     bulkDeleteTemplates,
-    loading,
   };
 }

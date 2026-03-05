@@ -1,4 +1,4 @@
-import { Stack, useLocalSearchParams } from "expo-router";
+import { router, Stack, useLocalSearchParams } from "expo-router";
 import React, { useState } from "react";
 import {
   ScrollView,
@@ -27,7 +27,7 @@ export default function TemplateViewScreen() {
   const styles = getStyles(colors);
 
   const [showDelete, setShowDelete] = useState(false);
-  const { deleteTemplate, loading } = useTemplateDelete();
+  const { deleteTemplate, isDeleting } = useTemplateDelete();
   // ======================
   // ACTIONS
   // ======================
@@ -49,7 +49,7 @@ export default function TemplateViewScreen() {
   const handleDelete = async () => {
     setShowDelete(false);
     await deleteTemplate(parsedTemplate.name);
-    // router.back();
+    router.back();
   };
 
   // ======================
@@ -111,11 +111,18 @@ export default function TemplateViewScreen() {
 
         {/* Delete */}
         <TouchableOpacity
-          style={styles.deleteButton}
+          style={[
+            styles.deleteButton,
+            isDeleting && { opacity: 0.6 }
+          ]}
           onPress={() => setShowDelete(true)}
+          disabled={isDeleting}
         >
           <Trash2 size={18} color={colors.error} />
-          <Text style={styles.deleteText}>Delete Template</Text>
+
+          <Text style={styles.deleteText}>
+            {isDeleting ? "Deleting..." : "Delete Template"}
+          </Text>
         </TouchableOpacity>
       </ScrollView>
 

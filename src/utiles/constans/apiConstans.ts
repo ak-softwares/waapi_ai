@@ -4,4 +4,4 @@ export const ITEMS_PER_PAGE = 20;
 export const MAX_ITEMS_PER_PAGE = 50;
 
 export const API_BASE_URL = "https://wa-api.me/api";
-export const API_BASE_URL_LOCAL = "https://42fd-2409-40d2-101f-b76d-507d-46c2-c47d-2a38.ngrok-free.app/api";
+export const API_BASE_URL_LOCAL = "https://fc77-2409-40d2-12ed-f373-5178-61b0-37c9-53f1.ngrok-free.app/api";
