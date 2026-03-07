@@ -9,51 +9,57 @@ export function useTemplateMutation(onSaved?: () => void) {
     try {
       setIsSaving(true);
 
-      const { data } = await api.post("/wa-accounts/templates", payload);
-
-      if (!data?.success) {
-        throw new Error(data?.message || "Create failed");
-      }
+      const res = await api.post("/wa-accounts/templates", payload);
 
       showToast({
         type: "success",
-        message: data.message || "Template created",
+        message: res.data.message || "Template created",
       });
 
       onSaved?.();
     } catch (error: any) {
+      const message =
+        error?.response?.data?.message ||
+        error?.response?.data?.error ||
+        error?.message ||
+        "Something went wrong";
+
+      // console.log("API ERROR:", error?.response?.data);
+
       showToast({
         type: "error",
-        message: error?.message || "Something went wrong",
+        message,
       });
     } finally {
       setIsSaving(false);
     }
   };
 
-  const updateTemplate = async (id: string, payload: any) => {
+  const updateTemplate = async (name: string, payload: any) => {
     try {
       setIsSaving(true);
 
-      const { data } = await api.put(
-        `/wa-accounts/templates/${id}`,
+      const res = await api.put(
+        `/wa-accounts/templates/${name}`,
         payload
       );
 
-      if (!data?.success) {
-        throw new Error(data?.message || "Update failed");
-      }
-
       showToast({
         type: "success",
-        message: data.message || "Template updated",
+        message: res.data.message || "Template updated",
       });
 
       onSaved?.();
     } catch (error: any) {
+      const message =
+        error?.response?.data?.message ||
+        error?.response?.data?.error ||
+        error?.message ||
+        "Something went wrong";
+
       showToast({
         type: "error",
-        message: error?.message || "Something went wrong",
+        message,
       });
     } finally {
       setIsSaving(false);

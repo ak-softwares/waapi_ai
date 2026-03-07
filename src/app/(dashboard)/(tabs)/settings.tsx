@@ -12,7 +12,6 @@ import {
   KeyRound,
   LogOut,
   Moon,
-  Sun,
   User
 } from "lucide-react-native";
 import { useState } from "react";
@@ -25,8 +24,7 @@ import {
 
 export default function SettingsScreen() {
   const [showDelete, setShowDelete] = useState(false);
-  const { theme, toggleTheme } = useTheme();
-
+  const { theme, themeMode } = useTheme();
   const { logout } = useAuth();
 
   const colors = theme === "dark" ? darkColors : lightColors;
@@ -68,16 +66,10 @@ export default function SettingsScreen() {
         /> */}
 
         <SettingsTile
-          icon={
-            theme === "dark" ? (
-              <Sun size={22} color={colors.primary} />
-            ) : (
-              <Moon size={22} color={colors.primary} />
-            )
-          }
+          icon={<Moon size={22} color={colors.primary} />}
           title="Theme"
-          subtitle="Toggle light / dark mode"
-          onPress={toggleTheme}
+          subtitle={`Current: ${themeMode.charAt(0).toUpperCase() + themeMode.slice(1)}`}
+          onPress={() => router.push("/(dashboard)/settings/ThemeScreen")}
         />
 
         <SettingsTile

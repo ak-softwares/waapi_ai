@@ -24,7 +24,7 @@ export function useApiToken(autoLoad: boolean = true) {
 
       setApiToken(json?.data?.token ?? null);
     } catch (error) {
-      console.log("Failed to load token", error);
+      // console.log("Failed to load token", error);
     } finally {
       setLoading(false);
     }

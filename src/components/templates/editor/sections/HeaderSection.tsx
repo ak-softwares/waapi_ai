@@ -4,7 +4,7 @@ import { TemplateHeaderType } from "@/src/utiles/enums/template";
 import { Picker } from "@react-native-picker/picker";
 import * as DocumentPicker from "expo-document-picker";
 import * as ImagePicker from "expo-image-picker";
-import { Image, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { ActivityIndicator, Image, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 
 type Props = {
   headerFormat: TemplateHeaderType;
@@ -63,7 +63,13 @@ export default function HeaderSection(props: Props) {
 
   const pickDocument = async () => {
     const result = await DocumentPicker.getDocumentAsync({
-      type: "application/pdf",
+      type: [
+        "application/pdf",
+        "application/msword",
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        "application/vnd.ms-excel",
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      ],
       copyToCacheDirectory: true,
     });
 
@@ -134,30 +140,34 @@ export default function HeaderSection(props: Props) {
           <Text style={styles.label}>Header Media</Text>
 
           {/* Upload Card */}
-          {!props.headerMedia.uri && !props.isUploading && (
+          {!props.headerMedia.uri && (
             <Pressable
               style={styles.uploadCard}
+              disabled={props.isUploading}
               onPress={
                 props.headerFormat === TemplateHeaderType.DOCUMENT
                   ? pickDocument
                   : pickMedia
               }
             >
-              <Text style={styles.uploadIcon}>⬆️</Text>
-              <Text style={styles.uploadTitle}>
-                {props.headerFormat === TemplateHeaderType.DOCUMENT
-                  ? "Upload PDF"
-                  : "Upload Media"}
-              </Text>
-              <Text style={styles.uploadSubtitle}>Tap to select file</Text>
+              {props.isUploading ? (
+                <>
+                  <ActivityIndicator size="small" color={colors.primary} />
+                  <Text style={styles.uploadTitle}>Uploading...</Text>
+                  <Text style={styles.uploadSubtitle}>Please wait</Text>
+                </>
+              ) : (
+                <>
+                  <Text style={styles.uploadIcon}>⬆️</Text>
+                  <Text style={styles.uploadTitle}>
+                    {props.headerFormat === TemplateHeaderType.DOCUMENT
+                      ? "Upload Document"
+                      : "Upload Media"}
+                  </Text>
+                  <Text style={styles.uploadSubtitle}>Tap to select file</Text>
+                </>
+              )}
             </Pressable>
-          )}
-
-          {/* Uploading */}
-          {props.isUploading && (
-            <View style={styles.uploadingWrap}>
-              <Text style={styles.uploading}>Uploading media...</Text>
-            </View>
           )}
 
           {/* Media Preview */}
@@ -321,8 +331,11 @@ const getStyles = (colors: typeof lightColors) =>
     },
     
     fileName: {
+      flex: 1,
+      flexShrink: 1,
       color: colors.text,
       fontWeight: "500",
+      marginRight: 10,
     },
 
     uploading: {
@@ -370,7 +383,7 @@ const getStyles = (colors: typeof lightColors) =>
 
     mediaRow: {
       flexDirection: "row",
-      justifyContent: "space-between",
+      // justifyContent: "space-between",
       alignItems: "center",
     },
 
@@ -378,6 +391,7 @@ const getStyles = (colors: typeof lightColors) =>
       flexDirection: "row",
       alignItems: "center",
       gap: 12,
+      flexShrink: 0,
     },
 
     imagePreview: {

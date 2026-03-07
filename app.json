@@ -4,7 +4,7 @@
     "slug": "waapi_ai",
     "version": "1.1.1",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/logos/icon.png",
     "scheme": "waapiapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -12,11 +12,16 @@
       "bundleIdentifier": "com.waapi.ai",
       "supportsTablet": true
     },
+    "splash": {
+      "image": "./assets/logos/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0F9D58"
+    },
     "android": {
       "package": "com.waapi.ai",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
-        "foregroundImage": "./assets/images/android-icon-foreground.png",
+        "foregroundImage": "./assets/logos/adaptive-icon.png",
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },

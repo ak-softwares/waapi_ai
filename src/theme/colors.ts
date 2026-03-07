@@ -16,10 +16,10 @@ export const lightColors = {
   // ✅ Bottom Tab
   tabBackground: "#ffffff",
   tabIconActive: "#1DAA57",
-  tabIconInactive: "#9ca3af",
+  tabIconInactive: "#6b7280",
   tabIconBgActive: "#1DAA5722",   // soft green
   tabLabelActive: "#1DAA57",
-  tabLabelInactive: "#9ca3af",
+  tabLabelInactive: "#6b7280",
 
   // Input
   inputBackground: "#ffffff",
@@ -61,10 +61,10 @@ export const darkColors = {
   // ✅ Bottom Tab
   tabBackground: "#121212",
   tabIconActive: "#34d17b",
-  tabIconInactive: "#7d7d7d",
+  tabIconInactive: "#9ca3af",
   tabIconBgActive: "#34d17b22",
   tabLabelActive: "#34d17b",
-  tabLabelInactive: "#7d7d7d",
+  tabLabelInactive: "#9ca3af",
 
   // Input
   inputBackground: "#0f0f0f",

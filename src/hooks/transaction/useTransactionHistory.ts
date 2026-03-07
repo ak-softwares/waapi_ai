@@ -41,7 +41,7 @@ export function useTransactionHistory() {
           setHasMore(false);
         }
       } catch (error) {
-        console.log("Failed to fetch transactions", error);
+        // console.log("Failed to fetch transactions", error);
       } finally {
         pageToFetch === 1 ? setLoading(false) : setLoadingMore(false);
       }

@@ -142,6 +142,7 @@ export default function RootLayout() {
                 router.push("/(dashboard)/template/templateEditor?mode=create")
               }
             >
+              {/* <Plus /> */}
               <Text style={styles.addText}>+ Add</Text>
             </Pressable>
           ),
@@ -258,7 +259,7 @@ export default function RootLayout() {
 const getStyles = (colors: typeof lightColors) =>
   StyleSheet.create({
     addButton: {
-      backgroundColor: colors.primary,
+      // backgroundColor: colors.primary,
       paddingHorizontal: 14,
       paddingVertical: 6,
       borderRadius: 8,
@@ -266,7 +267,7 @@ const getStyles = (colors: typeof lightColors) =>
     },
 
     addText: {
-      color: "#fff",
+      color: colors.primary,
       fontWeight: "600",
     },
   });

@@ -33,17 +33,23 @@ export default function TemplateViewScreen() {
   // ======================
 
   const handleEdit = () => {
-    // router.push({
-    //   pathname: "/templates/edit",
-    //   params: { template },
-    // });
+    router.push({
+      pathname: "/(dashboard)/template/templateEditor",
+      params: {
+        mode: "edit",
+        template,
+      },
+    });
   };
 
   const handleDuplicate = () => {
-    // router.push({
-    //   pathname: "/templates/create",
-    //   params: { duplicate: template },
-    // });
+    router.push({
+      pathname: "/(dashboard)/template/templateEditor",
+      params: {
+        mode: "duplicate",
+        template,
+      },
+    });
   };
 
   const handleDelete = async () => {

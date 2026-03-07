@@ -42,10 +42,6 @@ export function useHeaderMediaUpload() {
         }
       );
 
-      if (!data?.success) {
-        throw new Error(data?.message || "Upload failed");
-      }
-
       setHeaderMedia({
         uri: file.uri,
         fileName: file.name,
@@ -58,9 +54,15 @@ export function useHeaderMediaUpload() {
         message: "Media uploaded successfully",
       });
     } catch (error: any) {
+      const message =
+        error?.response?.data?.message ||
+        error?.response?.data?.error ||
+        error?.message ||
+        "Media upload failed";
+
       showToast({
         type: "error",
-        message: error?.message || "Media upload failed",
+        message,
       });
     } finally {
       setIsUploading(false);

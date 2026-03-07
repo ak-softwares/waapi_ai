@@ -86,16 +86,21 @@ export function useTemplateEditor({
   const extractVariables = (text: string) => {
     const regex = /{{(\d+)}}/g;
     const matches = [...text.matchAll(regex)];
-    return matches.map((m) => Number(m[1])).sort((a, b) => a - b);
+    return [...new Set(matches.map((m) => Number(m[1])))].sort((a, b) => a - b);
   };
 
   const headerVariables = useMemo(() => extractVariables(headerText), [headerText]);
   const bodyVariables = useMemo(() => extractVariables(bodyText), [bodyText]);
 
+  const normalizeBodySampleValues = (variables: number[]) => {
+    const next = [...bodySampleValues];
+    if (next.length > variables.length) next.splice(variables.length);
+    while (next.length < variables.length) next.push(`Sample ${next.length + 1}`);
+    return next.map((value, index) => value?.trim() || `Sample ${index + 1}`);
+  };
+
   const updateSampleValues = (newVars: number[]) => {
-    const values = [...bodySampleValues];
-    if (values.length > newVars.length) values.splice(newVars.length);
-    while (values.length < newVars.length) values.push(`Sample ${values.length + 1}`);
+    const values = normalizeBodySampleValues(newVars);
     setBodySampleValues(values);
   };
 
@@ -211,9 +216,16 @@ export function useTemplateEditor({
           });
         }
 
+        if (headerFormat === TemplateHeaderType.LOCATION) {
+          components.push({
+            type: TemplateComponentType.HEADER,
+            format: TemplateHeaderType.LOCATION,
+          });
+        }
+
         if (bodyText.trim()) {
           const body: TemplateBodyComponentCreate = { type: TemplateComponentType.BODY, text: bodyText };
-          if (/\{\{\d+\}\}/.test(bodyText)) body.example = { body_text: [bodySampleValues] };
+           if (bodyVariables.length) body.example = { body_text: [normalizeBodySampleValues(bodyVariables)] };
           components.push(body);
         }
 
@@ -231,8 +243,8 @@ export function useTemplateEditor({
         components,
       };
 
-      if (mode === "edit" && templateId) {
-        await updateTemplate(templateId, payload);
+      if (mode === "edit" && templateName) {
+        await updateTemplate(templateName, payload);
       } else {
         await createTemplate(payload);
       }
