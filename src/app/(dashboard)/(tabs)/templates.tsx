@@ -3,6 +3,7 @@ import { useTheme } from "@/src/context/ThemeContext";
 import { useTemplates } from "@/src/hooks/template/useTemplates";
 import { darkColors, lightColors } from "@/src/theme/colors";
 import { router } from "expo-router";
+import { Search } from "lucide-react-native";
 import { useState } from "react";
 import {
   ActivityIndicator,
@@ -37,6 +38,7 @@ export default function Templates() {
     <View style={styles.container}>
       {/* Search */}
       <View style={styles.searchContainer}>
+        <Search size={18} color={colors.placeHolderText} />
         <TextInput
           value={search}
           onChangeText={handleSearch}
@@ -114,18 +116,22 @@ const getStyles = (colors: typeof lightColors) =>
     },
 
     searchContainer: {
-      paddingHorizontal: 15,
-      paddingBottom: 10,
+      flexDirection: "row",
+      alignItems: "center",
+      backgroundColor: colors.inputBackground,
+      borderColor: colors.inputBorder,
+      borderWidth: 1,
+      borderRadius: 999,
+      paddingHorizontal: 12,
+      marginBottom: 12,
+      gap: 8,
+      marginHorizontal: 15,
     },
 
     searchInput: {
-      backgroundColor: colors.inputBackground,
-      borderRadius: 999,
-      paddingHorizontal: 20,
-      paddingVertical: 10,
+      flex: 1,
+      paddingVertical: 11,
+      color: colors.text,
       fontSize: 14,
-      color: colors.inputText,
-      borderWidth: 1,
-      borderColor: colors.inputBorder,
     },
   });

@@ -1,4 +1,5 @@
 import ChatTile from "@/src/components/chats/widgets/ChatTile";
+import FloatingButton from "@/src/components/common/FloatingButton";
 import { useTheme } from "@/src/context/ThemeContext";
 import { useChats } from "@/src/hooks/chat/useChats";
 import { useChatStore } from "@/src/store/chatStore";
@@ -115,8 +116,11 @@ export default function ChatListScreen() {
         onRefresh={refreshChats}
         // style={{ flex: 1 }}
         contentContainerStyle={{
-          paddingBottom: 20,
+          paddingBottom: 100,
         }}
+      />
+      <FloatingButton
+        onPress={() => router.push("/(dashboard)/contacts/contacts")}
       />
     </View>
   );
@@ -173,5 +177,22 @@ const getStyles = (colors: typeof lightColors) =>
       fontSize: 13,
       fontWeight: "600",
       color: colors.text,
+    },
+
+    fab: {
+      position: "absolute",
+      right: 20,
+      bottom: 24,
+      width: 58,
+      height: 58,
+      borderRadius: 29,
+      backgroundColor: colors.primary,
+      justifyContent: "center",
+      alignItems: "center",
+      shadowColor: "#000",
+      shadowOffset: { width: 0, height: 3 },
+      shadowOpacity: 0.25,
+      shadowRadius: 4,
+      elevation: 5,
     },
   });

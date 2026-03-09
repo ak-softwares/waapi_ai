@@ -8,9 +8,8 @@ import { toastConfig } from "../theme/toastConfig";
 
 const InitialLayout = () => {
   const { isAuthenticated, isReady } = useAuth();
-  // const [isAuthenticatedd] = useState(false);
-  if (!isReady) return null; // or splash screen
   const { theme } = useTheme();
+  if (!isReady) return null; // or splash screen
 
   return (
     <>

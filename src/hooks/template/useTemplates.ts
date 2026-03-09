@@ -83,9 +83,15 @@ export function useTemplates() {
   // REFRESH
   // -----------------------------
   const refreshTemplates = () => {
-    setPage(1);
     setTemplates([]);
     setHasMore(true);
+
+    if (page === 1) {
+      fetchTemplates(1);
+      return;
+    }
+
+    setPage(1);
   };
 
   // -----------------------------

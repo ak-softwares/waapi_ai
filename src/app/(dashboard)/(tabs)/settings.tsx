@@ -3,7 +3,7 @@ import SettingsTile from "@/src/components/settings/widgets/SettingsTile";
 import { useAuth } from "@/src/context/AuthContext";
 import { useTheme } from "@/src/context/ThemeContext";
 import { darkColors, lightColors } from "@/src/theme/colors";
-import Constants from "expo-constants";
+import * as Application from "expo-application";
 import { router } from "expo-router";
 
 import {
@@ -36,8 +36,8 @@ export default function SettingsScreen() {
 
   // 🔥 Version (replace with Constants if needed)
   // const APP_VERSION = "1.0.0";
-  const APP_VERSION = Constants.expoConfig?.version ?? Constants.manifest?.version ?? "1.0.0";
-  const BUILD = Constants.expoConfig?.ios?.buildNumber || Constants.expoConfig?.android?.versionCode || "";
+  const APP_VERSION = Application.nativeApplicationVersion ?? "";
+  const BUILD_VERSION = Application.nativeBuildVersion ?? "";
 
   return (
     <ScrollView style={styles.container}>
@@ -97,7 +97,7 @@ export default function SettingsScreen() {
       <View style={styles.footer}>
         <Text style={styles.versionText}>
           Version {APP_VERSION}
-          {BUILD ? ` (${BUILD})` : ""}
+          {BUILD_VERSION ? ` (${BUILD_VERSION})` : ""}
         </Text>
       </View>
       <ConfirmSheet

@@ -9,6 +9,8 @@ export const lightColors = {
   border: "#e0e0e0",
   primary: "#1DAA57",
 
+  onPrimary: "#ffffff",
+
   // ✅ Top Bar
   headerBackground: "#ffffff",
   headerIcon: "#111111",
@@ -53,6 +55,8 @@ export const darkColors = {
 
   border: "#2f2f2f",
   primary: "#34d17b",
+
+  onPrimary: "#ffffff",
 
   // ✅ Top Bar
   headerBackground: "#0f0f0f",
