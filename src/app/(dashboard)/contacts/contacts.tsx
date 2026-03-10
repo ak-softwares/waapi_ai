@@ -3,11 +3,12 @@ import ConfirmSheet from "@/src/components/common/ConfirmSheet";
 import { useTheme } from "@/src/context/ThemeContext";
 import { useGetOrCreateChat } from "@/src/hooks/chat/useGetOrCreateChat";
 import { useContacts } from "@/src/hooks/contacts/useContacts";
-import { DeleteMode, useDeleteContacts } from "@/src/hooks/contacts/useDeleteContacts";
+import { useDeleteContacts } from "@/src/hooks/contacts/useDeleteContacts";
 import { useExportContacts } from "@/src/hooks/contacts/useExportContacts";
 import { darkColors, lightColors } from "@/src/theme/colors";
 import { ChatParticipant } from "@/src/types/Chat";
 import { Contact } from "@/src/types/Contact";
+import { DeleteMode } from "@/src/utiles/enums/deleteMode";
 import { showToast } from "@/src/utiles/toastHelper/toast";
 import { router, Stack } from "expo-router";
 import {
@@ -15,6 +16,7 @@ import {
   Check,
   Download,
   Import,
+  Megaphone,
   MoreVertical,
   Phone,
   Search,
@@ -251,6 +253,15 @@ export default function ContactsScreen() {
                     <AppMenu
                       trigger={<MoreVertical size={22} color={colors.text} />}
                       items={[
+                        {
+                          label: "Make Broadcast",
+                          icon: <Megaphone size={16} color={colors.text} />,
+                          onPress: () => {
+                            router.push({
+                              pathname: "/(dashboard)/chats/broadcast",
+                            });
+                          }
+                        },
                         {
                           label: "Import from Phone",
                           icon: <Phone size={16} color={colors.text} />,

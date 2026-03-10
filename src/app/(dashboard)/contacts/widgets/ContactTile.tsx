@@ -1,10 +1,11 @@
 import AppMenu from "@/src/components/common/AppMenu";
+import UserAvatar from "@/src/components/common/UserAvatar";
 import { useTheme } from "@/src/context/ThemeContext";
 import { darkColors, lightColors } from "@/src/theme/colors";
 import { Contact } from "@/src/types/Contact";
 import parsePhoneNumberFromString, { CountryCode } from "libphonenumber-js";
 import { Check, Edit, MessageCircle, MoreVertical, Trash2 } from "lucide-react-native";
-import { Image, Pressable, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Pressable, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 interface ContactTileProps {
   contact: Contact;
@@ -57,21 +58,11 @@ export default function ContactTile(props: ContactTileProps) {
         props.isSelected && styles.selectedContainer,
       ]}
     >
-      <View style={styles.avatar}>
-        {contact.imageUrl ? (
-          <Image
-            source={{ uri: contact.imageUrl }}
-            style={styles.avatarImage}
-            resizeMode="cover"
-          />
-        ) : (
-          <Text style={styles.avatarText}>
-            {(contact.name || contact.phones?.[0] || "?")
-              .charAt(0)
-              .toUpperCase()}
-          </Text>
-        )}
-      </View>
+      <UserAvatar
+        name={contact.name || contact.phones?.[0]}
+        imageUrl={contact.imageUrl}
+        size={42}
+      />
 
       {/* Content */}
       <View style={styles.content}>

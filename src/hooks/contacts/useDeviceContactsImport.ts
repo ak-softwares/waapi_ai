@@ -91,10 +91,10 @@ export function useDeviceContactsImport() {
 
       setImportedContacts(results);
 
-      showToast({
-        type: "success",
-        message: `Imported ${results.length} contacts`,
-      });
+      // showToast({
+      //   type: "success",
+      //   message: `Imported ${results.length} contacts`,
+      // });
     } catch {
       showToast({
         type: "error",

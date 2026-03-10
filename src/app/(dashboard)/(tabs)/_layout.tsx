@@ -8,22 +8,14 @@ import TemplateIcon from "@/assets/appIcons/template.svg";
 import { useTheme } from "@/src/context/ThemeContext";
 import { darkColors, lightColors } from "@/src/theme/colors";
 
-import { Ionicons } from "@expo/vector-icons";
 import { router, Tabs } from "expo-router";
 import {
   Pressable,
   StyleSheet,
   Text,
-  TouchableOpacity,
-  View,
+  View
 } from "react-native";
 
-import {
-  Menu,
-  MenuOption,
-  MenuOptions,
-  MenuTrigger,
-} from "react-native-popup-menu";
 
 export default function RootLayout() {
   const { theme } = useTheme();
@@ -58,6 +50,9 @@ export default function RootLayout() {
         tabBarIconStyle: {
           marginTop: 5,
         },
+        tabBarLabelStyle: {
+          marginTop: 5,
+        }
       }}
     >
       {/* ================= Chats ================= */}
@@ -65,44 +60,9 @@ export default function RootLayout() {
         name="chats"
         options={{
           title: "Chats",
-
-          headerRight: () => (
-            <View style={{ flexDirection: "row", alignItems: "center" }}>
-              <TouchableOpacity style={{ marginRight: 14 }}>
-                <Ionicons
-                  name="qr-code-outline"
-                  size={22}
-                  color={colors.headerIcon}
-                />
-              </TouchableOpacity>
-
-              <Menu>
-                <MenuTrigger>
-                  <Ionicons
-                    name="ellipsis-vertical"
-                    size={22}
-                    color={colors.headerIcon}
-                    style={{ marginRight: 12 }}
-                  />
-                </MenuTrigger>
-
-                <MenuOptions>
-                  <MenuOption onSelect={() => alert("New Chat")} text="New Chat" />
-                  <MenuOption onSelect={() => alert("Archived")} text="Archived" />
-                  <MenuOption onSelect={() => alert("Settings")} text="Settings" />
-                </MenuOptions>
-              </Menu>
-            </View>
-          ),
-
-          tabBarLabelStyle: {
-            marginTop: 4,
-            fontSize: 10,
-          },
-
+          tabBarLabel: "Chats", // 🔑 lock tab label
           tabBarIcon: ({ size, focused }) => {
             const Icon = focused ? ActiveChatIcon : ChatIcon;
-
             return (
               <View
                 style={{

@@ -1,113 +1,100 @@
+import UserAvatar from "@/src/components/common/UserAvatar";
 import { useTheme } from "@/src/context/ThemeContext";
 import { darkColors, lightColors } from "@/src/theme/colors";
 import { Chat, ChatType } from "@/src/types/Chat";
 import { formatMessageDateOrTime } from "@/src/utiles/formatTime/formatTime";
 import { CountryCode, parsePhoneNumberFromString } from "libphonenumber-js";
-import { User2, Users2 } from "lucide-react-native";
+import { Check } from "lucide-react-native";
 import React from "react";
-import {
-  Image,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View
-} from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 type Props = {
   chat: Chat;
   onPress: () => void;
+  onLongPress?: () => void;
+  isSelectionMode?: boolean;
+  isSelected?: boolean;
 };
 
-export default function ChatTile({ chat, onPress }: Props) {
+export default function ChatTile({
+  chat,
+  onPress,
+  onLongPress,
+  isSelectionMode = false,
+  isSelected = false,
+}: Props) {
   const { theme } = useTheme();
   const colors = theme === "dark" ? darkColors : lightColors;
   const styles = getStyles(colors);
 
-  const formatPhone = (
-    number: string,
-    defaultCountry: CountryCode = "IN"
-  ) => {
-    const phoneNumber = parsePhoneNumberFromString(
-      number,
-      defaultCountry
-    );
-    return phoneNumber
-      ? phoneNumber.formatInternational()
-      : number;
+  const formatPhone = (number: string, defaultCountry: CountryCode = "IN") => {
+    const phoneNumber = parsePhoneNumberFromString(number, defaultCountry);
+    return phoneNumber ? phoneNumber.formatInternational() : number;
   };
 
   const isUnread = (chat.unreadCount ?? 0) > 0;
   const isBroadcast = chat.type === ChatType.BROADCAST;
-
   const partner = chat.participants[0];
 
   const displayName = isBroadcast
     ? chat.chatName || ChatType.BROADCAST
-    : partner?.name ||
-      formatPhone(String(partner?.number)) ||
-      "Unknown";
+    : partner?.name || formatPhone(String(partner?.number)) || "Unknown";
 
-  const displayImage = isBroadcast
-    ? chat?.chatImage
-    : partner?.imageUrl;
+  const userName = isBroadcast
+    ? chat.chatName || ChatType.BROADCAST
+    : partner?.name || partner?.number || "Unknown";
+
+  const displayImage = isBroadcast ? chat?.chatImage : partner?.imageUrl;
 
   return (
-    <TouchableOpacity style={styles.container} onPress={onPress}>
-      {/* Avatar */}
+    <TouchableOpacity
+      style={[styles.container, isSelected && styles.selectedContainer]}
+      onPress={onPress}
+      onLongPress={onLongPress}
+      delayLongPress={250}
+    >
       <View style={styles.avatar}>
-        {displayImage ? (
-          <Image
-            source={{ uri: displayImage }}
-            style={styles.avatarImage}
-          />
-        ) : isBroadcast ? (
-          <Users2 size={20} color={colors.mutedText} />
-        ) : (
-          <User2 size={20} color={colors.mutedText} />
-        )}
+        <UserAvatar
+          name={userName}
+          imageUrl={displayImage}
+          size={45}
+          isGroup={isBroadcast}
+        />
       </View>
 
-      {/* Content */}
       <View style={styles.content}>
         <View style={styles.row}>
           <Text
-            style={[
-              styles.name,
-              isUnread && { color: colors.text, fontWeight: "700" },
-            ]}
+            style={[styles.name, isUnread && { color: colors.text, fontWeight: "700" }]}
             numberOfLines={1}
           >
             {displayName}
           </Text>
 
-          <Text
-            style={[
-              styles.time,
-              isUnread && { color: colors.primary },
-            ]}
-          >
+          <Text style={[styles.time, isUnread && { color: colors.primary }]}>
             {formatMessageDateOrTime(chat.lastMessageAt)}
           </Text>
         </View>
 
         <View style={styles.row}>
           <Text
-            style={[
-              styles.message,
-              isUnread && { color: colors.text },
-            ]}
+            style={[styles.message, isUnread && { color: colors.text }]}
             numberOfLines={1}
           >
             {chat.lastMessage || "No messages yet"}
           </Text>
 
-          {isUnread && (
+          {isUnread && !isSelectionMode && (
             <View style={styles.unread}>
               <Text style={styles.unreadText}>
-                {(chat.unreadCount ?? 0) > 99
-                  ? "99+"
-                  : chat.unreadCount}
+                {(chat.unreadCount ?? 0) > 99 ? "99+" : chat.unreadCount}
               </Text>
+            </View>
+          )}
+
+          {isSelectionMode && (
+            <View style={[styles.selectionDot, isSelected && styles.selectionDotActive]}>
+              {isSelected && <Check size={14} color="#fff" />}
             </View>
           )}
         </View>
@@ -120,41 +107,26 @@ const getStyles = (colors: typeof lightColors) =>
   StyleSheet.create({
     container: {
       flexDirection: "row",
-      paddingVertical: 12,
-      paddingHorizontal: 14,
+      paddingVertical: 15,
+      paddingHorizontal: 5,
       backgroundColor: colors.background,
+      borderRadius: 10,
     },
-
+    selectedContainer: {
+      backgroundColor: `${colors.primary}1A`,
+    },
     avatar: {
-      width: 52,
-      height: 52,
-      borderRadius: 26,
-      backgroundColor: colors.surface,
-      justifyContent: "center",
-      alignItems: "center",
-      overflow: "hidden",
-      marginRight: 12,
-      borderWidth: 1,
-      borderColor: colors.border,
+      marginRight: 10,
     },
-
-    avatarImage: {
-      width: 52,
-      height: 52,
-      borderRadius: 26,
-    },
-
     content: {
       flex: 1,
-      paddingBottom: 10,
+      // paddingBottom: 10,
     },
-
     row: {
       flexDirection: "row",
       justifyContent: "space-between",
       alignItems: "center",
     },
-
     name: {
       fontSize: 16,
       fontWeight: "600",
@@ -162,12 +134,10 @@ const getStyles = (colors: typeof lightColors) =>
       flex: 1,
       marginRight: 10,
     },
-
     time: {
       fontSize: 12,
       color: colors.mutedText,
     },
-
     message: {
       fontSize: 14,
       color: colors.mutedText,
@@ -175,7 +145,6 @@ const getStyles = (colors: typeof lightColors) =>
       marginTop: 2,
       marginRight: 10,
     },
-
     unread: {
       backgroundColor: colors.primary,
       borderRadius: 20,
@@ -185,10 +154,22 @@ const getStyles = (colors: typeof lightColors) =>
       alignItems: "center",
       paddingHorizontal: 6,
     },
-
     unreadText: {
       color: "#fff",
       fontSize: 12,
       fontWeight: "600",
+    },
+    selectionDot: {
+      width: 22,
+      height: 22,
+      borderRadius: 11,
+      borderWidth: 1,
+      borderColor: colors.border,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    selectionDotActive: {
+      backgroundColor: colors.primary,
+      borderColor: colors.primary,
     },
   });

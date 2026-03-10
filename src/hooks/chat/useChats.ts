@@ -20,7 +20,7 @@ export function useChats() {
       else setLoadingMore(true);
 
       try {
-        const res = await api.get("/wa-accounts/chats", {
+         const res = await api.get("/wa-accounts/chats", {
           params: {
             q: query,
             page: pageToFetch,
@@ -45,7 +45,11 @@ export function useChats() {
       } catch (error) {
         console.log("Failed to fetch chats", error);
       } finally {
-        pageToFetch === 1 ? setLoading(false) : setLoadingMore(false);
+        if (pageToFetch === 1) {
+          setLoading(false);
+        } else {
+          setLoadingMore(false);
+        }
       }
     },
     [query, filter]
@@ -53,7 +57,7 @@ export function useChats() {
 
   useEffect(() => {
     fetchChats(page);
-  }, [page, query, filter]);
+  }, [fetchChats, page]);
 
   const loadMore = () => {
     if (!loadingMore && hasMore && !loading && hasMore) {
@@ -73,6 +77,12 @@ export function useChats() {
     setChats([]);
   };
 
+  const applyFilter = (nextFilter: ChatFilterType) => {
+    setFilter(nextFilter);
+    setPage(1);
+    setChats([]);
+  };
+
   return {
     chats,
     totalChats,
@@ -83,7 +93,7 @@ export function useChats() {
     refreshChats,
     searchChats,
     filter,
-    setFilter,
+    setFilter: applyFilter,
     setChats,
   };
 }

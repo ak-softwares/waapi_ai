@@ -8,60 +8,57 @@ interface OnDeletedPayload {
   deletedIds: string[];
 }
 
-export function useDeleteContacts(
-  onDeleted?: (payload: OnDeletedPayload) => void
-) {
+export function useDeleteChats(onDeleted?: (payload: OnDeletedPayload) => void) {
   const [isDeleting, setIsDeleting] = useState(false);
 
-  // Delete single contact
-  const deleteContact = async (contactId: string, contactName?: string) => {
+  // ✅ Delete Single Chat
+  const deleteChat = async (chatId: string) => {
     setIsDeleting(true);
 
     try {
-      const res = await api.delete(`/wa-accounts/contacts/${contactId}`);
+      const res = await api.delete(`/wa-accounts/chats/${chatId}`);
       const json = res.data;
 
       if (json.success) {
         showToast({
           type: "success",
-          message: `Contact "${contactName ?? ""}" deleted successfully`,
+          message: "Chat deleted successfully",
         });
 
         onDeleted?.({
           mode: DeleteMode.Single,
-          deletedIds: [contactId],
+          deletedIds: [chatId],
         });
-      } else {
-        showToast({
-          type: "error",
-          message: json.message || "Failed to delete contact",
-        });
+
+        return;
       }
+
+      showToast({
+        type: "error",
+        message: json.message || "Failed to delete chat",
+      });
     } catch {
       showToast({
         type: "error",
-        message: "Error deleting contact",
+        message: "Error deleting chat",
       });
     } finally {
       setIsDeleting(false);
     }
   };
 
-  // Bulk delete contacts
-  const deleteContactsBulk = async (contactIds: string[]) => {
-    if (!contactIds.length) {
-      showToast({
-        type: "error",
-        message: "No contacts selected",
-      });
+  // ✅ Bulk Delete
+  const deleteChatsBulk = async (chatIds: string[]) => {
+    if (!chatIds.length) {
+      showToast({ type: "error", message: "No chats selected." });
       return;
     }
 
     setIsDeleting(true);
 
     try {
-      const res = await api.delete("/wa-accounts/contacts/bulk", {
-        data: { ids: contactIds },
+      const res = await api.delete("/wa-accounts/chats/bulk-delete", {
+        data: { ids: chatIds },
       });
 
       const json = res.data;
@@ -69,35 +66,37 @@ export function useDeleteContacts(
       if (json.success) {
         showToast({
           type: "success",
-          message: "Selected contacts deleted successfully",
+          message: "Selected chats deleted successfully",
         });
 
         onDeleted?.({
           mode: DeleteMode.Bulk,
-          deletedIds: contactIds,
+          deletedIds: chatIds,
         });
-      } else {
-        showToast({
-          type: "error",
-          message: json.message || "Failed to delete contacts",
-        });
+
+        return;
       }
+
+      showToast({
+        type: "error",
+        message: json.message || "Failed to delete chats",
+      });
     } catch {
       showToast({
         type: "error",
-        message: "Error deleting contacts",
+        message: "Error deleting chats",
       });
     } finally {
       setIsDeleting(false);
     }
   };
 
-  // Delete all contacts
-  const deleteAllContacts = async () => {
+  // ✅ Delete All Chats
+  const deleteAllChats = async () => {
     setIsDeleting(true);
 
     try {
-      const res = await api.delete("/wa-accounts/contacts", {
+      const res = await api.delete("/wa-accounts/chats", {
         headers: {
           "x-confirm-delete-all": "true",
         },
@@ -112,24 +111,26 @@ export function useDeleteContacts(
           type: "success",
           message:
             count > 0
-              ? `${count} contacts deleted successfully`
-              : "No contacts to delete",
+              ? `${count} chats deleted successfully`
+              : "No chats to delete",
         });
 
         onDeleted?.({
           mode: DeleteMode.All,
           deletedIds: [],
         });
-      } else {
-        showToast({
-          type: "error",
-          message: json.message || "Failed to delete contacts",
-        });
+
+        return;
       }
+
+      showToast({
+        type: "error",
+        message: json.message || "Failed to delete chats",
+      });
     } catch {
       showToast({
         type: "error",
-        message: "Error deleting contacts",
+        message: "Error deleting chats",
       });
     } finally {
       setIsDeleting(false);
@@ -137,9 +138,9 @@ export function useDeleteContacts(
   };
 
   return {
-    deleteContact,
-    deleteContactsBulk,
-    deleteAllContacts,
+    deleteChat,
+    deleteChatsBulk,
+    deleteAllChats,
     isDeleting,
   };
 }
