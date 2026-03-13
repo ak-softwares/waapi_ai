@@ -1,5 +1,4 @@
 import { api } from "@/src/lib/api/apiClient";
-import { useChatStore } from "@/src/store/chatStore";
 import { ApiResponse } from "@/src/types/ApiResponse";
 import { Chat, ChatParticipant } from "@/src/types/Chat";
 import { showToast } from "@/src/utiles/toastHelper/toast";
@@ -19,7 +18,6 @@ type UpdateProps = {
 export function useBroadcast(onSuccess?: () => void) {
   const [creatingBroadcast, setCreatingBroadcast] = useState(false);
   const [updatingBroadcast, setUpdatingBroadcast] = useState(false);
-  const { setActiveChat, setNewMessageData } = useChatStore();
 
   const createBroadcast = async ({
     broadcastName,
@@ -56,8 +54,6 @@ export function useBroadcast(onSuccess?: () => void) {
         return;
       }
 
-      setNewMessageData(null, json.data);
-      setActiveChat(json.data);
       onSuccess?.();
 
       showToast({ type: "success", message: "Broadcast list created." });
@@ -104,8 +100,6 @@ export function useBroadcast(onSuccess?: () => void) {
         return;
       }
 
-      setNewMessageData(null, json.data);
-      setActiveChat(json.data);
       onSuccess?.();
 
       showToast({ type: "success", message: "Broadcast updated." });

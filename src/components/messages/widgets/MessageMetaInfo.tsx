@@ -1,14 +1,16 @@
 import React from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 import { ChatType } from "@/src/types/Chat";
 import { Message, MessageStatus, MessageType } from "@/src/types/Messages";
 import { formatTimeOnly } from "@/src/utiles/formatTime/formatTime";
 
+import { useTheme } from "@/src/context/ThemeContext";
+import { darkColors, lightColors } from "@/src/theme/colors";
+
 // SVG Icons
 import MsgTime from "@/assets/messageMetaIcons/msg-time.svg";
 import Check from "@/assets/messageMetaIcons/status-check.svg";
-import DoubleCheckRead from "@/assets/messageMetaIcons/status-dblcheck-1.svg";
 import DoubleCheck from "@/assets/messageMetaIcons/status-dblcheck.svg";
 import Warning from "@/assets/messageMetaIcons/warning.svg";
 
@@ -17,11 +19,20 @@ import AiIcon from "@/assets/messageMetaIcons/ai-icon.svg";
 import BroadcastIcon from "@/assets/messageMetaIcons/broadcast-icon.svg";
 import TemplateIcon from "@/assets/messageMetaIcons/template.svg";
 
+import { MESSAGE_TAGS } from "@/src/utiles/enums/messageTags";
+
 interface Props {
   message: Message;
 }
 
 export default function MessageMetaInfo({ message }: Props) {
+
+  const { theme } = useTheme();
+  const colors = theme === "dark" ? darkColors : lightColors;
+  const styles = getStyles(colors);
+
+  const size = 16;
+
   const isTemplate =
     !!message?.template || message?.type === MessageType.TEMPLATE;
 
@@ -40,7 +51,7 @@ export default function MessageMetaInfo({ message }: Props) {
         return DoubleCheck;
 
       case MessageStatus.Read:
-        return DoubleCheckRead;
+        return DoubleCheck;
 
       default:
         return null;
@@ -49,58 +60,72 @@ export default function MessageMetaInfo({ message }: Props) {
 
   const StatusIcon = renderStatusIcon();
 
+  const handleFailedPress = () => {
+    Alert.alert(
+      "Message Failed",
+      message?.errorMessage || "Failed to send message."
+    );
+  };
+
   return (
     <View style={styles.container}>
-      {/* Tag Icons */}
 
       {message.tag === ChatType.BROADCAST && (
-        <BroadcastIcon {...styles.icon} />
+        <BroadcastIcon width={size} height={size} fill={colors.secondaryText} />
       )}
 
-      {message.tag === "aichat" && <AiIcon {...styles.icon} />}
+      {message.tag === MESSAGE_TAGS.AI_ASSISTANT && (
+        <AiIcon width={size} height={size} fill={colors.secondaryText} />
+      )}
 
-      {message.tag === "aiagent" && <AiAgentIcon {...styles.icon} />}
+      {message.tag === MESSAGE_TAGS.AI_AGENT && (
+        <AiAgentIcon width={size} height={size} fill={colors.secondaryText} />
+      )}
 
-      {isTemplate && <TemplateIcon {...styles.icon} />}
+      {isTemplate && (
+        <TemplateIcon width={size} height={size} fill={colors.secondaryText} />
+      )}
 
-      {/* Time */}
       <Text style={styles.time}>
         {formatTimeOnly(message.createdAt)}
       </Text>
 
-      {/* Status */}
-      {StatusIcon && (
-        <StatusIcon
-          width={14}
-          height={14}
-          color={
-            message.status === MessageStatus.Read
-              ? "#34B7F1"
-              : "#a0af9c"
-          }
-        />
-      )}
+      {StatusIcon &&
+        (message.status === MessageStatus.Failed ? (
+          <TouchableOpacity onPress={handleFailedPress}>
+            <StatusIcon
+              width={size}
+              height={size}
+              fill={colors.warning}
+            />
+          </TouchableOpacity>
+        ) : (
+          <StatusIcon
+            width={size}
+            height={size}
+            fill={
+              message.status === MessageStatus.Read
+                ? colors.blueTik
+                : colors.secondaryText
+            }
+          />
+        ))}
     </View>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 4,
-    marginTop: 4,
-  },
+const getStyles = (colors: typeof lightColors) =>
+  StyleSheet.create({
+    container: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 4,
+      marginTop: 4,
+    },
 
-  icon: {
-    width: 14,
-    height: 14,
-    color: "#a0af9c",
-  },
-
-  time: {
-    fontSize: 11,
-    color: "#999",
-    marginHorizontal: 2,
-  },
-});
+    time: {
+      fontSize: 12,
+      color: colors.secondaryText,
+      marginHorizontal: 2,
+    },
+  });

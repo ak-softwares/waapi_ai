@@ -1,5 +1,4 @@
 import { api } from "@/src/lib/api/apiClient";
-import { useChatStore } from "@/src/store/chatStore";
 import { ApiResponse } from "@/src/types/ApiResponse";
 import { Chat, ChatParticipant } from "@/src/types/Chat";
 import { showToast } from "@/src/utiles/toastHelper/toast";
@@ -7,7 +6,6 @@ import { useState } from "react";
 
 export function useGetOrCreateChat(onSuccess?: () => void) {
   const [loading, setLoading] = useState(false);
-  const { setActiveChat, setNewMessageData } = useChatStore();
 
   const getOrCreateChat = async ({
     participant,
@@ -40,9 +38,7 @@ export function useGetOrCreateChat(onSuccess?: () => void) {
         });
         return;
       }
-
-      setNewMessageData(null, chat);
-      setActiveChat(chat);
+      
       onSuccess?.();
 
       return chat;

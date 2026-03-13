@@ -3,11 +3,18 @@
 import React from "react";
 import { Linking, StyleSheet, Text } from "react-native";
 
+import { useTheme } from "@/src/context/ThemeContext";
+import { darkColors, lightColors } from "@/src/theme/colors";
+
 interface Props {
   text?: string;
 }
 
 export const FormatRichText = ({ text = "" }: Props) => {
+  const { theme } = useTheme();
+  const colors = theme === "dark" ? darkColors : lightColors;
+  const styles = getStyles(colors);
+
   const parts = parseText(text);
 
   return (
@@ -57,13 +64,15 @@ export const FormatRichText = ({ text = "" }: Props) => {
           );
         }
 
-        return <Text key={index}>{part.value}</Text>;
+        return (
+          <Text key={index} style={styles.base}>
+            {part.value}
+          </Text>
+        );
       })}
     </Text>
   );
 };
-
-
 
 
 
@@ -129,23 +138,27 @@ function parseText(input: string): Part[] {
 
 /* ---------- STYLES ---------- */
 
-const styles = StyleSheet.create({
-  base: {
-    fontSize: 15,
-    color: "#111",
-    flexWrap: "wrap",
-  },
+const getStyles = (colors: typeof lightColors) =>
+  StyleSheet.create({
+    base: {
+      paddingTop: 10,
+      paddingHorizontal: 10,
+      fontSize: 15,
+      color: colors.text,
+      flexWrap: "wrap",
+    },
 
-  link: {
-    color: "#21C063",
-  },
+    link: {
+      color: colors.messageLink,
+    },
 
-  phone: {
-    color: "#21C063",
-    fontWeight: "600",
-  },
+    phone: {
+      color: colors.messageLink,
+      fontWeight: "600",
+    },
 
-  bold: {
-    fontWeight: "bold",
-  },
-});
+    bold: {
+      fontWeight: "bold",
+      color: colors.text,
+    },
+  });

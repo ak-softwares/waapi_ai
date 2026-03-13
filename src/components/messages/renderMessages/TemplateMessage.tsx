@@ -1,5 +1,3 @@
-// components/chat/TemplateMessage.tsx
-
 import React from "react";
 import {
   Linking,
@@ -11,24 +9,45 @@ import {
 
 import * as Clipboard from "expo-clipboard";
 
+import { useTheme } from "@/src/context/ThemeContext";
+import { darkColors, lightColors } from "@/src/theme/colors";
+
 import { Template } from "@/src/types/Template";
 import {
   TemplateButtonType,
   TemplateCategory,
   TemplateComponentType,
+  TemplateHeaderType,
 } from "@/src/utiles/enums/template";
 
 import { Message } from "@/src/types/Messages";
 import { FormatRichText } from "@/src/utiles/formatText/formatRichText";
 import { showToast } from "@/src/utiles/toastHelper/toast";
 import MessageMetaInfo from "../widgets/MessageMetaInfo";
-import TemplateMediaPreview from "./TemplateMediaPreview";
 
 // SVG Icons
 import CopyIcon from "@/assets/menuIcons/copy.svg";
+import LaunchIcon from "@/assets/menuIcons/launch.svg";
+import ReplyIcon from "@/assets/menuIcons/reply.svg";
 import CallIcon from "@/assets/messageIcons/call.svg";
-import LaunchIcon from "@/assets/messageIcons/launch.svg";
-import ReplyIcon from "@/assets/messageIcons/reply.svg";
+import { MediaType } from "@/src/utiles/enums/mediaTypes";
+import MediaRenderer from "./MediaRenderer";
+
+function mapTemplateFormat(format: string): MediaType {
+  switch (format) {
+    case "IMAGE":
+      return MediaType.IMAGE;
+
+    case "VIDEO":
+      return MediaType.VIDEO;
+
+    case "DOCUMENT":
+      return MediaType.DOCUMENT;
+
+    default:
+      return MediaType.IMAGE;
+  }
+}
 
 interface Props {
   message?: Message;
@@ -36,11 +55,15 @@ interface Props {
 }
 
 export default function TemplateMessage({ message, template }: Props) {
+  const { theme } = useTheme();
+  const colors = theme === "dark" ? darkColors : lightColors;
+  const styles = getStyles(colors);
+
   if (!template?.components) return null;
 
   return (
     <View style={styles.container}>
-      {/* ---------- HEADER ---------- */}
+      {/* HEADER */}
 
       {template.components
         .filter((c: any) => c.type === TemplateComponentType.HEADER)
@@ -57,15 +80,28 @@ export default function TemplateMessage({ message, template }: Props) {
               </Text>
             );
           }
+          /* BUILD MEDIA DATA */
 
+          const mediaId = h.example?.header_handle?.[0];
+
+          const mediaType = mapTemplateFormat(h.format) ?? MediaType.DOCUMENT;
+
+          const filename = h.format === TemplateHeaderType.DOCUMENT
+            ? "document"
+            : undefined;
           return (
-            <View key={idx}>
-              <TemplateMediaPreview h={h} />
+            <View key={idx} style={styles.headerMedia}>
+              <MediaRenderer
+                mediaId={mediaId}
+                mediaType={mediaType}
+                filename={filename}
+                mediaUrl={h.example?.header_url}
+              />
             </View>
           );
         })}
 
-      {/* ---------- BODY ---------- */}
+      {/* BODY */}
 
       {template.components
         .filter((c: any) => c.type === TemplateComponentType.BODY)
@@ -77,7 +113,7 @@ export default function TemplateMessage({ message, template }: Props) {
           );
         })}
 
-      {/* ---------- FOOTER + META ---------- */}
+      {/* FOOTER */}
 
       <View style={styles.footerRow}>
         <View style={{ flex: 1 }}>
@@ -93,7 +129,7 @@ export default function TemplateMessage({ message, template }: Props) {
         {message && <MessageMetaInfo message={message} />}
       </View>
 
-      {/* ---------- BUTTONS ---------- */}
+      {/* BUTTONS */}
 
       <View style={styles.buttonContainer}>
         {template.components
@@ -101,7 +137,7 @@ export default function TemplateMessage({ message, template }: Props) {
           .map((group: any, idx: number) => (
             <View key={idx}>
               {group.buttons.map((btn: any, bIndex: number) =>
-                renderButton(btn, template.category, bIndex)
+                renderButton(btn, template.category, bIndex, styles)
               )}
             </View>
           ))}
@@ -110,12 +146,9 @@ export default function TemplateMessage({ message, template }: Props) {
   );
 }
 
-/* ------------------------------------------------
-   BUTTON RENDER
------------------------------------------------- */
+/* BUTTON RENDER */
 
-function renderButton(btn: any, category: any, key: number) {
-  /* ---------- URL ---------- */
+function renderButton(btn: any, category: any, key: number, styles: any) {
 
   if (
     btn.type === TemplateButtonType.URL &&
@@ -133,13 +166,11 @@ function renderButton(btn: any, category: any, key: number) {
         style={styles.button}
         onPress={() => Linking.openURL(resolvedUrl)}
       >
-        <LaunchIcon width={16} height={16} color="#21C063" />
+        <LaunchIcon width={16} height={16} fill="#21C063" />
         <Text style={styles.buttonText}>{btn.text}</Text>
       </Pressable>
     );
   }
-
-  /* ---------- PHONE ---------- */
 
   if (btn.type === TemplateButtonType.PHONE_NUMBER) {
     return (
@@ -148,24 +179,20 @@ function renderButton(btn: any, category: any, key: number) {
         style={styles.button}
         onPress={() => Linking.openURL(`tel:${btn.phone_number}`)}
       >
-        <CallIcon width={16} height={16} color="#21C063" />
+        <CallIcon width={16} height={16} fill="#21C063" />
         <Text style={styles.buttonText}>{btn.text}</Text>
       </Pressable>
     );
   }
-
-  /* ---------- QUICK REPLY ---------- */
 
   if (btn.type === TemplateButtonType.QUICK_REPLY) {
     return (
       <Pressable key={key} style={styles.button}>
-        <ReplyIcon width={16} height={16} color="#21C063" />
+        <ReplyIcon width={16} height={16} fill="#21C063" />
         <Text style={styles.buttonText}>{btn.text}</Text>
       </Pressable>
     );
   }
-
-  /* ---------- COPY CODE / AUTH ---------- */
 
   if (
     category === TemplateCategory.AUTHENTICATION ||
@@ -180,7 +207,7 @@ function renderButton(btn: any, category: any, key: number) {
 
     return (
       <Pressable key={key} style={styles.button} onPress={handleCopy}>
-        <CopyIcon width={16} height={16} color="#21C063" />
+        <CopyIcon width={16} height={16} fill="#21C063" />
         <Text style={styles.buttonText}>{btn.text}</Text>
       </Pressable>
     );
@@ -189,9 +216,7 @@ function renderButton(btn: any, category: any, key: number) {
   return null;
 }
 
-/* ------------------------------------------------
-   VARIABLE REPLACEMENT
------------------------------------------------- */
+/* VARIABLE REPLACEMENT */
 
 function replaceHeaderVariables(
   text: string,
@@ -221,60 +246,59 @@ function replaceBodyVariables(text: string, example?: any) {
   return updated;
 }
 
-/* ------------------------------------------------
-   STYLES
------------------------------------------------- */
+/* STYLES */
 
-const styles = StyleSheet.create({
-  container: {
-    gap: 4,
-    minWidth: 200,
-    marginBottom: 4,
-  },
+const getStyles = (colors: typeof lightColors) =>
+  StyleSheet.create({
+    container: {
+      gap: 4,
+      minWidth: 250,
+      // marginBottom: 4,
+    },
 
-  headerText: {
-    fontSize: 14,
-    fontWeight: "600",
-    opacity: 0.9,
-  },
+    headerMedia: {
+      paddingHorizontal: 4,
+      paddingVertical: 2
+    },
 
-  footerRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginTop: 4,
-  },
+    headerText: {
+      fontSize: 14,
+      fontWeight: "600",
+      color: colors.text,
+      opacity: 0.9,
+      padding: 10,
+    },
 
-  footerText: {
-    fontSize: 11,
-    opacity: 0.7,
-    color: "#777",
-  },
+    footerRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      marginTop: 4,
+      paddingHorizontal: 10,
+    },
 
-  buttonContainer: {
-    marginTop: 6,
-    borderTopWidth: 1,
-    borderColor: "#eee",
-  },
+    footerText: {
+      fontSize: 11,
+      opacity: 0.7,
+      color: colors.mutedText,
+    },
 
-  button: {
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    paddingVertical: 10,
-    gap: 6,
-    borderTopWidth: 1,
-    borderColor: "#eee",
-  },
+    buttonContainer: {
+      marginTop: 6,
+    },
 
-  buttonText: {
-    color: "#21C063",
-    fontSize: 14,
-    fontWeight: "500",
-  },
+    button: {
+      flexDirection: "row",
+      justifyContent: "center",
+      alignItems: "center",
+      paddingVertical: 10,
+      gap: 6,
+      borderTopWidth: 0.3,
+      borderColor: colors.templateBorder,
+    },
 
-  icon: {
-    width: 16,
-    height: 16,
-    resizeMode: "contain",
-  },
-});
+    buttonText: {
+      color: "#21C063",
+      fontSize: 14,
+      fontWeight: "500",
+    },
+  });

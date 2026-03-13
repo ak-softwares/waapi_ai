@@ -8,9 +8,11 @@ import {
 
 import * as Clipboard from "expo-clipboard";
 
-import { useChatStore } from "@/src/store/chatStore";
-import { ChatParticipant } from "@/src/types/Chat";
+import { useTheme } from "@/src/context/ThemeContext";
+import { darkColors, lightColors } from "@/src/theme/colors";
+import { Chat } from "@/src/types/Chat";
 import { Message, MessageType } from "@/src/types/Messages";
+import { FormatRichText } from "@/src/utiles/formatText/formatRichText";
 import { showToast } from "@/src/utiles/toastHelper/toast";
 import LocationMessage from "../renderMessages/LocationMessage";
 import MediaMessage from "../renderMessages/MediaMessage";
@@ -19,7 +21,15 @@ import MessageMetaInfo from "./MessageMetaInfo";
 // import { formatRichText } from "@/src/utiles/formatText/formatRichText"
 
 interface Props {
+  chat?: Chat,
   message: Message;
+
+  isSelected?: boolean;
+  isSelectionMode?: boolean;
+
+  onPress?: () => void;
+  onLongPress?: () => void;
+
   onDelete?: (messageId: string) => void;
   onReply?: () => void;
   onForward?: () => void;
@@ -28,14 +38,25 @@ interface Props {
 }
 
 export default function MessageBubble({
+  chat,
   message,
+
+  onPress,
+  onLongPress,
+
+  isSelected,
+  isSelectionMode,
+
   onDelete,
   onReply,
   onForward,
   onInfo,
   isPreviewMode,
 }: Props) {
-  const activeChat = useChatStore((s) => s.activeChat);
+  const { theme } = useTheme();
+  const colors = theme === "dark" ? darkColors : lightColors;
+  const styles = getStyles(colors, theme === "dark");
+
   const [menuVisible, setMenuVisible] = useState(false);
 
   const isTemplate =
@@ -44,14 +65,14 @@ export default function MessageBubble({
   const isLocation =
     !!message?.location || message?.type === MessageType.LOCATION;
 
-  const isMine = activeChat?.participants?.some(
-    (p: ChatParticipant) => p.number === message.from
-  );
+  const contactNumber = chat?.participants?.[0]?.number;
+
+  const isMine = message.from !== contactNumber;
 
   const isMineContext =
     !!message.context?.from &&
-    !!activeChat?.participants?.length &&
-    message.context.from !== activeChat.participants[0].number;
+    !!chat?.participants?.length &&
+    message.context.from !== chat.participants[0].number;
 
   const copyMessageText = async () => {
     if (!message?.message) return;
@@ -63,12 +84,16 @@ export default function MessageBubble({
 
   return (
     <Pressable
-      onLongPress={() => setMenuVisible(true)}
+      onPress={onPress}
+      onLongPress={onLongPress}
       style={[
         styles.container,
-        { justifyContent: isMine ? "flex-end" : "flex-start" },
+        { justifyContent: isMine ? "flex-end" : "flex-start"},
       ]}
     >
+      {isSelected && (
+        <View style={styles.selectionOverlay} />
+      )}
       <View
         style={[
           styles.bubble,
@@ -94,7 +119,7 @@ export default function MessageBubble({
                 },
               ]}
             >
-              {isMineContext ? "You" : activeChat?.participants?.[0]?.name}
+              {isMineContext ? "You" : chat?.participants?.[0]?.name}
             </Text>
 
             <Text style={styles.contextMessage} numberOfLines={1}>
@@ -112,11 +137,11 @@ export default function MessageBubble({
           ) : isLocation ? (
             <LocationMessage message={message} />
           ) : (
-            <Text style={styles.text}>{message.message}</Text>
+            <FormatRichText text={message.message} />
           )}
 
           {!isTemplate && (
-            <View style={{ alignItems: "flex-end" }}>
+            <View style={styles.metaInfo}>
               <MessageMetaInfo message={message} />
             </View>
           )}
@@ -156,61 +181,74 @@ export default function MessageBubble({
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flexDirection: "row",
-    marginVertical: 4,
-    paddingHorizontal: 10,
-  },
+const getStyles = (colors: typeof lightColors, isDark: boolean) =>
+  StyleSheet.create({
+    container: {
+      flexDirection: "row",
+      marginVertical: 4,
+      paddingHorizontal: 10,
+      position: "relative",
+    },
 
-  bubble: {
-    borderRadius: 10,
-    padding: 10,
-  },
+    selectionOverlay: {
+      ...StyleSheet.absoluteFillObject,
+      backgroundColor: `${colors.primary}30`,
+      // borderRadius: 8,
+      // marginHorizontal: 10,
+      zIndex: 2, 
+    },
 
-  mine: {
-    backgroundColor: "#DCF8C6",
-    borderTopRightRadius: 0,
-  },
+    bubble: {
+      borderRadius: 10,
+      zIndex: 1,
+    },
 
-  other: {
-    backgroundColor: "#FFFFFF",
-    borderTopLeftRadius: 0,
-  },
+    mine: {
+      backgroundColor: colors.messageBubbleMine,
+      borderTopRightRadius: 0,
+    },
 
-  text: {
-    fontSize: 15,
-    color: "#111",
-  },
+    other: {
+      backgroundColor: colors.messageBubbleOther,
+      borderTopLeftRadius: 0,
+    },
 
-  contextBox: {
-    borderLeftWidth: 4,
-    paddingLeft: 8,
-    marginBottom: 6,
-  },
+    contextBox: {
+      borderLeftWidth: 4,
+      paddingLeft: 8,
+      marginBottom: 6,
+    },
 
-  contextName: {
-    fontWeight: "600",
-    fontSize: 13,
-  },
+    contextName: {
+      fontWeight: "600",
+      fontSize: 13,
+      color: colors.text,
+    },
 
-  contextMessage: {
-    fontSize: 13,
-    color: "#555",
-  },
+    contextMessage: {
+      fontSize: 13,
+      color: colors.mutedText,
+    },
 
-  menu: {
-    position: "absolute",
-    right: 20,
-    top: 0,
-    backgroundColor: "#222",
-    borderRadius: 8,
-    padding: 8,
-  },
+    menu: {
+      position: "absolute",
+      right: 20,
+      top: 0,
+      backgroundColor: colors.surface,
+      borderRadius: 8,
+      padding: 8,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
 
-  menuItem: {
-    color: "white",
-    paddingVertical: 6,
-    paddingHorizontal: 10,
-  },
-});
+    menuItem: {
+      color: colors.text,
+      paddingVertical: 6,
+      paddingHorizontal: 10,
+    },
+    metaInfo: {
+      alignItems: "flex-end",
+      paddingHorizontal: 10,
+      paddingBottom: 10,
+    },
+  });

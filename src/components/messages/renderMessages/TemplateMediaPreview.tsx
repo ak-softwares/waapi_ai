@@ -10,7 +10,6 @@ import {
 
 import { Video } from "expo-av";
 
-import { fetchMediaBlob } from "@/src/services/media/media.service";
 import { TemplateHeaderComponentCreate } from "@/src/types/Template";
 
 // SVG Icons
@@ -105,8 +104,8 @@ export default function TemplateMediaPreview({
         if (isUrl(mediaIdOrUrl)) {
           if (mounted) setMediaUrl(mediaIdOrUrl);
         } else {
-          const url = await fetchMediaBlob(mediaIdOrUrl);
-          if (mounted) setMediaUrl(url);
+          // const url = await fetchMediaBlob(mediaIdOrUrl);
+          // if (mounted) setMediaUrl(url);
         }
       } catch {
         if (mounted) setError(true);

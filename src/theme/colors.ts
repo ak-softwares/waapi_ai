@@ -4,6 +4,7 @@ export const lightColors = {
   surface: "#f6f6f6",
 
   text: "#111111",
+  secondaryText: "#6b7280",
   mutedText: "#6b6b6b",
 
   border: "#e0e0e0",
@@ -44,6 +45,14 @@ export const lightColors = {
 
   danger: "#d32f2f",        // main red (text / button)
   link: "#111111",
+
+  // Whatsapp theme color
+  messageBackground: "#F1EBE3",
+  messageBubbleMine: "#D9FDD3",
+  messageBubbleOther: "#FFFFFF",
+  blueTik: "#017BF8",
+  templateBorder: "#b8b8b8",
+  messageLink: "#017BF8",
 };
 
 export const darkColors = {
@@ -51,6 +60,7 @@ export const darkColors = {
   surface: "#1a1a1a",
 
   text: "#f5f5f5",
+  secondaryText: "#c8c8c8",
   mutedText: "#a1a1a1",
 
   border: "#2f2f2f",
@@ -92,4 +102,12 @@ export const darkColors = {
   danger: "#ef5350",        // slightly brighter red for dark mode
 
   link: "#fff",
+
+  // Whatsapp theme color
+  messageBackground: "#0b141a",
+  messageBubbleMine: "#144D37",
+  messageBubbleOther: "#202C33",
+  blueTik: "#54BDEA",
+  templateBorder: "#a1a1a1",
+  messageLink: "#54BDEA",
 };

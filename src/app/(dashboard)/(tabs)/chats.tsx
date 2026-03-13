@@ -6,7 +6,6 @@ import { useTheme } from "@/src/context/ThemeContext";
 import { useChats } from "@/src/hooks/chat/useChats";
 import { useDeleteChats } from "@/src/hooks/chat/useDeleteChats";
 import { useFavourite } from "@/src/hooks/chat/useFavourite";
-import { useChatStore } from "@/src/store/chatStore";
 import { darkColors, lightColors } from "@/src/theme/colors";
 import { Chat, FILTERS } from "@/src/types/Chat";
 import { DeleteMode } from "@/src/utiles/enums/deleteMode";
@@ -37,7 +36,6 @@ export default function ChatListScreen() {
     setChats,
   } = useChats();
 
-  const { setActiveChat } = useChatStore();
   const [search, setSearch] = useState("");
   const [isSelectionMode, setIsSelectionMode] = useState(false);
   const [selectedChats, setSelectedChats] = useState<Chat[]>([]);
@@ -277,10 +275,12 @@ export default function ChatListScreen() {
                   return;
                 }
 
-                setActiveChat(chat);
                 router.push({
-                  pathname: "/(dashboard)/messages",
-                  params: { chatId: chat._id },
+                  pathname: "/(dashboard)/messages/messages",
+                  params: { 
+                    chatId: chat._id,
+                    chatData: JSON.stringify(chat), 
+                  },
                 });
               }}
             />
