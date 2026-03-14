@@ -21,7 +21,7 @@ export function useProfileMutation(
     try {
       setLoading(true);
       // console.log("Updating profile with payload:", payload);
-      const res = await api.put("/user/profile", payload);
+      const res = await api.put("/users/me", payload);
 
       showToast({
         type: "success",
@@ -52,7 +52,7 @@ export function useProfileMutation(
     try {
       setDeleteLoading(true);
 
-      const res = await api.delete("/user/profile");
+      const res = await api.delete("/users/me");
 
       if (!res.data?.success) {
         showToast({

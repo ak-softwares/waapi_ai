@@ -13,7 +13,7 @@ export function useProfile() {
     try {
       setLoading(true);
 
-      const res = await api.get("/user/profile");
+      const res = await api.get("/users/me");
       if (!res.data?.success) {
         showToast({
           type: "error",

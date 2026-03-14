@@ -1,8 +1,11 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as Application from "expo-application";
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { useOtpLogin } from "../hooks/auth/useOtpLogin";
 import { useSignin } from "../hooks/auth/useSignin";
 import { useSignup } from "../hooks/auth/useSignup";
+import { usePushDevice } from "../hooks/notifications/usePushDevice";
+import { registerForPushNotificationsAsync } from "../lib/notification/notifications";
 
 type SigninParams = {
   email: string;
@@ -44,6 +47,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isReady, setIsReady] = useState(false);
+  const{ registerDevice, unregisterDevice } = usePushDevice();
 
   const loading = signinLoading || otpLoading || signupLoading;
   
@@ -59,6 +63,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     checkAuth();
   }, []);
 
+  const registerPush = async () => {
+    const pushToken = await registerForPushNotificationsAsync();
+
+    if (!pushToken) return;
+
+    const deviceId = Application.getAndroidId();
+
+    await registerDevice({
+      deviceId,
+      token: pushToken,
+    });
+  };
+
   // ================= SIGNIN ================= //
   const signin = async (params: SigninParams) => {
     const res = await signinHook(params);
@@ -66,6 +83,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (res.success && res.data?.token) {
       await AsyncStorage.setItem("token", res.data.token);
       setIsAuthenticated(true);
+
+      // ✅ Register device
+      await registerPush();
+
       return true;
     }
 
@@ -79,6 +100,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (res.success && res.data?.token) {
       await AsyncStorage.setItem("token", res.data.token);
       setIsAuthenticated(true);
+
+      // ✅ Register device
+      await registerPush();
+
       return true;
     }
 
@@ -92,6 +117,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (res.success && res.data?.token) {
       await AsyncStorage.setItem("token", res.data.token);
       setIsAuthenticated(true);
+      
+      // ✅ Register device
+      await registerPush();
+
       return true;
     }
 
@@ -100,6 +129,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // ================= LOGOUT ================= //
   const logout = async () => {
+    const deviceId = Application.getAndroidId(); // or ios identifier
+    await unregisterDevice(deviceId);
     await AsyncStorage.removeItem("token");
     setIsAuthenticated(false);
   };

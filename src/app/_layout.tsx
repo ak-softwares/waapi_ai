@@ -1,3 +1,4 @@
+import { usePushNotifications } from "@/src/hooks/notifications/usePushNotifications";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { MenuProvider } from "react-native-popup-menu";
@@ -10,7 +11,8 @@ const InitialLayout = () => {
   const { isAuthenticated, isReady } = useAuth();
   const { theme } = useTheme();
   if (!isReady) return null; // or splash screen
-
+  usePushNotifications();
+  
   return (
     <>
       <StatusBar style={theme === "dark" ? "light" : "dark"} />
