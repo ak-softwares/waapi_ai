@@ -3,7 +3,7 @@ import { emitChatUpdate } from "@/src/lib/events/chatEvents";
 import { emitMessage } from "@/src/lib/events/messageEvents";
 import { getPusher } from "@/src/lib/pusher/pusherClient";
 import { NotificationPayload } from "@/src/types/Notification";
-import { NotificationEventType } from "@/src/utiles/enums/notification";
+import { PusherEvent } from "@/src/utiles/enums/notification";
 import { useEffect } from "react";
 
 export function usePusher() {
@@ -15,18 +15,30 @@ export function usePusher() {
       const userId = await getUserIdFromToken();
       if (!userId) return;
 
+      const channelName = `user-${userId}`;
+
       pusher = getPusher();
-      console.log("token123: " + JSON.stringify(pusher, null, 2));
+      channel = pusher.subscribe(channelName);
 
-      channel = pusher.subscribe(`user-${userId}`);
-
-      channel.bind(NotificationEventType.NEW_MESSAGE, (data: any) => {
-
+      channel.bind(PusherEvent.USER_EVENT, (data: any) => {
         const payload = data.notificationPayload as NotificationPayload;
-
         if (payload.chat) emitChatUpdate(payload.chat);
         if (payload.message) emitMessage(payload.message);
       });
+
+
+      // channel.bind("pusher:subscription_succeeded", () => {
+      //   console.log("✅ Subscribed to:", channelName);
+
+      //   channel.bind(PusherEvent.USER_EVENT, (data: any) => {
+      //     console.log("🔥 EVENT RECEIVED:", data);
+
+      //     const payload = data.notificationPayload;
+
+      //     if (payload?.chat) emitChatUpdate(payload.chat);
+      //     if (payload?.message) emitMessage(payload.message);
+      //   });
+      // });
 
     };
 

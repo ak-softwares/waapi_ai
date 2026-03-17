@@ -11,9 +11,11 @@ import { toastConfig } from "../theme/toastConfig";
 const InitialLayout = () => {
   const { isAuthenticated, isReady } = useAuth();
   const { theme } = useTheme();
-  if (!isReady) return null; // or splash screen
   usePushNotifications();
   usePusher();
+
+  if (!isReady) return null;
+
   return (
     <>
       <StatusBar style={theme === "dark" ? "light" : "dark"} />
