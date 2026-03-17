@@ -14,10 +14,14 @@ export function usePusher() {
     const init = async () => {
       const userId = await getUserIdFromToken();
       if (!userId) return;
+
       pusher = getPusher();
+      console.log("token123: " + JSON.stringify(pusher, null, 2));
+
       channel = pusher.subscribe(`user-${userId}`);
 
       channel.bind(NotificationEventType.NEW_MESSAGE, (data: any) => {
+
         const payload = data.notificationPayload as NotificationPayload;
 
         if (payload.chat) emitChatUpdate(payload.chat);

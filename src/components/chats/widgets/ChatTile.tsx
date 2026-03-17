@@ -35,9 +35,12 @@ export default function ChatTile({
     ? chat.chatName || ChatType.BROADCAST
     : partner?.name || formatInternationalPhoneNumber(String(partner?.number)).international || "Unknown";
 
+  const nationalNumber = formatInternationalPhoneNumber(String(partner?.number)).national;
+  const formattedNumber = nationalNumber?.replace(/^0/, "");
+
   const userName = isBroadcast
     ? chat.chatName || ChatType.BROADCAST
-    : partner?.name || partner?.number || "Unknown";
+    : partner?.name || formattedNumber || "Unknown";
 
   const displayImage = isBroadcast ? chat?.chatImage : partner?.imageUrl;
 

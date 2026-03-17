@@ -14,7 +14,6 @@ const InitialLayout = () => {
   if (!isReady) return null; // or splash screen
   usePushNotifications();
   usePusher();
-
   return (
     <>
       <StatusBar style={theme === "dark" ? "light" : "dark"} />

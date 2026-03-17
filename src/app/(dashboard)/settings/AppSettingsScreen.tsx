@@ -121,7 +121,6 @@ export default function AppSettingsScreen() {
           title="Notifications"
           subtitle={notificationsEnabled ? "Enabled" : "Disabled"}
           onPress={() => updateNotificationSetting(!notificationsEnabled)}
-          onLongPress={() => router.push("/(dashboard)/profile/notificationDebug")}
           rightElement={(
             <AppSwitch
               value={notificationsEnabled}
