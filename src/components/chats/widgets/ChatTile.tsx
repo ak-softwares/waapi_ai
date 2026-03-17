@@ -2,8 +2,8 @@ import UserAvatar from "@/src/components/common/UserAvatar";
 import { useTheme } from "@/src/context/ThemeContext";
 import { darkColors, lightColors } from "@/src/theme/colors";
 import { Chat, ChatType } from "@/src/types/Chat";
-import { formatMessageDateOrTime } from "@/src/utiles/formatTime/formatTime";
-import { CountryCode, parsePhoneNumberFromString } from "libphonenumber-js";
+import { formatInternationalPhoneNumber } from "@/src/utiles/formater/formatPhone";
+import { formatMessageDateOrTime } from "@/src/utiles/formater/formatTime";
 import { Check } from "lucide-react-native";
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
@@ -27,18 +27,13 @@ export default function ChatTile({
   const colors = theme === "dark" ? darkColors : lightColors;
   const styles = getStyles(colors);
 
-  const formatPhone = (number: string, defaultCountry: CountryCode = "IN") => {
-    const phoneNumber = parsePhoneNumberFromString(number, defaultCountry);
-    return phoneNumber ? phoneNumber.formatInternational() : number;
-  };
-
   const isUnread = (chat.unreadCount ?? 0) > 0;
   const isBroadcast = chat.type === ChatType.BROADCAST;
   const partner = chat.participants[0];
 
   const displayName = isBroadcast
     ? chat.chatName || ChatType.BROADCAST
-    : partner?.name || formatPhone(String(partner?.number)) || "Unknown";
+    : partner?.name || formatInternationalPhoneNumber(String(partner?.number)).international || "Unknown";
 
   const userName = isBroadcast
     ? chat.chatName || ChatType.BROADCAST

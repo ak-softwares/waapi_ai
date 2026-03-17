@@ -2,7 +2,7 @@ import UserAvatar from "@/src/components/common/UserAvatar";
 import { useTheme } from "@/src/context/ThemeContext";
 import { darkColors, lightColors } from "@/src/theme/colors";
 import { Chat, ChatType } from "@/src/types/Chat";
-import { CountryCode, parsePhoneNumberFromString } from "libphonenumber-js";
+import { formatInternationalPhoneNumber } from "@/src/utiles/formater/formatPhone";
 import { Edit2, Image as ImageIcon, Star, Trash2 } from "lucide-react-native";
 import React from "react";
 import {
@@ -28,17 +28,12 @@ export default function ContactInfoPage({
   const colors = theme === "dark" ? darkColors : lightColors;
   const styles = getStyles(colors);
 
-  const formatPhone = (number: string, defaultCountry: CountryCode = "IN") => {
-    const phoneNumber = parsePhoneNumberFromString(number, defaultCountry);
-    return phoneNumber ? phoneNumber.formatInternational() : number;
-  };
-
   const isBroadcast = chat.type === ChatType.BROADCAST;
   const partner = chat.participants?.[0];
 
   const displayName = isBroadcast
     ? chat.chatName || "Broadcast"
-    : partner?.name || formatPhone(String(partner?.number ?? "")) || "Unknown";
+    : partner?.name || formatInternationalPhoneNumber(String(partner?.number)).international || "Unknown";
 
   const userName = isBroadcast
     ? chat.chatName || "Broadcast"
@@ -58,7 +53,7 @@ export default function ContactInfoPage({
         />
 
         <Text style={styles.name}>{displayName}</Text>
-        {!!phoneNumber && <Text style={styles.phone}>{formatPhone(phoneNumber)}</Text>}
+        {!!phoneNumber && <Text style={styles.phone}>{formatInternationalPhoneNumber(String(phoneNumber)).international}</Text>}
       </View>
 
       <View style={styles.sectionCard}>
@@ -89,7 +84,7 @@ export default function ContactInfoPage({
           </View>
 
           {chat.participants.slice(0, 5).map((member, index) => {
-            const memberName = member.name || formatPhone(String(member.number)) || "Unknown";
+            const memberName = member.name || formatInternationalPhoneNumber(String(member.number)).international || "Unknown";
             return (
               <View key={member.number || `${index}`} style={styles.memberItem}>
                 <UserAvatar
@@ -99,7 +94,7 @@ export default function ContactInfoPage({
                 />
                 <View style={styles.memberTextWrap}>
                   <Text numberOfLines={1} style={styles.memberName}>{memberName}</Text>
-                  <Text style={styles.memberPhone}>{formatPhone(member.number)}</Text>
+                  <Text style={styles.memberPhone}>{formatInternationalPhoneNumber(String(member.number)).international}</Text>
                 </View>
               </View>
             );

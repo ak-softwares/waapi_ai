@@ -3,7 +3,7 @@ import { Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 import { ChatType } from "@/src/types/Chat";
 import { Message, MessageStatus, MessageType } from "@/src/types/Messages";
-import { formatTimeOnly } from "@/src/utiles/formatTime/formatTime";
+import { formatTimeOnly } from "@/src/utiles/formater/formatTime";
 
 import { useTheme } from "@/src/context/ThemeContext";
 import { darkColors, lightColors } from "@/src/theme/colors";

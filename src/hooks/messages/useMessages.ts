@@ -1,5 +1,6 @@
 // useMessages.ts
 import { api } from "@/src/lib/api/apiClient";
+import { subscribeMessages } from "@/src/lib/events/messageEvents";
 import { sendMessage } from "@/src/services/messages/sendMessage";
 import { Message, MessagePayload, MessageStatus } from "@/src/types/Messages";
 import { useEffect, useState } from "react";
@@ -11,6 +12,29 @@ interface Props {
 export function useMessages({ chatId }: Props) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const unsubscribe = subscribeMessages((incomingMessage) => {
+      // 👉 ignore if not this chat
+      if (incomingMessage.chatId !== chatId) return;
+
+      setMessages((prev) => {
+        const existing = prev.find((m) => m._id === incomingMessage._id);
+
+        const updatedMessage = existing
+          ? { ...existing, ...incomingMessage }
+          : incomingMessage;
+
+        const filtered = prev.filter(
+          (m) => m._id !== incomingMessage._id
+        );
+
+        return [updatedMessage, ...filtered];
+      });
+    });
+
+    return unsubscribe;
+  }, [chatId]);
 
   const fetchMessages = async () => {
     if (!chatId) return;

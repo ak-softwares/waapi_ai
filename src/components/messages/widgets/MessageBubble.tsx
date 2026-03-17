@@ -12,7 +12,7 @@ import { useTheme } from "@/src/context/ThemeContext";
 import { darkColors, lightColors } from "@/src/theme/colors";
 import { Chat } from "@/src/types/Chat";
 import { Message, MessageType } from "@/src/types/Messages";
-import { FormatRichText } from "@/src/utiles/formatText/formatRichText";
+import { FormatRichText } from "@/src/utiles/formater/formatRichText";
 import { showToast } from "@/src/utiles/toastHelper/toast";
 import LocationMessage from "../renderMessages/LocationMessage";
 import MediaMessage from "../renderMessages/MediaMessage";
@@ -69,11 +69,6 @@ export default function MessageBubble({
 
   const isMine = message.from !== contactNumber;
 
-  const isMineContext =
-    !!message.context?.from &&
-    !!chat?.participants?.length &&
-    message.context.from !== chat.participants[0].number;
-
   const copyMessageText = async () => {
     if (!message?.message) return;
 
@@ -107,7 +102,7 @@ export default function MessageBubble({
             style={[
               styles.contextBox,
               {
-                borderLeftColor: isMineContext ? "#06CF9C" : "#53BDEB",
+                borderLeftColor: isMine ? "#06CF9C" : "#53BDEB",
               },
             ]}
           >
@@ -115,11 +110,11 @@ export default function MessageBubble({
               style={[
                 styles.contextName,
                 {
-                  color: isMineContext ? "#04A37A" : "#4198BD",
+                  color: isMine ? "#04A37A" : "#4198BD",
                 },
               ]}
             >
-              {isMineContext ? "You" : chat?.participants?.[0]?.name}
+              {isMine ? "You" : chat?.participants?.[0]?.name}
             </Text>
 
             <Text style={styles.contextMessage} numberOfLines={1}>
@@ -216,7 +211,10 @@ const getStyles = (colors: typeof lightColors, isDark: boolean) =>
     contextBox: {
       borderLeftWidth: 4,
       paddingLeft: 8,
-      marginBottom: 6,
+      padding: 4,
+      margin: 5,
+      borderRadius: 6,
+      backgroundColor: "rgba(185,182,182,0.1)",
     },
 
     contextName: {
@@ -227,7 +225,7 @@ const getStyles = (colors: typeof lightColors, isDark: boolean) =>
 
     contextMessage: {
       fontSize: 13,
-      color: colors.mutedText,
+      color: colors.secondaryText,
     },
 
     menu: {

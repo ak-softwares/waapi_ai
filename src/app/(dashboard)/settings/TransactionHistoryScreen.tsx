@@ -15,7 +15,7 @@ import {
   PaymentStatus,
   WalletTransactionType,
 } from "@/src/types/WalletTransaction";
-import { formatDateIST } from "@/src/utiles/formatTime/formatTime";
+import { formatDateIST } from "@/src/utiles/formater/formatTime";
 
 export default function TransactionHistoryScreen() {
   const { theme } = useTheme();

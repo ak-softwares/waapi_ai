@@ -21,7 +21,7 @@ import {
 } from "@/src/utiles/enums/template";
 
 import { Message } from "@/src/types/Messages";
-import { FormatRichText } from "@/src/utiles/formatText/formatRichText";
+import { FormatRichText } from "@/src/utiles/formater/formatRichText";
 import { showToast } from "@/src/utiles/toastHelper/toast";
 import MessageMetaInfo from "../widgets/MessageMetaInfo";
 

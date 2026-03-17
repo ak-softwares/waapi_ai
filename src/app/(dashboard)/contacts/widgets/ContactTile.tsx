@@ -3,7 +3,7 @@ import UserAvatar from "@/src/components/common/UserAvatar";
 import { useTheme } from "@/src/context/ThemeContext";
 import { darkColors, lightColors } from "@/src/theme/colors";
 import { Contact } from "@/src/types/Contact";
-import parsePhoneNumberFromString, { CountryCode } from "libphonenumber-js";
+import { formatAndJoinPhones, formatInternationalPhoneNumber } from "@/src/utiles/formater/formatPhone";
 import { Check, Edit, MessageCircle, MoreVertical, Trash2 } from "lucide-react-native";
 import { Pressable, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
@@ -28,26 +28,6 @@ export default function ContactTile(props: ContactTileProps) {
   const styles = getStyles(colors);
 
   const { contact } = props;
-  const formatPhone = (number: string, defaultCountry: CountryCode = "IN") => {
-    const phoneNumber = parsePhoneNumberFromString(number, defaultCountry);
-    return phoneNumber ? phoneNumber.formatInternational() : number;
-  };
-
-  const formatAndJoinPhones = (
-    phones: string[],
-    defaultCountry: CountryCode = "IN"
-  ) => {
-    return phones
-      .map((number) => {
-        try {
-          const phoneNumber = parsePhoneNumberFromString(number, defaultCountry);
-          return phoneNumber ? phoneNumber.formatInternational() : number;
-        } catch {
-          return number;
-        }
-      })
-      .join(", ");
-  };
 
   return (
     <Pressable
@@ -67,7 +47,7 @@ export default function ContactTile(props: ContactTileProps) {
       {/* Content */}
       <View style={styles.content}>
         <Text style={styles.name} numberOfLines={1}>
-          {contact.name || formatPhone(String(contact.phones[0])) || "Unknown"}
+          {contact.name || formatInternationalPhoneNumber(contact.phones[0]).international || "Unknown"}
         </Text>
 
         <Text style={styles.phone} numberOfLines={2}>

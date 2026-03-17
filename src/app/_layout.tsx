@@ -5,6 +5,7 @@ import { MenuProvider } from "react-native-popup-menu";
 import Toast from "react-native-toast-message";
 import { AuthProvider, useAuth } from "../context/AuthContext";
 import { ThemeProvider, useTheme } from "../context/ThemeContext";
+import { usePusher } from "../hooks/realtime/usePusher";
 import { toastConfig } from "../theme/toastConfig";
 
 const InitialLayout = () => {
@@ -12,7 +13,8 @@ const InitialLayout = () => {
   const { theme } = useTheme();
   if (!isReady) return null; // or splash screen
   usePushNotifications();
-  
+  usePusher();
+
   return (
     <>
       <StatusBar style={theme === "dark" ? "light" : "dark"} />

@@ -5,6 +5,7 @@ import {
   ImageBackground,
   Keyboard,
   KeyboardAvoidingView,
+  Linking,
   Platform,
   StyleSheet,
   Text,
@@ -34,6 +35,8 @@ import Copy from "@/assets/menuIcons/copy.svg";
 import Delete from "@/assets/menuIcons/delete.svg";
 import Forward from "@/assets/menuIcons/forward.svg";
 import Reply from "@/assets/menuIcons/reply.svg";
+import MessageContactInfoCard from "@/src/components/messages/widgets/MessageContactInfoCard";
+import { formatInternationalPhoneNumber } from "@/src/utiles/formater/formatPhone";
 
 const WHATSAPP_BG = require("@/assets/whatsapp/message-bg.png");
 
@@ -125,6 +128,18 @@ export default function MessageScreen() {
     });
   };
 
+    const handleCallContact = async () => {
+    const number = chat?.participants?.[0]?.number;
+    if (!number) return;
+
+    await Linking.openURL(`tel:${number}`);
+  };
+
+  const handleSaveContact = () => {
+    // TODO: wire with native contact save flow
+    console.log("Save contact:", chat?.participants?.[0]?.number);
+  };
+
   if (!chatId) {
     return (
       <View style={styles.center}>
@@ -135,6 +150,10 @@ export default function MessageScreen() {
 
   const isBroadcast = chat.type === ChatType.BROADCAST;
   const partner = chat.participants[0];
+
+  const displayName = isBroadcast
+    ? chat.chatName || ChatType.BROADCAST
+    : partner?.name || formatInternationalPhoneNumber(String(partner?.number)).international || "Unknown";
 
   const userName =
     isBroadcast
@@ -168,7 +187,7 @@ export default function MessageScreen() {
                 />
 
                 <Text style={{ fontSize: 16, fontWeight: "600" }}>
-                  {chat?.chatName || chat?.participants?.[0]?.name || "Chat"}
+                  {displayName}
                 </Text>
               </TouchableOpacity>
             ),
@@ -253,11 +272,22 @@ export default function MessageScreen() {
             </View>
           )}
 
+          {/* <MessageContactInfoCard
+            chat={chat}
+            onCall={handleCallContact}
+          /> */}
+
           <FlatList
             data={messages}
             inverted
             keyExtractor={(item) =>
               item._id || `${item.createdAt}-${item.message}`
+            }
+            ListFooterComponent={
+              <MessageContactInfoCard
+                chat={chat}
+                onCall={handleCallContact}
+              />
             }
             renderItem={({ item }) => (
               <MessageBubble

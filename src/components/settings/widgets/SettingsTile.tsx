@@ -13,6 +13,7 @@ type Props = {
   title: string;
   subtitle?: string;
   onPress?: () => void;
+  onLongPress?: () => void;
   danger?: boolean;
   rightElement?: React.ReactNode;
 };
@@ -22,6 +23,7 @@ export default function SettingsTile({
   title,
   subtitle,
   onPress,
+  onLongPress,
   danger,
   rightElement,
 }: Props) {
@@ -30,7 +32,7 @@ export default function SettingsTile({
   const styles = getStyles(colors);
 
   return (
-    <TouchableOpacity style={styles.container} onPress={onPress}>
+    <TouchableOpacity style={styles.container} onPress={onPress} onLongPress={onLongPress}>
       {icon && <View style={styles.icon}>{icon}</View>}
 
       <View style={styles.content}>

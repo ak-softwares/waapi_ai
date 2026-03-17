@@ -1,4 +1,5 @@
 import { api } from "@/src/lib/api/apiClient";
+import { subscribeChatUpdates } from "@/src/lib/events/chatEvents";
 import { Chat, ChatFilterType } from "@/src/types/Chat";
 import { ITEMS_PER_PAGE } from "@/src/utiles/constans/apiConstans";
 import { useCallback, useEffect, useState } from "react";
@@ -13,6 +14,25 @@ export function useChats() {
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<ChatFilterType>("all");
 
+  useEffect(() => {
+    const unsubscribe = subscribeChatUpdates((incomingChat) => {
+      setChats((prev) => {
+        const existing = prev.find((c) => c._id === incomingChat._id);
+
+        const updatedChat = existing
+          ? { ...existing, ...incomingChat }
+          : incomingChat;
+
+        const filtered = prev.filter(
+          (c) => c._id !== incomingChat._id
+        );
+
+        return [updatedChat, ...filtered];
+      });
+    });
+
+    return unsubscribe;
+  }, []);
 
   const fetchChats = useCallback(
     async (pageToFetch: number) => {

@@ -11,7 +11,7 @@ import {
   Headphones,
   KeyRound,
   LogOut,
-  Moon,
+  Settings,
   User
 } from "lucide-react-native";
 import { useState } from "react";
@@ -57,21 +57,7 @@ export default function SettingsScreen() {
           subtitle="View and manage your payments"
           onPress={() => router.push("/(dashboard)/settings/TransactionHistoryScreen")}
         />
-
-        {/* <SettingsTile
-          icon={<Shield size={22} color={colors.primary} />}
-          title="Blocked contacts"
-          subtitle="Manage who can message you"
-          // onPress={() => router.push("/(dashboard)/blocked")}
-        /> */}
-
-        <SettingsTile
-          icon={<Moon size={22} color={colors.primary} />}
-          title="Theme"
-          subtitle={`Current: ${themeMode.charAt(0).toUpperCase() + themeMode.slice(1)}`}
-          onPress={() => router.push("/(dashboard)/settings/ThemeScreen")}
-        />
-
+        
         <SettingsTile
           icon={<KeyRound size={22} color={colors.primary} />}
           title="API Key"
@@ -83,6 +69,13 @@ export default function SettingsScreen() {
           title="Help and support"
           subtitle="Call, WhatsApp or Email"
           onPress={() => router.push("/(dashboard)/settings/SupportScreen")}
+        />
+        
+        <SettingsTile
+          icon={<Settings size={22} color={colors.primary} />}
+          title="Settings"
+          subtitle={`Theme: ${themeMode.charAt(0).toUpperCase() + themeMode.slice(1)} · Notifications`}
+          onPress={() => router.push("/(dashboard)/settings/AppSettingsScreen")}
         />
 
         <SettingsTile

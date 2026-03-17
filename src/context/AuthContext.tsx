@@ -1,6 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Application from "expo-application";
 import React, { createContext, useContext, useEffect, useState } from "react";
+import { Platform } from "react-native";
 import { useOtpLogin } from "../hooks/auth/useOtpLogin";
 import { useSignin } from "../hooks/auth/useSignin";
 import { useSignup } from "../hooks/auth/useSignup";
@@ -63,12 +64,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     checkAuth();
   }, []);
 
+  const getDeviceId = async () => {
+    if (Platform.OS === "android") {
+      return Application.getAndroidId();
+    }
+
+    if (Platform.OS === "ios") {
+      return await Application.getIosIdForVendorAsync();
+    }
+
+    return null;
+  };
+
   const registerPush = async () => {
     const pushToken = await registerForPushNotificationsAsync();
 
     if (!pushToken) return;
 
-    const deviceId = Application.getAndroidId();
+    const deviceId = await getDeviceId();
+    if (!deviceId) return;
 
     await registerDevice({
       deviceId,
@@ -129,8 +143,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // ================= LOGOUT ================= //
   const logout = async () => {
-    const deviceId = Application.getAndroidId(); // or ios identifier
-    await unregisterDevice(deviceId);
+    const deviceId = await getDeviceId();
+    if (deviceId) {
+      await unregisterDevice(deviceId);
+    } 
     await AsyncStorage.removeItem("token");
     setIsAuthenticated(false);
   };
