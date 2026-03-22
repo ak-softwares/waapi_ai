@@ -176,6 +176,16 @@ export default function MessageScreen() {
     });
   };
 
+  const sendTemplatePage = () => {
+    router.push({
+      pathname: "/(dashboard)/messages/sendTemplate",
+      params: {
+        chatId,
+        chatData: JSON.stringify(chat),
+      },
+    });
+  };
+  
   if (!chatId) {
     return (
       <View style={styles.center}>
@@ -454,6 +464,7 @@ export default function MessageScreen() {
                 key: "template",
                 label: "Template",
                 renderIcon: () => <Template height={25} width={25} />,
+                onPress: sendTemplatePage,
               },
             ]}
           />
