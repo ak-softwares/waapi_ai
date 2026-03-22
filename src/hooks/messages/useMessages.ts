@@ -1,8 +1,9 @@
 import { api } from "@/src/lib/api/apiClient";
 import { subscribeMessages } from "@/src/lib/events/messageEvents";
-import { sendMessage } from "@/src/services/messages/sendMessage";
-import { Message, MessagePayload, MessageStatus } from "@/src/types/Messages";
-import { useEffect, useState } from "react";
+import { Message } from "@/src/types/Messages";
+import { ITEMS_PER_PAGE } from "@/src/utiles/constans/apiConstans";
+import { EventType } from "@/src/utiles/enums/notification";
+import { useCallback, useEffect, useState } from "react";
 import { useChatOpenClose } from "../chat/useChatOpenClose";
 
 interface Props {
@@ -12,106 +13,131 @@ interface Props {
 export function useMessages({ chatId }: Props) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
   const { openChat, closeChat } = useChatOpenClose();
-
-  // ✅ OPEN on mount, CLOSE on unmount
-  useEffect(() => {
-    if (!chatId) return;
-
-    openChat(chatId);
-
-    return () => {
-      closeChat(chatId);
-    };
-  }, [chatId]);
 
   // 🔁 realtime messages
   useEffect(() => {
-    const unsubscribe = subscribeMessages((incomingMessage) => {
-      // 👉 ignore if not this chat
-      if (incomingMessage.chatId !== chatId) return;
+    const unsubscribe = subscribeMessages(({ message, messageId, eventType }) => {
+      if (!message && !messageId) return;
+      if (message && message.chatId !== chatId) return;
 
       setMessages((prev) => {
-        const existing = prev.find((m) => m._id === incomingMessage._id);
+        const id = message?._id || messageId;
 
-        const updatedMessage = existing
-          ? { ...existing, ...incomingMessage }
-          : incomingMessage;
-
-        const filtered = prev.filter(
-          (m) => m._id !== incomingMessage._id
+        // 🔑 find by BOTH _id OR clientTempId
+        const index = prev.findIndex(
+          (m) =>
+            m._id === id ||
+            (message?.clientTempId && m.clientTempId === message.clientTempId)
         );
 
-        return [updatedMessage, ...filtered];
+        // 🆕 NEW MESSAGE
+        if (eventType === EventType.NEW_MESSAGE && message) {
+          if (index !== -1) {
+            // 🔁 REPLACE temp message with real one
+            const updated = [...prev];
+            updated[index] = {
+              ...prev[index],
+              ...message,
+              clientTempId: undefined, // optional cleanup
+            };
+            return updated;
+          }
+
+          // ➕ ADD if no match
+          return [message, ...prev];
+        }
+
+        // ❌ DELETE
+        if (eventType === EventType.MESSAGE_DELETED && id) {
+          return prev.filter((m) => m._id !== id);
+        }
+
+        // ✏️ STATUS UPDATE
+        if (index !== -1 && message) {
+          const updated = [...prev];
+          updated[index] = { ...prev[index], ...message };
+          return updated;
+        }
+
+        return prev;
       });
     });
 
     return unsubscribe;
-  }, [chatId]);
+  }, [chatId, openChat, closeChat]);
 
-  const fetchMessages = async () => {
+    // ✅ OPEN on mount, CLOSE on unmount
+    useEffect(() => {
+      if (!chatId) return;
+
+      openChat(chatId);
+
+      return () => {
+        closeChat(chatId);
+      };
+    }, [chatId]);
+
+  const fetchMessages = useCallback(async (pageToFetch: number) => {
     if (!chatId) return;
 
-    setLoading(true);
+    if (pageToFetch === 1) setLoading(true);
+    else setLoadingMore(true);
 
     try {
       const res = await api.get("/wa-accounts/messages", {
         params: {
           chatId: chatId,
+          page: pageToFetch,
+          per_page: ITEMS_PER_PAGE,
         },
       });
 
       const json = res.data;
 
-      if (json.success) {
-        setMessages(json.data);
+      if (json.success && Array.isArray(json.data)) {
+        setMessages((prev) =>
+          pageToFetch === 1 ? json.data : [...prev, ...json.data]
+        );
+        setHasMore(pageToFetch < (json.pagination?.totalPages || 1));
+      } else {
+        setHasMore(false);
       }
     } catch (e) {
       console.log("Fetch error", e);
     } finally {
-      setLoading(false);
+      if (pageToFetch === 1) setLoading(false);
+      else setLoadingMore(false);
     }
-  };
+  }, [chatId]);
+ 
+  useEffect(() => {
+    setPage(1);
+    setHasMore(true);
+    setMessages([]);
+    fetchMessages(1);
+  }, [fetchMessages]);
 
   useEffect(() => {
-    fetchMessages();
-  }, [chatId]);
+    if (page === 1) return;
+    fetchMessages(page);
+  }, [fetchMessages, page]);
 
-  const onSend = async ({ messagePayload }: {messagePayload: MessagePayload}) => {
-    const tempId = Date.now().toString();
-
-    const tempMessage: Message = {
-      _id: tempId,
-      userId: "sdfsd54sd",
-      message: messagePayload.message,
-      chatId,
-      from: "me",
-      to: "354355",
-      status: MessageStatus.Pending,
-      createdAt: new Date().toISOString(),
-    };
-
-    setMessages((prev) => [tempMessage, ...prev]);
-
-    try {
-      const realMessage = await sendMessage({ messagePayload });
-
-      setMessages((prev) =>
-        prev.map((m) => (m._id === tempId ? realMessage : m))
-      );
-    } catch (err) {
-      // setMessages((prev) =>
-      //   prev.map((m) =>
-      //     m._id === tempId ? { ...m, status: "failed" } : m
-      //   )
-      // );
+  const loadMore = () => {
+    if (!loading && !loadingMore && hasMore) {
+      setPage((prev) => prev + 1);
     }
   };
 
   return {
     messages,
     setMessages,
-    onSend,
     loading,
+    loadingMore,
+    hasMore,
+    loadMore,
   };
 }

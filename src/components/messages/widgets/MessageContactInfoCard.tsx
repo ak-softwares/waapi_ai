@@ -91,7 +91,7 @@ const getStyles = (colors: typeof lightColors) =>
     card: {
       marginHorizontal: 30,
       marginTop: 20,
-      marginBottom: 12,
+      marginBottom: 100,
       borderRadius: 20,
       borderWidth: 1,
       borderColor: colors.border,

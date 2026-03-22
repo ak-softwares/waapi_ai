@@ -202,7 +202,7 @@ export default function ChatListScreen() {
                           icon: <Megaphone size={16} color={colors.text} />,
                           onPress: () => {
                             router.push({
-                              pathname: "/(dashboard)/chats/broadcast",
+                              pathname: "/(dashboard)/broadcast/broadcast",
                             });
                           }
                         },

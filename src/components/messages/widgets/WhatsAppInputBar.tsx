@@ -22,6 +22,8 @@ interface Props {
   onSend: () => void;
   onEmojiPress?: () => void;
   inputRef?: any;
+  onAttachPress?: () => void;
+  onCameraPress?: () => void;
 }
 
 export default function WhatsAppInputBar({
@@ -30,6 +32,8 @@ export default function WhatsAppInputBar({
   onSend,
   onEmojiPress,
   inputRef,
+  onAttachPress,
+  onCameraPress,
 }: Props) {
 
   const { theme } = useTheme();
@@ -47,7 +51,7 @@ export default function WhatsAppInputBar({
           style={styles.iconButton}
           onPress={onEmojiPress}
         >
-          <Emogi height={24} width={24} color={colors.mutedText} />
+          <Emogi height={24} width={24} fill={colors.mutedText} />
         </TouchableOpacity>
 
         <TextInput
@@ -60,14 +64,17 @@ export default function WhatsAppInputBar({
           style={styles.input}
         />
 
-        <TouchableOpacity style={styles.iconButton}>
-          <Fontisto name="paperclip" size={19} color={colors.text} />
+        <TouchableOpacity onPress={onAttachPress} style={[styles.iconButton, { paddingBottom: 6, paddingRight: 10 }]}>          
+          <Fontisto name="paperclip" size={19} color={colors.mutedText} />
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.iconButton}>
-          <Camera height={24} width={24} color={colors.text} />
-        </TouchableOpacity>
-
+        {!hasText 
+          ? (
+            <TouchableOpacity style={styles.iconButton} onPress={onCameraPress}>
+              <Camera height={24} width={24} fill={colors.mutedText} />
+            </TouchableOpacity>
+          ) : undefined
+        }
       </View>
 
       <TouchableOpacity
@@ -75,9 +82,9 @@ export default function WhatsAppInputBar({
         onPress={onSend}
       >
         {hasText ? (
-          <Send height={24} width={24} fill="#fff" />
+          <Send height={24} width={24} fill={colors.butttonTextSecondary} />
         ) : (
-          <Mic height={24} width={24} fill="#fff" />
+          <Mic height={24} width={24} fill={colors.butttonTextSecondary} />
         )}
       </TouchableOpacity>
 
@@ -93,6 +100,7 @@ const getStyles = (colors: typeof lightColors) =>
       alignItems: "flex-end",
       paddingHorizontal: 8,
       paddingVertical: 6,
+      backgroundColor: "Transparent",
     },
 
     inputWrapper: {
@@ -102,7 +110,8 @@ const getStyles = (colors: typeof lightColors) =>
       backgroundColor: colors.inputBackground,
       borderRadius: 25,
       paddingHorizontal: 8,
-      paddingVertical: 6,
+      paddingTop: 4,
+      paddingBottom: 7,
       borderWidth: 1,
       borderColor: colors.border,
     },

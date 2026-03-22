@@ -1,11 +1,24 @@
 import { Message } from "@/src/types/Messages";
+import { EventType } from "@/src/utiles/enums/notification";
 
-type MessageListener = (message: Message) => void;
+export type MessageEvent = {
+  message?: Message;
+  messageId?: string;
+  eventType: EventType;
+};
+
+type MessageListener = (event: MessageEvent) => void;
 
 const listeners = new Set<MessageListener>();
 
-export function emitMessage(message: Message) {
-  listeners.forEach((l) => l(message));
+export function emitMessage(event: MessageEvent) {
+  listeners.forEach((listener) => {
+    try {
+      listener(event);
+    } catch (err) {
+      console.error("Message listener error:", err);
+    }
+  });
 }
 
 export function subscribeMessages(listener: MessageListener) {

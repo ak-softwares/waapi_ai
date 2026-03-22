@@ -2,51 +2,57 @@
   "expo": {
     "name": "WA-API AI",
     "slug": "waapi_ai",
-    "version": "1.1.6",
+    "version": "1.1.7",
     "orientation": "portrait",
-    "icon": "./assets/logos/icon.png",
+    "icon": "./assets/logos/adaptive-icon.png",
     "scheme": "waapiapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
       "bundleIdentifier": "com.waapi.ai",
-      "supportsTablet": true
+      "supportsTablet": true,
+      "icon": {
+        "light": "./assets/logos/ios-light.png",
+        "dark": "./assets/logos/ios-dark.png",
+        "tinted": "./assets/logos/ios-tinted.png"
+      }
     },
     "splash": {
-      "image": "./assets/logos/splash-icon.png",
+      "image": "./assets/logos/splash-icon-light.png",
       "resizeMode": "contain",
       "backgroundColor": "#0F9D58"
     },
     "android": {
       "package": "com.waapi.ai",
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
-        "foregroundImage": "./assets/logos/icon.png",
-        "backgroundImage": "./assets/logos/icon.png",
-        "monochromeImage": "./assets/logos/icon.png"
+        "foregroundImage": "./assets/logos/adaptive-icon.png",
+        "monochromeImage": "./assets/logos/adaptive-icon.png",
+        "backgroundColor": "#FFFFFF"
       },
       "notification": {
         "icon": "./assets/logos/notification-icon.png",
         "color": "#25D366"
       },
+      "softwareKeyboardLayoutMode": "pan",
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
       "googleServicesFile": "./google-services.json"
     },
     "web": {
       "output": "static",
-      "favicon": "./assets/logos/icon.png"
+      "favicon": "./assets/logos/adaptive-icon.png"
     },
     "plugins": [
       "expo-router",
       [
         "expo-splash-screen",
         {
-          "image": "./assets/logos/splash-icon.png",
+          "image": "./assets/logos/splash-icon-light.png",
           "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#ffffff",
+          "backgroundColor": "#FFFFFF",
           "dark": {
+            "image": "./assets/logos/splash-icon-dark.png",
             "backgroundColor": "#000000"
           }
         }

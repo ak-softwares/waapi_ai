@@ -33,6 +33,7 @@ export const lightColors = {
 
   // Button
   butttonText: "#ffffff",
+  butttonTextSecondary: "#ffffff",
   buttonBackground: "#111111",
   buttonBorder: "#111111",
 
@@ -48,6 +49,8 @@ export const lightColors = {
 
   // Whatsapp theme color
   messageBackground: "#F1EBE3",
+  messageBackgroundSecond: "#F1EBE3",
+  messageCard: "#F1EBE3",
   messageBubbleMine: "#D9FDD3",
   messageBubbleOther: "#FFFFFF",
   blueTik: "#017BF8",
@@ -56,7 +59,7 @@ export const lightColors = {
 };
 
 export const darkColors = {
-  background: "#0f0f0f",
+  background: "#0f0f0f", // "061018" whatsapp color
   surface: "#1a1a1a",
 
   text: "#f5f5f5",
@@ -89,6 +92,7 @@ export const darkColors = {
 
   // Button
   butttonText: "#ffffff",
+  butttonTextSecondary: "#111111",
   buttonBackground: "#2a2a2a",
   buttonBorder: "#4a4a4a",
 
@@ -105,6 +109,8 @@ export const darkColors = {
 
   // Whatsapp theme color
   messageBackground: "#0b141a",
+  messageBackgroundSecond: "#061018",
+  messageCard: "#111B24",
   messageBubbleMine: "#144D37",
   messageBubbleOther: "#202C33",
   blueTik: "#54BDEA",

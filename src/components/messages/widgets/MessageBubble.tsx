@@ -125,14 +125,21 @@ export default function MessageBubble({
 
         {/* Message Content */}
         <View style={{ marginTop: 2 }}>
-          {isTemplate ? (
-            <TemplateMessage message={message} template={message.template!} />
-          ) : isMedia ? (
-            <MediaMessage message={message} />
-          ) : isLocation ? (
-            <LocationMessage message={message} />
-          ) : (
-            <FormatRichText text={message.message} />
+          {isTemplate 
+            ? (<TemplateMessage message={message} template={message.template!} />) 
+            : isMedia 
+              ? (<MediaMessage message={message} />) 
+              : isLocation 
+                ? (<LocationMessage message={message} />) 
+                : (<FormatRichText text={message.message} />)
+          }
+
+          {isMedia && !!message.media?.caption?.trim() && (
+            <View style={styles.captionContainer}>
+              <Text style={styles.captionText}>
+                {message.media.caption}
+              </Text>
+            </View>
           )}
 
           {!isTemplate && (
@@ -215,6 +222,16 @@ const getStyles = (colors: typeof lightColors, isDark: boolean) =>
       margin: 5,
       borderRadius: 6,
       backgroundColor: "rgba(185,182,182,0.1)",
+    },
+
+    captionContainer: {
+      paddingHorizontal: 10,
+      paddingTop: 6,
+    },
+
+    captionText: {
+      fontSize: 14,
+      color: colors.text,
     },
 
     contextName: {

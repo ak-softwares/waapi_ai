@@ -4,9 +4,7 @@ import {
   FlatList,
   ImageBackground,
   Keyboard,
-  KeyboardAvoidingView,
   Linking,
-  Platform,
   StyleSheet,
   Text,
   TextInput,
@@ -14,14 +12,19 @@ import {
   View
 } from "react-native";
 
+import AudioIcon from "@/assets/messageIcons/audio.svg";
+import CameraIcon from "@/assets/messageIcons/camera.svg";
+import DocumentIcon from "@/assets/messageIcons/document-icon.svg";
+import GalleryIcon from "@/assets/messageIcons/image.svg";
+import LocationIcon from "@/assets/messageIcons/location-icon.svg";
+import Template from "@/assets/messageIcons/template-icon.svg";
 import AppMenu from "@/src/components/common/AppMenu";
 import MessageBubble from "@/src/components/messages/widgets/MessageBubble";
 import WhatsAppInputBar from "@/src/components/messages/widgets/WhatsAppInputBar";
-
 import { useTheme } from "@/src/context/ThemeContext";
 import { useMessages } from "@/src/hooks/messages/useMessages";
 import { darkColors, lightColors } from "@/src/theme/colors";
-import { Message, MessageType } from "@/src/types/Messages";
+import { Message, MessagePayload, MessageType } from "@/src/types/Messages";
 
 import EmojiSelector from "react-native-emoji-selector";
 
@@ -34,9 +37,16 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import Copy from "@/assets/menuIcons/copy.svg";
 import Delete from "@/assets/menuIcons/delete.svg";
 import Forward from "@/assets/menuIcons/forward.svg";
+import Info from "@/assets/menuIcons/info.svg";
 import Reply from "@/assets/menuIcons/reply.svg";
+
+import AttachmentSheet from "@/src/components/messages/widgets/AttachmentSheet";
 import MessageContactInfoCard from "@/src/components/messages/widgets/MessageContactInfoCard";
+import { useSendMessage } from "@/src/hooks/messages/useSendMessage";
+import { MediaSourceType } from "@/src/utiles/enums/mediaTypes";
 import { formatInternationalPhoneNumber } from "@/src/utiles/formater/formatPhone";
+import { Platform } from "react-native";
+import { KeyboardAvoidingView } from "react-native-keyboard-controller";
 
 const WHATSAPP_BG = require("@/assets/whatsapp/message-bg.png");
 
@@ -56,15 +66,18 @@ export default function MessageScreen() {
   const colors = theme === "dark" ? darkColors : lightColors;
   const styles = getStyles(colors, theme === "dark");
 
-  const { messages, onSend, loading } = useMessages({ chatId });
-
+  const { messages, setMessages, loading, loadMore, hasMore, loadingMore } = useMessages({ chatId });
+  const { isSending, sendMessage } = useSendMessage();
   const [message, setMessage] = useState("");
   const [showEmoji, setShowEmoji] = useState(false);
+  const [messageContext, setMessageContext] = useState<Message | null>(null);
 
   const [selectedMessages, setSelectedMessages] = useState<Message[]>([]);
   const [isSelectionMode, setIsSelectionMode] = useState(false);
+  const [showAttachmentOptions, setShowAttachmentOptions] = useState(false);
 
   const selectedIds = new Set(selectedMessages.map(m => m._id));
+
 
   const toggleMessageSelection = (msg: Message) => {
     setSelectedMessages((prev) =>
@@ -86,28 +99,45 @@ export default function MessageScreen() {
   };
 
   const sendMessageHandler = () => {
-    const cleanMessage = message.trim();
-    if (!cleanMessage) return;
-
-    onSend({
-      messagePayload: {
-        message: cleanMessage,
-        chatId,
+    if (message.trim()) {
+      const messagePayload: MessagePayload = {
+        participants: chat?.participants,
         messageType: MessageType.TEXT,
-        participants: chat.participants,
-      },
-    });
+        message,
+        chatType: isBroadcast ? ChatType.BROADCAST : ChatType.CHAT,
+        chatId: chat?._id
+      };
 
-    setMessage("");
+      // Only add context if messageContext exists
+      if (messageContext) {
+        messagePayload.context = {
+          id: messageContext.waMessageId!,
+          from: messageContext.from,
+          message: messageContext.message,
+        };
+      }
+
+      sendMessage({ messagePayload });      
+      setMessage("");
+      setMessageContext(null);
+    }
   };
 
   const toggleEmoji = () => {
     if (showEmoji) {
       setShowEmoji(false);
-      inputRef.current?.focus();
+      setTimeout(() => inputRef.current?.focus(), 100);
     } else {
-      Keyboard.dismiss();
+      inputRef.current?.blur();
       setShowEmoji(true);
+    }
+  };
+
+  const toggleAttachment = () => {
+    if (showAttachmentOptions) {
+      setShowAttachmentOptions(false);
+    } else {
+      setShowAttachmentOptions(true);
     }
   };
 
@@ -128,16 +158,22 @@ export default function MessageScreen() {
     });
   };
 
-    const handleCallContact = async () => {
+  const handleCallContact = async () => {
     const number = chat?.participants?.[0]?.number;
     if (!number) return;
 
     await Linking.openURL(`tel:${number}`);
   };
 
-  const handleSaveContact = () => {
-    // TODO: wire with native contact save flow
-    console.log("Save contact:", chat?.participants?.[0]?.number);
+  const sendMediaPage = (mediaSourceType: MediaSourceType) => {
+    router.push({
+      pathname: "/(dashboard)/messages/sendMedia",
+      params: {
+        mediaSourceType, // ✅ just pass value
+        chatId,
+        chatData: JSON.stringify(chat),
+      },
+    });
   };
 
   if (!chatId) {
@@ -147,6 +183,23 @@ export default function MessageScreen() {
       </View>
     );
   }
+
+  const getDateLabel = (dateString: string) => {
+    const date = new Date(dateString);
+    const today = new Date();
+
+    const isToday = date.toDateString() === today.toDateString();
+
+    const yesterday = new Date();
+    yesterday.setDate(today.getDate() - 1);
+
+    const isYesterday = date.toDateString() === yesterday.toDateString();
+
+    if (isToday) return "Today";
+    if (isYesterday) return "Yesterday";
+
+    return date.toLocaleDateString();
+  };
 
   const isBroadcast = chat.type === ChatType.BROADCAST;
   const partner = chat.participants[0];
@@ -170,7 +223,7 @@ export default function MessageScreen() {
           headerTitle: () =>
             isSelectionMode ? (
               <View>
-                <Text style={{ fontSize: 16, fontWeight: "600" }}>
+                <Text style={styles.headerTitle}>
                   {`Selected (${selectedMessages.length})`}
                 </Text>
               </View>
@@ -186,7 +239,7 @@ export default function MessageScreen() {
                   isGroup={isBroadcast}
                 />
 
-                <Text style={{ fontSize: 16, fontWeight: "600" }}>
+                <Text style={styles.headerTitle}>
                   {displayName}
                 </Text>
               </TouchableOpacity>
@@ -227,9 +280,20 @@ export default function MessageScreen() {
                     trigger={<MoreVertical size={22} color={colors.text} />}
                     items={[
                       {
-                        label: "Delete All",
-                        icon: <Trash2 size={16} color={colors.error} />,
-                        onPress: () => { },
+                        label: isBroadcast ? "Report" : "Info",
+                        icon: <Info height={20} width={20} fill={colors.text} />,
+                        onPress: () => {
+                          if(isBroadcast) {
+                            router.push({
+                              pathname: "/(dashboard)/broadcast/broadcastReport",
+                              params: {
+                                chatId: chat._id,
+                                messageId: selectedMessages[0]._id,
+                              },
+                            });
+                            
+                          }
+                        },
                       },
                     ]}
                   />
@@ -256,10 +320,10 @@ export default function MessageScreen() {
           ),
         }}
       />
-
-      <KeyboardAvoidingView
+      <KeyboardAvoidingView //KeyboardAwareScrollView
         style={styles.container}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
+        keyboardVerticalOffset={80} // adjust based on header height
       >
         <ImageBackground
           source={WHATSAPP_BG}
@@ -272,11 +336,6 @@ export default function MessageScreen() {
             </View>
           )}
 
-          {/* <MessageContactInfoCard
-            chat={chat}
-            onCall={handleCallContact}
-          /> */}
-
           <FlatList
             data={messages}
             inverted
@@ -284,29 +343,62 @@ export default function MessageScreen() {
               item._id || `${item.createdAt}-${item.message}`
             }
             ListFooterComponent={
-              <MessageContactInfoCard
-                chat={chat}
-                onCall={handleCallContact}
-              />
+              <View>
+                {/* ✅ Show ONLY when no more messages AND not loading */}
+                {!hasMore && !loadingMore && (
+                  <MessageContactInfoCard
+                    chat={chat}
+                    onCall={handleCallContact}
+                  />
+                )}
+                {loadingMore && (
+                  <View style={styles.loadMoreWrap}>
+                    <ActivityIndicator color={colors.primary} />
+                  </View>
+                )}
+              </View>
             }
-            renderItem={({ item }) => (
-              <MessageBubble
-                chat={chat}
-                message={item}
-                isSelected={selectedIds.has(item._id)}
-                isSelectionMode={isSelectionMode}
-                onPress={() =>
-                  isSelectionMode
-                    ? toggleMessageSelection(item)
-                    : null
-                }
-                onLongPress={() => {
-                  setIsSelectionMode(true);
-                  toggleMessageSelection(item);
-                }}
-              />
-            )}
+            renderItem={({ item, index }) => {
+              const prevMsg = messages[index + 1];
+
+              const showDate =
+                !prevMsg ||
+                new Date(prevMsg.createdAt ?? "").toDateString() !==
+                  new Date(item.createdAt ?? "").toDateString();
+
+              return (
+                <View>
+                  {/* DATE LABEL */}
+                  {showDate && (
+                    <View style={styles.dateSeparator}>
+                      <Text style={styles.dateText}>
+                        {getDateLabel(item.createdAt ?? "")}
+                      </Text>
+                    </View>
+                  )}
+
+                  {/* MESSAGE */}
+                  <MessageBubble
+                    chat={chat}
+                    message={item}
+                    isSelected={selectedIds.has(item._id)}
+                    isSelectionMode={isSelectionMode}
+                    onPress={() =>
+                      isSelectionMode ? toggleMessageSelection(item) : null
+                    }
+                    onLongPress={() => {
+                      setIsSelectionMode(true);
+                      toggleMessageSelection(item);
+                    }}
+                  />
+                </View>
+              );
+            }}
             contentContainerStyle={styles.messagesContent}
+            onEndReached={() => {
+              if (hasMore) loadMore();
+            }}
+            onEndReachedThreshold={0.3}
           />
 
           <SafeAreaView edges={["bottom"]}>
@@ -316,8 +408,55 @@ export default function MessageScreen() {
               setMessage={setMessage}
               onSend={sendMessageHandler}
               onEmojiPress={toggleEmoji}
+              // onAttachPress={handlePickImageOrVideo}
+              onAttachPress={toggleAttachment}
+              onCameraPress={() => sendMediaPage(MediaSourceType.CAMERA)}
             />
           </SafeAreaView>
+
+          {/* ✅ FLOATING LAYER */}
+          <AttachmentSheet
+            visible={showAttachmentOptions}
+            onClose={toggleAttachment}
+            actions={[
+              {
+                key: "camera",
+                label: "Camera",
+                renderIcon: () => <CameraIcon height={25} width={25} />,
+                onPress: () => sendMediaPage(MediaSourceType.CAMERA),
+              },
+              {
+                key: "gallery",
+                label: "Gallery",
+                renderIcon: () => <GalleryIcon height={25} width={25} />,
+                onPress: () => sendMediaPage(MediaSourceType.GALLERY),
+              },
+              {
+                key: "document",
+                label: "Document",
+                renderIcon: () => <DocumentIcon height={25} width={25} />,
+                onPress: () => sendMediaPage(MediaSourceType.DOCUMENT),
+              },
+              {
+                key: "audio",
+                label: "Audio",
+                renderIcon: () => <AudioIcon height={25} width={25} />,
+                onPress: () => sendMediaPage(MediaSourceType.AUDIO),
+              },
+
+              // ❌ Keep these unchanged
+              {
+                key: "location",
+                label: "Location",
+                renderIcon: () => <LocationIcon height={25} width={25} />,
+              },
+              {
+                key: "template",
+                label: "Template",
+                renderIcon: () => <Template height={25} width={25} />,
+              },
+            ]}
+          />
         </ImageBackground>
 
         {showEmoji && (
@@ -338,17 +477,22 @@ export default function MessageScreen() {
 const getStyles = (colors: typeof lightColors, isDark: boolean) =>
   StyleSheet.create({
     container: { flex: 1, backgroundColor: colors.background },
-
     center: { flex: 1, justifyContent: "center", alignItems: "center" },
-
     emptyText: { color: colors.text },
-
+    headerTitle: {
+      color: colors.text,
+      fontSize: 16,
+      fontWeight: "600",
+    },
     selectionActionsRight: {
       flexDirection: "row",
       gap: 15,
     },
 
-    messagesArea: { flex: 1 },
+    messagesArea: { 
+      flex: 1,
+      position: "relative"
+    },
 
     bgImage: {
       tintColor: isDark ? undefined : "#222",
@@ -362,9 +506,70 @@ const getStyles = (colors: typeof lightColors, isDark: boolean) =>
       alignItems: "center",
       zIndex: 1,
     },
+    dateSeparator: {
+      alignItems: "center",
+      marginVertical: 6,
+    },
 
+    dateText: {
+      fontSize: 12,
+      paddingHorizontal: 10,
+      paddingVertical: 4,
+      borderRadius: 12,
+      backgroundColor: isDark ? "#2E2F2F" : "#FFFFFF",
+      color: colors.text,
+      overflow: "hidden",
+      elevation: 2, // Android shadow
+    },
+    loadMoreWrap: {
+      paddingVertical: 10,
+      alignItems: "center",
+    },
     messagesContent: {
       paddingVertical: 8,
       flexGrow: 1,
+    },
+    
+    mediaPreviewContainer: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 10,
+      marginHorizontal: 12,
+      marginBottom: 8,
+      padding: 8,
+      borderRadius: 10,
+      borderWidth: 1,
+      borderColor: colors.border,
+      backgroundColor: colors.inputBackground,
+    },
+
+    mediaPreviewImage: {
+      width: 48,
+      height: 48,
+      borderRadius: 6,
+    },
+
+    mediaPreviewFallback: {
+      width: 48,
+      height: 48,
+      borderRadius: 6,
+      alignItems: "center",
+      justifyContent: "center",
+      backgroundColor: colors.background,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+
+    mediaPreviewFallbackText: {
+      color: colors.text,
+      fontSize: 11,
+      fontWeight: "600",
+      textAlign: "center",
+    },
+
+    mediaPreviewName: {
+      flex: 1,
+      color: colors.text,
+      fontSize: 13,
     },
   });

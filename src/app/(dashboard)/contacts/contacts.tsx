@@ -258,7 +258,7 @@ export default function ContactsScreen() {
                           icon: <Megaphone size={16} color={colors.text} />,
                           onPress: () => {
                             router.push({
-                              pathname: "/(dashboard)/chats/broadcast",
+                              pathname: "/(dashboard)/broadcast/broadcast",
                             });
                           }
                         },

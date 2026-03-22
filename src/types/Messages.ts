@@ -17,6 +17,7 @@ export type LocationType = {
 
 export type Message = {
   _id?: string;
+  clientTempId?: string;
   userId: string;
   chatId: string;
   waAccountId?: string;
@@ -90,6 +91,7 @@ export enum IncomingMessageType {
 export type MessagePayload = {
   participants: ChatParticipant[];
   messageType: MessageType;
+  clientTempId?: string;
   message?: string;
   template?: Template | TemplatePayload;
   media?: Media;

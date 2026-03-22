@@ -1,3 +1,10 @@
+export enum MediaSourceType {
+  CAMERA = "CAMERA",
+  GALLERY = "GALLERY",
+  DOCUMENT = "DOCUMENT",
+  AUDIO = "AUDIO",
+}
+
 export enum MediaType {
   IMAGE = "IMAGE",
   VIDEO = "VIDEO",
