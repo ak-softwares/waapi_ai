@@ -7,10 +7,12 @@ import * as Application from "expo-application";
 import { router } from "expo-router";
 
 import {
+  BarChart3,
   CreditCard,
   Headphones,
   KeyRound,
   LogOut,
+  MessageCircleMore,
   Settings,
   User
 } from "lucide-react-native";
@@ -63,6 +65,18 @@ export default function SettingsScreen() {
           title="API Key"
           subtitle="Generate API key here"
           onPress={() => router.push("/(dashboard)/settings/ApiTokenScreen")}
+        />
+        <SettingsTile
+          icon={<BarChart3 size={22} color={colors.primary} />}
+          title="Analytics"
+          subtitle="Messaging and AI performance"
+          onPress={() => router.push("/(dashboard)/analytics/AnalyticsScreen")}
+        />
+        <SettingsTile
+          icon={<MessageCircleMore size={22} color={colors.primary} />}
+          title="WhatsApp Setup"
+          subtitle="Connect WhatsApp Business account"
+          onPress={() => router.push("/(dashboard)/setup/WhatsAppSetupScreen")}
         />
         <SettingsTile
           icon={<Headphones size={22} color={colors.primary} />}

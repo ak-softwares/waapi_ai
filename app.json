@@ -2,12 +2,11 @@
   "expo": {
     "name": "WA-API AI",
     "slug": "waapi_ai",
-    "version": "1.1.7",
+    "version": "1.2.0",
     "orientation": "portrait",
     "icon": "./assets/logos/adaptive-icon.png",
     "scheme": "waapiapp",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
     "ios": {
       "bundleIdentifier": "com.waapi.ai",
       "supportsTablet": true,
