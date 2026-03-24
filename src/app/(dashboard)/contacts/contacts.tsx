@@ -1,5 +1,6 @@
 import AppMenu from "@/src/components/common/AppMenu";
 import ConfirmSheet from "@/src/components/common/ConfirmSheet";
+import SearchBar from "@/src/components/common/SearchBar";
 import { useTheme } from "@/src/context/ThemeContext";
 import { useGetOrCreateChat } from "@/src/hooks/chat/useGetOrCreateChat";
 import { useContacts } from "@/src/hooks/contacts/useContacts";
@@ -19,7 +20,6 @@ import {
   Megaphone,
   MoreVertical,
   Phone,
-  Search,
   Trash2,
   UserPlus,
   X
@@ -30,7 +30,6 @@ import {
   FlatList,
   StyleSheet,
   Text,
-  TextInput,
   TouchableOpacity,
   View
 } from "react-native";
@@ -295,17 +294,13 @@ export default function ContactsScreen() {
       />
 
       <View style={styles.container}>
-        <View style={styles.searchContainer}>
-          <Search size={18} color={colors.placeHolderText} />
-          <TextInput
-            value={searchValue}
-            onChangeText={handleSearch}
-            placeholder="Search contacts..."
-            placeholderTextColor={colors.placeHolderText}
-            cursorColor={colors.cursorColor}
-            style={styles.searchInput}
-          />
-        </View>
+        {/* Search Bar */}
+        <SearchBar
+          value={searchValue}
+          placeholder="Search contacts..."
+          onSearch={searchContacts}
+          disablePadding={true}
+        />
 
         <FlatList
           data={contacts}
@@ -435,17 +430,6 @@ const getStyles = (colors: typeof lightColors) =>
     },
     iconAction: {
       padding: 6,
-    },
-    searchContainer: {
-      flexDirection: "row",
-      alignItems: "center",
-      backgroundColor: colors.inputBackground,
-      borderColor: colors.inputBorder,
-      borderWidth: 1,
-      borderRadius: 999,
-      paddingHorizontal: 12,
-      marginBottom: 12,
-      gap: 8,
     },
     searchInput: {
       flex: 1,

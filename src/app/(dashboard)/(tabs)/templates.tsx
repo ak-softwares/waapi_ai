@@ -1,15 +1,14 @@
+import SearchBar from "@/src/components/common/SearchBar";
 import TemplateTile from "@/src/components/templates/widgets/TemplateTile";
 import { useTheme } from "@/src/context/ThemeContext";
 import { useTemplates } from "@/src/hooks/template/useTemplates";
 import { darkColors, lightColors } from "@/src/theme/colors";
 import { router } from "expo-router";
-import { Search } from "lucide-react-native";
 import { useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
   StyleSheet,
-  TextInput,
   View
 } from "react-native";
 
@@ -29,25 +28,13 @@ export default function Templates() {
   const colors = theme === "dark" ? darkColors : lightColors;
   const styles = getStyles(colors);
 
-  const handleSearch = (text: string) => {
-    setSearch(text);
-    searchTemplates(text);
-  };
-
   return (
     <View style={styles.container}>
       {/* Search */}
-      <View style={styles.searchContainer}>
-        <Search size={18} color={colors.placeHolderText} />
-        <TextInput
-          value={search}
-          onChangeText={handleSearch}
-          placeholder="Search templates..."
-          placeholderTextColor={colors.placeHolderText}
-          cursorColor={colors.cursorColor}
-          style={styles.searchInput}
-        />
-      </View>
+      <SearchBar
+        placeholder="Search template..."
+        onSearch={searchTemplates}
+      />
 
       {/* List */}
       <FlatList
@@ -114,20 +101,6 @@ const getStyles = (colors: typeof lightColors) =>
       color: "#fff",
       fontWeight: "600",
     },
-
-    searchContainer: {
-      flexDirection: "row",
-      alignItems: "center",
-      backgroundColor: colors.inputBackground,
-      borderColor: colors.inputBorder,
-      borderWidth: 1,
-      borderRadius: 999,
-      paddingHorizontal: 12,
-      marginBottom: 12,
-      gap: 8,
-      marginHorizontal: 15,
-    },
-
     searchInput: {
       flex: 1,
       paddingVertical: 11,

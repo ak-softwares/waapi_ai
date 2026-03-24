@@ -1,3 +1,4 @@
+import SearchBar from "@/src/components/common/SearchBar";
 import { useTheme } from "@/src/context/ThemeContext";
 import { useBroadcast } from "@/src/hooks/broadcast/useBroadcast";
 import { useContacts } from "@/src/hooks/contacts/useContacts";
@@ -206,12 +207,12 @@ export default function BroadcastScreen() {
           </Pressable>
         </View>
       </View>
-      <TextInput
+      {/* Search Bar */}
+      <SearchBar
         value={contactSearch}
-        onChangeText={handleSearchContacts}
-        placeholder="Search contact list"
-        placeholderTextColor={colors.placeHolderText}
-        style={styles.input}
+        placeholder="Search contact list..."
+        onSearch={handleSearchContacts}
+        disablePadding={true}
       />
       <FlatList
         data={contacts}
@@ -290,12 +291,12 @@ export default function BroadcastScreen() {
               </Pressable>
             </View>
           </View>
-          <TextInput
+          {/* Search Bar */}
+          <SearchBar
             value={excelSearch}
-            onChangeText={setExcelSearch}
-            placeholder="Search imported contacts"
-            placeholderTextColor={colors.placeHolderText}
-            style={styles.input}
+            placeholder="Search imported contacts..."
+            onSearch={setExcelSearch}
+            disablePadding={true}
           />
           <FlatList
             data={filteredExcelContacts}
@@ -355,12 +356,12 @@ export default function BroadcastScreen() {
               </Pressable>
             </View>
           </View>
-          <TextInput
+          {/* Search Bar */}
+          <SearchBar
             value={deviceSearch}
-            onChangeText={setDeviceSearch}
-            placeholder="Search phone contacts"
-            placeholderTextColor={colors.placeHolderText}
-            style={styles.input}
+            placeholder="Search phone contacts..."
+            onSearch={setDeviceSearch}
+            disablePadding={true}
           />
           <FlatList
             data={filteredDeviceContacts}
@@ -437,12 +438,12 @@ export default function BroadcastScreen() {
           <Text style={styles.summaryTitle}>
             Audience Size ({participants.length})
           </Text>
-          <TextInput
+          {/* Search Bar */}
+          <SearchBar
             value={audienceSearch}
-            onChangeText={setAudienceSearch}
-            placeholder="Search audience"
-            placeholderTextColor={colors.placeHolderText}
-            style={styles.input}
+            placeholder="Search contacts..."
+            onSearch={setAudienceSearch}
+            disablePadding={true}
           />
           <FlatList
             data={filteredParticipants}

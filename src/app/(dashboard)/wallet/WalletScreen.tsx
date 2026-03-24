@@ -97,12 +97,21 @@ export default function WalletScreen() {
               <Text style={styles.balance}>{creditBalance.toLocaleString()} credits</Text>
               <Text style={styles.metaText}>Avg. cost: ${pricePerCreditUSD} / credit</Text>
 
-              <Pressable
-                style={styles.actionBtn}
-                onPress={() => router.push("/(dashboard)/settings/TransactionHistoryScreen")}
-              >
-                <Text style={styles.actionBtnText}>View Transactions</Text>
-              </Pressable>
+              <View style={styles.walletActions}>
+                <Pressable
+                  style={styles.actionBtn}
+                  onPress={() => router.push("/(dashboard)/wallet/AddCreditScreen")}
+                >
+                  <Text style={styles.actionBtnText}>Add Credits</Text>
+                </Pressable>
+
+                <Pressable
+                  style={styles.secondaryBtn}
+                  onPress={() => router.push("/(dashboard)/settings/TransactionHistoryScreen")}
+                >
+                  <Text style={styles.secondaryBtnText}>View Transactions</Text>
+                </Pressable>
+              </View>
             </View>
 
             {error ? (
@@ -232,8 +241,14 @@ const getStyles = (colors: typeof lightColors) =>
       fontSize: 26,
       fontWeight: "700",
     },
+    walletActions: {
+      marginTop: 4,
+      flexDirection: "row",
+      gap: 8,
+    },
 
     actionBtn: {
+      flex: 1,
       marginTop: 4,
       backgroundColor: colors.primary,
       borderRadius: 10,
@@ -241,7 +256,22 @@ const getStyles = (colors: typeof lightColors) =>
       justifyContent: "center",
       paddingVertical: 10,
     },
+    secondaryBtn: {
+      flex: 1,
+      backgroundColor: colors.background,
+      borderRadius: 10,
+      borderWidth: 1,
+      borderColor: colors.border,
+      alignItems: "center",
+      justifyContent: "center",
+      paddingVertical: 10,
+    },
 
+    secondaryBtnText: {
+      color: colors.text,
+      fontSize: 13,
+      fontWeight: "600",
+    },
     actionBtnText: {
       color: colors.onPrimary,
       fontSize: 13,

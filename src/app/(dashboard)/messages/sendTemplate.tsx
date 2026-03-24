@@ -15,6 +15,7 @@ import {
 import * as DocumentPicker from "expo-document-picker";
 import * as ImagePicker from "expo-image-picker";
 
+import SearchBar from "@/src/components/common/SearchBar";
 import TemplatePreviewSection from "@/src/components/templates/editor/sections/TemplatePreviewSection";
 import VariableInput from "@/src/components/templates/widgets/VariableInput";
 import { useTheme } from "@/src/context/ThemeContext";
@@ -398,19 +399,11 @@ export default function SendTemplateScreen() {
       <View style={styles.container}>
         {!selectedTemplate ? (
           <>
-            <View style={styles.searchWrap}>
-              <TextInput
-                value={search}
-                onChangeText={(text) => {
-                  setSearch(text);
-                  searchTemplates(text);
-                }}
-                placeholder="Search template"
-                placeholderTextColor={colors.placeHolderText}
-                style={styles.input}
-              />
-            </View>
-
+            <SearchBar
+              placeholder="Search template..."
+              onSearch={searchTemplates}
+              disablePadding={true}
+            />
             <FlatList
               data={templates}
               keyExtractor={(item) => item.id || item._id}
@@ -605,9 +598,6 @@ const getStyles = (colors: typeof lightColors) =>
       flex: 1,
       backgroundColor: colors.background,
       padding: 14,
-    },
-    searchWrap: {
-      marginBottom: 10,
     },
     input: {
       borderWidth: 1,

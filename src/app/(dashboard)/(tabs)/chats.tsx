@@ -2,6 +2,7 @@ import ChatTile from "@/src/components/chats/widgets/ChatTile";
 import AppMenu from "@/src/components/common/AppMenu";
 import ConfirmSheet from "@/src/components/common/ConfirmSheet";
 import FloatingButton from "@/src/components/common/FloatingButton";
+import SearchBar from "@/src/components/common/SearchBar";
 import { useTheme } from "@/src/context/ThemeContext";
 import { useChats } from "@/src/hooks/chat/useChats";
 import { useDeleteChats } from "@/src/hooks/chat/useDeleteChats";
@@ -18,7 +19,6 @@ import {
   ActivityIndicator,
   FlatList, ScrollView, StyleSheet,
   Text,
-  TextInput,
   TouchableOpacity,
   View
 } from "react-native";
@@ -81,11 +81,6 @@ export default function ChatListScreen() {
 
     return chats;
   }, [chats, filter]);
-
-  const handleSearch = (text: string) => {
-    setSearch(text);
-    searchChats(text);
-  };
 
   const toggleChatSelection = (chat: Chat) => {
     setSelectedChats((prev) =>
@@ -222,17 +217,11 @@ export default function ChatListScreen() {
 
       <View style={styles.container}>
 
-        <View style={styles.searchContainer}>
-          <TextInput
-            value={search}
-            onChangeText={handleSearch}
-            placeholder="Search chats..."
-            placeholderTextColor={colors.placeHolderText}
-            cursorColor={colors.cursorColor}
-            style={styles.searchInput}
-          />
-        </View>
-
+        <SearchBar
+          placeholder="Search chats..."
+          onSearch={searchChats}
+        />
+        
         <View>
           <ScrollView
             horizontal
@@ -361,20 +350,7 @@ const getStyles = (colors: typeof lightColors) =>
     iconAction: {
       padding: 6,
     },
-    searchContainer: {
-      paddingHorizontal: 15,
-      paddingBottom: 10,
-    },
-    searchInput: {
-      backgroundColor: colors.inputBackground,
-      borderRadius: 999,
-      paddingHorizontal: 20,
-      paddingVertical: 10,
-      fontSize: 14,
-      color: colors.inputText,
-      borderWidth: 1,
-      borderColor: colors.inputBorder,
-    },
+
     filterContainer: {
       paddingHorizontal: 15,
       gap: 8,
