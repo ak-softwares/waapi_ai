@@ -8,13 +8,13 @@ import { router } from "expo-router";
 
 import {
   BarChart3,
-  CreditCard,
   Headphones,
   KeyRound,
   LogOut,
   MessageCircleMore,
   Settings,
-  User
+  User,
+  Wallet
 } from "lucide-react-native";
 import { useState } from "react";
 import {
@@ -52,12 +52,11 @@ export default function SettingsScreen() {
           subtitle="View and edit your profile"
           onPress={() => router.push("/(dashboard)/profile/profilePage")}
         />
-
         <SettingsTile
-          icon={<CreditCard size={22} color={colors.primary} />}
-          title="Payment history"
-          subtitle="View and manage your payments"
-          onPress={() => router.push("/(dashboard)/settings/TransactionHistoryScreen")}
+          icon={<Wallet size={22} color={colors.primary} />}
+          title="Wallet"
+          subtitle="Credits, quota and balance"
+          onPress={() => router.push("/(dashboard)/wallet/WalletScreen")}
         />
         
         <SettingsTile

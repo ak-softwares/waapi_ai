@@ -2,7 +2,7 @@
   "expo": {
     "name": "WA-API AI",
     "slug": "waapi_ai",
-    "version": "1.2.0",
+    "version": "1.2.1",
     "orientation": "portrait",
     "icon": "./assets/logos/adaptive-icon.png",
     "scheme": "waapiapp",
