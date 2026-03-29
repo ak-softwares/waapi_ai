@@ -39,7 +39,6 @@ export default function WhatsAppInputBar({
   const { theme } = useTheme();
   const colors = theme === "dark" ? darkColors : lightColors;
   const styles = getStyles(colors);
-
   const hasText = message.trim().length > 0;
 
   return (
@@ -49,7 +48,10 @@ export default function WhatsAppInputBar({
 
         <TouchableOpacity
           style={styles.iconButton}
-          onPress={onEmojiPress}
+          onPress={() => {
+            inputRef?.current?.focus();   // ✅ open keyboard
+            onEmojiPress?.();             // optional (if you also show emoji picker)
+          }}
         >
           <Emogi height={24} width={24} fill={colors.mutedText} />
         </TouchableOpacity>

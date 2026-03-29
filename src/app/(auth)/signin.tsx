@@ -1,7 +1,8 @@
 import { useAuth } from "@/src/context/AuthContext";
+import { useTheme } from "@/src/context/ThemeContext";
 import { useGoogleAuth } from "@/src/hooks/auth/useGoogleAuth";
 import { signInSchema } from "@/src/schemas/signInSchema";
-import { lightColors } from "@/src/theme/colors";
+import { darkColors, lightColors } from "@/src/theme/colors";
 import { AntDesign } from "@expo/vector-icons";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "expo-router";
@@ -15,9 +16,9 @@ export default function SignInScreen() {
   const router = useRouter();
   const { signin, googleSignin, loading } = useAuth();
 
-  // const { theme } = useTheme();
-  // const colors = theme === "dark" ? darkColors : lightColors;
-  const colors = lightColors;
+  const { theme } = useTheme();
+  const colors = theme === "dark" ? darkColors : lightColors;
+  // const colors = lightColors;
   const styles = getStyles(colors);
 
   const {

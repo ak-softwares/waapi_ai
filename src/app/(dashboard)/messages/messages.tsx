@@ -1,16 +1,3 @@
-import React, { useEffect, useRef, useState } from "react";
-import {
-  FlatList,
-  ImageBackground,
-  Keyboard,
-  Linking,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View
-} from "react-native";
-
 import AudioIcon from "@/assets/messageIcons/audio.svg";
 import CameraIcon from "@/assets/messageIcons/camera.svg";
 import DocumentIcon from "@/assets/messageIcons/document-icon.svg";
@@ -24,28 +11,43 @@ import { useTheme } from "@/src/context/ThemeContext";
 import { useMessages } from "@/src/hooks/messages/useMessages";
 import { darkColors, lightColors } from "@/src/theme/colors";
 import { Message, MessagePayload, MessageType } from "@/src/types/Messages";
+import React, { useCallback, useMemo, useRef, useState } from "react";
+import {
+  FlatList,
+  ImageBackground,
+  LayoutChangeEvent,
+  Linking,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
+} from "react-native";
+import {
+  SafeAreaView,
+} from "react-native-safe-area-context";
 
-import EmojiSelector from "react-native-emoji-selector";
 
 import UserAvatar from "@/src/components/common/user/UserAvatar";
 import { ChatType } from "@/src/types/Chat";
 import { router, Stack, useLocalSearchParams } from "expo-router";
 import { ArrowLeft, MoreVertical, Search, Trash2, X } from "lucide-react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 
 import Copy from "@/assets/menuIcons/copy.svg";
 import Delete from "@/assets/menuIcons/delete.svg";
 import Forward from "@/assets/menuIcons/forward.svg";
 import Info from "@/assets/menuIcons/info.svg";
 import Reply from "@/assets/menuIcons/reply.svg";
-
 import AttachmentSheet from "@/src/components/messages/widgets/AttachmentSheet";
 import MessageBubbleShimmer from "@/src/components/messages/widgets/MessageBubbleShimmer";
 import MessageContactInfoCard from "@/src/components/messages/widgets/MessageContactInfoCard";
 import { useSendMessage } from "@/src/hooks/messages/useSendMessage";
 import { MediaSourceType } from "@/src/utiles/enums/mediaTypes";
 import { formatInternationalPhoneNumber } from "@/src/utiles/formater/formatPhone";
-import { Platform } from "react-native";
+import { KeyboardChatScrollView, KeyboardGestureArea, KeyboardStickyView } from "react-native-keyboard-controller";
+import { useSharedValue, withTiming } from "react-native-reanimated";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const WHATSAPP_BG = require("@/assets/whatsapp/message-bg.png");
 
@@ -59,6 +61,8 @@ export default function MessageScreen() {
   const { chatId, chatData } = useLocalSearchParams<MessageParams>();
   const chat = chatData ? JSON.parse(chatData) : null;
 
+  const ref = useRef<ScrollView>(null);
+  const textRef = useRef("");
   const inputRef = useRef<TextInput>(null);
 
   const { theme } = useTheme();
@@ -68,15 +72,53 @@ export default function MessageScreen() {
   const { messages, setMessages, loading, loadMore, hasMore, loadingMore } = useMessages({ chatId });
   const { isSending, sendMessage } = useSendMessage();
   const [message, setMessage] = useState("");
-  const [showEmoji, setShowEmoji] = useState(false);
   const [messageContext, setMessageContext] = useState<Message | null>(null);
 
   const [selectedMessages, setSelectedMessages] = useState<Message[]>([]);
   const [isSelectionMode, setIsSelectionMode] = useState(false);
   const [showAttachmentOptions, setShowAttachmentOptions] = useState(false);
 
-  const selectedIds = new Set(selectedMessages.map(m => m._id));
+  const extraContentPadding = useSharedValue(0);
+  const { bottom } = useSafeAreaInsets();
 
+  const stickyViewOffset = useMemo(
+    () => ({ opened: bottom }),
+    [bottom],
+  );
+
+  const ChatScrollView = React.forwardRef((props: any, ref: any) => {
+    const { bottom } = useSafeAreaInsets();
+
+    return (
+      <KeyboardChatScrollView
+        ref={ref}
+        automaticallyAdjustContentInsets={false}
+        contentInsetAdjustmentBehavior="never"
+        keyboardDismissMode="interactive"
+        offset={bottom - 8}
+        {...props}
+      />
+    );
+  });
+
+  const renderScrollComponent = useCallback(
+    (props: any) => (
+      <ChatScrollView
+        {...props}
+        extraContentPadding={extraContentPadding}
+      />
+    ),
+    []
+  );
+
+  const onInputLayout = useCallback((e: LayoutChangeEvent) => {
+    extraContentPadding.value = withTiming(
+      Math.max(e.nativeEvent.layout.height - 42, 0),
+      { duration: 250 }
+    );
+  }, []);
+
+  const selectedIds = new Set(selectedMessages.map(m => m._id));
 
   const toggleMessageSelection = (msg: Message) => {
     setSelectedMessages((prev) =>
@@ -122,16 +164,6 @@ export default function MessageScreen() {
     }
   };
 
-  const toggleEmoji = () => {
-    if (showEmoji) {
-      setShowEmoji(false);
-      setTimeout(() => inputRef.current?.focus(), 100);
-    } else {
-      inputRef.current?.blur();
-      setShowEmoji(true);
-    }
-  };
-
   const toggleAttachment = () => {
     if (showAttachmentOptions) {
       setShowAttachmentOptions(false);
@@ -139,14 +171,6 @@ export default function MessageScreen() {
       setShowAttachmentOptions(true);
     }
   };
-
-  useEffect(() => {
-    const show = Keyboard.addListener("keyboardDidShow", () => {
-      setShowEmoji(false);
-    });
-
-    return () => show.remove();
-  }, []);
 
   const handleOpenContactInfo = () => { 
     if (!chat) return; 
@@ -329,153 +353,146 @@ export default function MessageScreen() {
           ),
         }}
       />
-      <KeyboardAvoidingView //KeyboardAwareScrollView
-        style={styles.container}
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        keyboardVerticalOffset={80} // adjust based on header height
-      >
-        <ImageBackground
-          source={WHATSAPP_BG}
-          style={styles.messagesArea}
-          imageStyle={styles.bgImage}
+
+      <SafeAreaView edges={["bottom"]} style={styles.container}>
+        <KeyboardGestureArea
+          interpolator="ios"
+          style={{ flex: 1 }}
+          // textInputNativeID="chat-input"
         >
+          <ImageBackground
+            source={WHATSAPP_BG}
+            style={styles.messagesArea}
+            imageStyle={styles.bgImage}
+          >
 
-          {loading
-            ? <MessageBubbleShimmer count={8} />
-            : (
-              <FlatList
-                data={messages}
-                inverted
-                keyExtractor={(item) =>
-                  item._id || `${item.createdAt}-${item.message}`
-                }
-                ListFooterComponent={
-                  <View>
-                    {/* ✅ Show ONLY when no more messages AND not loading */}
-                    {!hasMore && !loadingMore && (
-                      <MessageContactInfoCard
-                        chat={chat}
-                        onCall={handleCallContact}
-                      />
-                    )}
-                    {loadingMore ? <MessageBubbleShimmer count={2} /> : null}
-                  </View>
-                }
-                renderItem={({ item, index }) => {
-                  const prevMsg = messages[index + 1];
-
-                  const showDate =
-                    !prevMsg ||
-                    new Date(prevMsg.createdAt ?? "").toDateString() !==
-                      new Date(item.createdAt ?? "").toDateString();
-
-                  return (
+            {loading
+              ? <MessageBubbleShimmer count={8} />
+              : (
+                <FlatList
+                  // ref={ref}
+                  data={messages}
+                  inverted
+                  keyExtractor={(item) =>
+                    item._id || `${item.createdAt}-${item.message}`
+                  }
+                  ListFooterComponent={
                     <View>
-                      {/* DATE LABEL */}
-                      {showDate && (
-                        <View style={styles.dateSeparator}>
-                          <Text style={styles.dateText}>
-                            {getDateLabel(item.createdAt ?? "")}
-                          </Text>
-                        </View>
+                      {/* ✅ Show ONLY when no more messages AND not loading */}
+                      {!hasMore && !loadingMore && (
+                        <MessageContactInfoCard
+                          chat={chat}
+                          onCall={handleCallContact}
+                        />
                       )}
-
-                      {/* MESSAGE */}
-                      <MessageBubble
-                        chat={chat}
-                        message={item}
-                        isSelected={selectedIds.has(item._id)}
-                        isSelectionMode={isSelectionMode}
-                        onPress={() =>
-                          isSelectionMode ? toggleMessageSelection(item) : null
-                        }
-                        onLongPress={() => {
-                          setIsSelectionMode(true);
-                          toggleMessageSelection(item);
-                        }}
-                      />
+                      {loadingMore ? <MessageBubbleShimmer count={2} /> : null}
                     </View>
-                  );
-                }}
-                contentContainerStyle={styles.messagesContent}
-                onEndReached={() => {
-                  if (hasMore) loadMore();
-                }}
-                onEndReachedThreshold={0.3}
-              />
-            )
-          }
+                  }
+                  renderItem={({ item, index }) => {
+                    const prevMsg = messages[index + 1];
 
-          <SafeAreaView edges={["bottom"]}>
-            <WhatsAppInputBar
-              inputRef={inputRef}
-              message={message}
-              setMessage={setMessage}
-              onSend={sendMessageHandler}
-              onEmojiPress={toggleEmoji}
-              // onAttachPress={handlePickImageOrVideo}
-              onAttachPress={toggleAttachment}
-              onCameraPress={() => sendMediaPage(MediaSourceType.CAMERA)}
-            />
-          </SafeAreaView>
+                    const showDate =
+                      !prevMsg ||
+                      new Date(prevMsg.createdAt ?? "").toDateString() !==
+                        new Date(item.createdAt ?? "").toDateString();
 
-          {/* ✅ FLOATING LAYER */}
-          <AttachmentSheet
-            visible={showAttachmentOptions}
-            onClose={toggleAttachment}
-            actions={[
-              {
-                key: "camera",
-                label: "Camera",
-                renderIcon: () => <CameraIcon height={25} width={25} />,
-                onPress: () => sendMediaPage(MediaSourceType.CAMERA),
-              },
-              {
-                key: "gallery",
-                label: "Gallery",
-                renderIcon: () => <GalleryIcon height={25} width={25} />,
-                onPress: () => sendMediaPage(MediaSourceType.GALLERY),
-              },
-              {
-                key: "document",
-                label: "Document",
-                renderIcon: () => <DocumentIcon height={25} width={25} />,
-                onPress: () => sendMediaPage(MediaSourceType.DOCUMENT),
-              },
-              {
-                key: "audio",
-                label: "Audio",
-                renderIcon: () => <AudioIcon height={25} width={25} />,
-                onPress: () => sendMediaPage(MediaSourceType.AUDIO),
-              },
+                    return (
+                      <View>
+                        {/* DATE LABEL */}
+                        {showDate && (
+                          <View style={styles.dateSeparator}>
+                            <Text style={styles.dateText}>
+                              {getDateLabel(item.createdAt ?? "")}
+                            </Text>
+                          </View>
+                        )}
 
-              // ❌ Keep these unchanged
-              {
-                key: "location",
-                label: "Location",
-                renderIcon: () => <LocationIcon height={25} width={25} />,
-              },
-              {
-                key: "template",
-                label: "Template",
-                renderIcon: () => <Template height={25} width={25} />,
-                onPress: sendTemplatePage,
-              },
-            ]}
-          />
-        </ImageBackground>
-
-        {showEmoji && (
-          <EmojiSelector
-            onEmojiSelected={(emoji) =>
-              setMessage((prev) => prev + emoji)
+                        {/* MESSAGE */}
+                        <MessageBubble
+                          chat={chat}
+                          message={item}
+                          isSelected={selectedIds.has(item._id)}
+                          isSelectionMode={isSelectionMode}
+                          onPress={() =>
+                            isSelectionMode ? toggleMessageSelection(item) : null
+                          }
+                          onLongPress={() => {
+                            setIsSelectionMode(true);
+                            toggleMessageSelection(item);
+                          }}
+                        />
+                      </View>
+                    );
+                  }}
+                  contentContainerStyle={styles.messagesContent}
+                  onEndReached={() => {
+                    if (hasMore) loadMore();
+                  }}
+                  onEndReachedThreshold={0.3}
+                  renderScrollComponent={renderScrollComponent}
+                  keyboardShouldPersistTaps="handled"
+                />
+              )
             }
-            showSearchBar={false}
-            showTabs
-            columns={8}
-          />
-        )}
-      </KeyboardAvoidingView>
+
+            <KeyboardStickyView offset={stickyViewOffset}>
+              <WhatsAppInputBar
+                inputRef={inputRef}
+                message={message}
+                setMessage={setMessage}
+                onSend={sendMessageHandler}
+                onAttachPress={toggleAttachment}
+                onCameraPress={() => sendMediaPage(MediaSourceType.CAMERA)}
+                
+              />
+              {/* ✅ FLOATING LAYER */}
+              <AttachmentSheet
+                visible={showAttachmentOptions}
+                onClose={toggleAttachment}
+                actions={[
+                  {
+                    key: "camera",
+                    label: "Camera",
+                    renderIcon: () => <CameraIcon height={25} width={25} />,
+                    onPress: () => sendMediaPage(MediaSourceType.CAMERA),
+                  },
+                  {
+                    key: "gallery",
+                    label: "Gallery",
+                    renderIcon: () => <GalleryIcon height={25} width={25} />,
+                    onPress: () => sendMediaPage(MediaSourceType.GALLERY),
+                  },
+                  {
+                    key: "document",
+                    label: "Document",
+                    renderIcon: () => <DocumentIcon height={25} width={25} />,
+                    onPress: () => sendMediaPage(MediaSourceType.DOCUMENT),
+                  },
+                  {
+                    key: "audio",
+                    label: "Audio",
+                    renderIcon: () => <AudioIcon height={25} width={25} />,
+                    onPress: () => sendMediaPage(MediaSourceType.AUDIO),
+                  },
+
+                  // ❌ Keep these unchanged
+                  {
+                    key: "location",
+                    label: "Location",
+                    renderIcon: () => <LocationIcon height={25} width={25} />,
+                  },
+                  {
+                    key: "template",
+                    label: "Template",
+                    renderIcon: () => <Template height={25} width={25} />,
+                    onPress: sendTemplatePage,
+                  },
+                ]}
+              />
+            </KeyboardStickyView>
+          </ImageBackground>
+        </KeyboardGestureArea>
+      </SafeAreaView>
     </>
   );
 }
@@ -494,7 +511,9 @@ const getStyles = (colors: typeof lightColors, isDark: boolean) =>
       flexDirection: "row",
       gap: 15,
     },
-
+    emojiContainer: {
+      height: 300,
+    },
     messagesArea: { 
       flex: 1,
       position: "relative"

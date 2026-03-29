@@ -241,7 +241,13 @@ export default function ChatListScreen() {
               return (
                 <TouchableOpacity
                   key={item.key}
-                  onPress={() => setFilter(item.key)}
+                  onPress={() => {
+                    if (filter === item.key) {
+                      refreshChats();
+                    } else {
+                      setFilter(item.key);
+                    }
+                  }}
                   style={[styles.chip, active && styles.activeChip]}
                 >
                   <Text style={[styles.chipText, active && { color: colors.primary }]}> 

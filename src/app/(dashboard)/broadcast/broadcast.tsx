@@ -4,6 +4,7 @@ import { useBroadcast } from "@/src/hooks/broadcast/useBroadcast";
 import { useContacts } from "@/src/hooks/contacts/useContacts";
 import { useDeviceContactsImport } from "@/src/hooks/contacts/useDeviceContactsImport";
 import { useExcelImport } from "@/src/hooks/contacts/useExcelImport";
+import { emitChatUpdate } from "@/src/lib/events/chatEvents";
 import { darkColors, lightColors } from "@/src/theme/colors";
 import { ChatParticipant } from "@/src/types/Chat";
 import { Contact, ImportedContact } from "@/src/types/Contact";
@@ -84,7 +85,7 @@ export default function BroadcastScreen() {
   const [selectedExcelIds, setSelectedExcelIds] = useState<string[]>([]);
   const [deviceSelection, setDeviceSelection] = useState<string[]>([]);
 
-  const { contacts, loading, loadingMore, hasMore, loadMore, searchContacts } = useContacts();
+  const { contacts, loading, loadingMore, hasMore, loadMore, searchContacts, refreshContacts } = useContacts();
 
   const { createBroadcast, creatingBroadcast, updateBroadcast, updatingBroadcast } = useBroadcast(() => {
     setBroadcastName("");
@@ -112,6 +113,13 @@ export default function BroadcastScreen() {
       importFromDeviceContacts();
     }
   }, [sourceMode, importedDeviceContacts.length, importingDeviceContacts, importFromDeviceContacts]);
+
+  useEffect(() => {
+    if (sourceMode === "contacts") {
+      refreshContacts();
+    }
+  }, [sourceMode]);
+
 
 
   const canCreate = broadcastName.trim().length > 0
@@ -155,6 +163,7 @@ export default function BroadcastScreen() {
     });
 
     if (chat?._id) {
+      emitChatUpdate(chat);
       router.back();
       // router.push({ pathname: "/(dashboard)/messages", params: { chatId: chat._id } });
     }

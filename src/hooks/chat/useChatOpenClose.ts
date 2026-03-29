@@ -1,5 +1,5 @@
 import { api } from "@/src/lib/api/apiClient";
-import { emitChatUpdate } from "@/src/lib/events/chatEvents";
+import { emitChat } from "@/src/lib/events/chatEvents";
 import { useState } from "react";
 
 interface UseChatOpenCloseOptions {
@@ -20,7 +20,7 @@ export function useChatOpenClose(options?: UseChatOpenCloseOptions) {
 
       if (opened) {
         // ✅ update UI instantly
-        emitChatUpdate({
+        emitChat({
           _id: chatId,
           unreadCount: 0,
         } as any);

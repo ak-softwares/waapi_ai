@@ -1,5 +1,5 @@
 import { getUserIdFromToken } from "@/src/lib/auth/getUserIdFromToken";
-import { emitChatUpdate } from "@/src/lib/events/chatEvents";
+import { emitChat } from "@/src/lib/events/chatEvents";
 import { emitMessage } from "@/src/lib/events/messageEvents";
 import { getPusher } from "@/src/lib/pusher/pusherClient";
 import { NotificationPayload } from "@/src/types/Notification";
@@ -24,7 +24,7 @@ export function usePusher() {
         channel.bind(PusherEvent.USER_EVENT, (data: any) => {
           const payload = data.eventPayload as NotificationPayload;
 
-          if (payload?.chat) emitChatUpdate(payload.chat);
+          if (payload?.chat) emitChat(payload.chat);
           // ✅ Message events
           if (payload?.eventType) {
             // console.log("EventType: ", JSON.stringify(payload.eventType, null, 2))

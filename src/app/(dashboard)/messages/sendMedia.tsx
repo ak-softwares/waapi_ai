@@ -3,15 +3,13 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import {
   FlatList,
   Image,
-  KeyboardAvoidingView,
-  Platform,
   Pressable,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
   useWindowDimensions,
-  View,
+  View
 } from "react-native";
 
 import { Video } from "expo-av";
@@ -28,6 +26,11 @@ import { ChatParticipant, ChatType } from "@/src/types/Chat";
 import { MessagePayload, MessageType } from "@/src/types/Messages";
 import { MediaSourceType, MediaType } from "@/src/utiles/enums/mediaTypes";
 import { ActivityIndicator } from "react-native";
+import { KeyboardStickyView } from "react-native-keyboard-controller";
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
 
 type UploadedFile = {
   mediaId: string;
@@ -72,6 +75,13 @@ export default function SendMediaScreen() {
   const maxPreviewHeight = height * 0.7;
 
   const isBroadcast = chatType === ChatType.BROADCAST;
+
+  const { bottom } = useSafeAreaInsets();
+
+  const stickyViewOffset = useMemo(
+    () => ({ opened: bottom + 5 }),
+    [bottom],
+  );
 
   const uploadAndBuildPreviewFiles = useCallback(
     async (selectedFiles: SelectedFile[]) => {
@@ -281,14 +291,10 @@ export default function SendMediaScreen() {
   };
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView edges={["bottom"]} style={styles.container}>
       <Stack.Screen options={{ headerShown: false }} />
 
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
-        keyboardVerticalOffset={100}
-        style={styles.container}
-      >
+      <View style={styles.container}>
         <View style={styles.topBar}>
           <TouchableOpacity onPress={() => router.back()} style={styles.circleButton}>
             <X size={22} color={colors.text} />
@@ -302,6 +308,7 @@ export default function SendMediaScreen() {
             <Trash2 size={18} color={colors.text} />
           </TouchableOpacity>
         </View>
+
         {(uploading || loadingMedia) && (
           <View style={[styles.previewContainer, { width, height: maxPreviewHeight }]}>
             <View style={styles.loaderOverlay}>
@@ -309,6 +316,7 @@ export default function SendMediaScreen() {
             </View>
           </View>
         )}
+
         <FlatList
           ref={previewRef}
           data={files}
@@ -352,28 +360,30 @@ export default function SendMediaScreen() {
           />
         )}
 
-        <View style={styles.bottomBar}>
-          <TextInput
-            value={currentFile?.caption || ""}
-            onChangeText={setCurrentCaption}
-            placeholder="Add a caption"
-            placeholderTextColor={colors.mutedText}
-            style={styles.captionInput}
-          />
+        <KeyboardStickyView offset={stickyViewOffset}>
+          <View style={styles.bottomBar}>
+            <TextInput
+              value={currentFile?.caption || ""}
+              onChangeText={setCurrentCaption}
+              placeholder="Add a caption"
+              placeholderTextColor={colors.mutedText}
+              style={styles.captionInput}
+            />
 
-          <TouchableOpacity
-            disabled={!files.length || uploading || isSending}
-            onPress={handleSend}
-            style={[
-              styles.sendButton,
-              (!files.length || uploading || isSending) && styles.disabled,
-            ]}
-          >
-            <Send height={28} width={28} fill={colors.butttonTextSecondary} />
-          </TouchableOpacity>
-        </View>
-      </KeyboardAvoidingView>
-    </View>
+            <TouchableOpacity
+              disabled={!files.length || uploading || isSending}
+              onPress={handleSend}
+              style={[
+                styles.sendButton,
+                (!files.length || uploading || isSending) && styles.disabled,
+              ]}
+            >
+              <Send height={28} width={28} fill={colors.butttonTextSecondary} />
+            </TouchableOpacity>
+          </View>
+        </KeyboardStickyView>
+      </View>
+    </SafeAreaView>
   );
 }
 
@@ -480,7 +490,7 @@ const getStyles = (colors: typeof lightColors, isDark: boolean) =>
       paddingHorizontal: 12,
       paddingTop: 8,
       paddingBottom: 16,
-      backgroundColor: colors.background,
+      // backgroundColor: colors.background,
     },
     captionInput: {
       flex: 1,

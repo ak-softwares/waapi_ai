@@ -100,6 +100,7 @@ const getStyles = (colors: typeof lightColors) =>
     container: {
       flex: 1,
       paddingVertical: 10,
+      justifyContent: "flex-end",
     },
 
     row: {
