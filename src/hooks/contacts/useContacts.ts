@@ -60,14 +60,22 @@ export function useContacts() {
   }, [fetchContacts, page]);
 
   const refreshContacts = () => {
-    setPage(1);
+    setLoadingMore(false);
     setHasMore(true);
-    setContacts([]);
+
+    if (page === 1) {
+      fetchContacts(1);
+      return;
+    }
+
+    setPage(1);
   };
 
   const loadMore = () => {
-    if (!loading && !loadingMore && hasMore) {
-      setPage((prev) => prev + 1);
+    if (!contacts.length) return;
+
+    if (!loadingMore && hasMore && !loading) {
+      setPage(prev => prev + 1);
     }
   };
 

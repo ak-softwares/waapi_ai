@@ -1,6 +1,7 @@
 import AppMenu from "@/src/components/common/AppMenu";
 import ConfirmSheet from "@/src/components/common/ConfirmSheet";
-import SearchBar from "@/src/components/common/SearchBar";
+import SearchBar from "@/src/components/common/search/SearchBar";
+import UserShimmer from "@/src/components/common/user/UserShimmer";
 import { useTheme } from "@/src/context/ThemeContext";
 import { useGetOrCreateChat } from "@/src/hooks/chat/useGetOrCreateChat";
 import { useContacts } from "@/src/hooks/contacts/useContacts";
@@ -26,7 +27,6 @@ import {
 } from "lucide-react-native";
 import { useMemo, useState } from "react";
 import {
-  ActivityIndicator,
   FlatList,
   StyleSheet,
   Text,
@@ -302,26 +302,27 @@ export default function ContactsScreen() {
           disablePadding={true}
         />
 
-        <FlatList
-          data={contacts}
-          keyExtractor={(contact, index) => contact._id || `${contact.phones[0]}-${index}`}
-          renderItem={renderContact}
-          refreshing={loading}
-          onRefresh={refreshContacts}
-          onEndReachedThreshold={0.5}
-          onEndReached={() => {
-            if (hasMore) {
-              loadMore();
-            }
-          }}
-          ListEmptyComponent={
-            loading ? null : <Text style={styles.emptyText}>No contacts found.</Text>
-          }
-          contentContainerStyle={styles.listContainer}
-          ListFooterComponent={
-            loadingMore ? <ActivityIndicator color={colors.primary} /> : null
-          }
-        />
+        {loading 
+          ? <UserShimmer count={10} />
+          : (<FlatList
+              data={contacts}
+              keyExtractor={(contact, index) => contact._id || `${contact.phones[0]}-${index}`}
+              renderItem={renderContact}
+              refreshing={loading}
+              onRefresh={refreshContacts}
+              onEndReachedThreshold={0.5}
+              onEndReached={() => {
+                if (hasMore) {
+                  loadMore();
+                }
+              }}
+              ListEmptyComponent={
+                loading || loadingMore ? null : <Text style={styles.emptyText}>No contacts found.</Text>
+              }
+              contentContainerStyle={styles.listContainer}
+              ListFooterComponent={loadingMore ? <UserShimmer count={2} /> : null}
+            />)
+        }
 
         <ConfirmSheet
           visible={showDelete}

@@ -4,6 +4,7 @@
     "slug": "waapi_ai",
     "version": "1.2.1",
     "orientation": "portrait",
+    "owner": "waapi.me",
     "icon": "./assets/logos/adaptive-icon.png",
     "scheme": "waapiapp",
     "userInterfaceStyle": "automatic",
@@ -63,13 +64,17 @@
           "icon": "./assets/logos/notification-icon.png",
           "color": "#25D366"
         }
-      ]
+      ],
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
     },
     "extra": {
+      "googleWebClientId": "424327448768-larhq3ujtbcfqfkvtafpdvkdk1f15jte.apps.googleusercontent.com",
+      "googleAndroidClientId": "424327448768-0o8943v29kg0rd94ak716u33bv030tp1.apps.googleusercontent.com",
+      "googleIosClientId": "424327448768-vm5h13edei04htscnf1cgrjgdo92s3id.apps.googleusercontent.com",
       "router": {},
       "eas": {
         "projectId": "3622e8ba-256f-4981-aa76-2612cde2934a"

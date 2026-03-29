@@ -1,7 +1,6 @@
 import { usePushNotifications } from "@/src/hooks/notifications/usePushNotifications";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { KeyboardProvider } from "react-native-keyboard-controller";
 import { MenuProvider } from "react-native-popup-menu";
 import Toast from "react-native-toast-message";
 import { AuthProvider, useAuth } from "../context/AuthContext";
@@ -37,14 +36,12 @@ export default function RootLayout() {
 
   return (
     <ThemeProvider>
-      <KeyboardProvider>
         <AuthProvider>
           <MenuProvider>
             <InitialLayout />
             <Toast config={toastConfig} />
           </MenuProvider>
         </AuthProvider>
-      </KeyboardProvider>
     </ThemeProvider>
   );
 }

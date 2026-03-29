@@ -1,11 +1,13 @@
 import { Stack } from "expo-router";
 import { Sparkles, Wallet, Zap } from "lucide-react-native";
 import { useMemo, useState } from "react";
-import { Alert, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 
 import { useTheme } from "@/src/context/ThemeContext";
+import { useRazorpayPayment } from "@/src/hooks/payment/useRazorpayPayment";
 import { useWallet } from "@/src/hooks/wallet/useWallet";
 import { darkColors, lightColors } from "@/src/theme/colors";
+import { showToast } from "@/src/utiles/toastHelper/toast";
 
 const CREDIT_STEPS = [500, 1000, 2500, 5000, 10000];
 
@@ -18,6 +20,7 @@ export default function AddCreditScreen() {
   const [credits, setCredits] = useState<number>(500);
   const [customCredits, setCustomCredits] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
+  const { initiatePayment, loading } = useRazorpayPayment();
 
   const creditBalance = data?.creditBalance ?? 0;
   const pricePerCreditUSD = data?.pricePerCreditUSD ?? 0;
@@ -44,11 +47,53 @@ export default function AddCreditScreen() {
     setCredits(value);
   };
 
-  const handlePayNow = () => {
-    Alert.alert(
-      "Payment setup required",
-      "Razorpay checkout integration for this mobile screen is not wired yet."
-    );
+  const handlePayNow = async () => {
+    try {
+      if (!credits || credits < 500) {
+        showToast({ type: "error", message: "Minimum 500 credits required" });
+        return;
+      }
+
+      if (!totalAmount || totalAmount <= 0) {
+        showToast({ type: "error", message: "Invalid amount" });
+        return;
+      }
+
+      await initiatePayment({
+        amount: Math.round(totalAmount),
+        currency: "INR",
+        name: "WA API",
+        description: `${credits} Credits Purchase`,
+
+        onSuccess: () => {
+          showToast({
+            type: "success",
+            message: "Payment successful 🎉",
+          });
+
+          // 🔥 optional: refetch wallet instead of optimistic
+          // refetchWallet();
+
+          // optional callbacks (if exist)
+          // onAddCredits?.(credits);
+          // onClose?.();
+        },
+
+        onFailure: (error) => {
+          showToast({
+            type: "error",
+            message: error || "Payment failed",
+          });
+        },
+      });
+    } catch (err) {
+      console.log("PayNow Error:", err);
+
+      showToast({
+        type: "error",
+        message: "Something went wrong",
+      });
+    }
   };
 
   return (
@@ -122,7 +167,7 @@ export default function AddCreditScreen() {
 
           <View style={styles.summaryRow}>
             <Text style={styles.summaryLabel}>Price / credit</Text>
-            <Text style={styles.summaryValue}>${pricePerCreditUSD.toFixed(2)}</Text>
+            <Text style={styles.summaryValue}>${pricePerCreditUSD.toFixed(3)}</Text>
           </View>
 
           <View style={styles.summaryRow}>

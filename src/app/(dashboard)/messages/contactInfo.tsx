@@ -1,7 +1,7 @@
 import ContactInfoPage from "@/src/components/messages/widgets/ContactInfoPage";
 import { useTheme } from "@/src/context/ThemeContext";
 import { darkColors, lightColors } from "@/src/theme/colors";
-import { Chat } from "@/src/types/Chat";
+import { Chat, ChatType } from "@/src/types/Chat";
 import { router, Stack, useLocalSearchParams } from "expo-router";
 import { ArrowLeft, Info } from "lucide-react-native";
 import React, { useMemo } from "react";
@@ -22,6 +22,22 @@ export default function ContactInfoScreen() {
     }
   }, [params.chat]);
 
+  const handleEditBroadcast = () => {
+    if (!chat || chat.type !== ChatType.BROADCAST) {
+      return;
+    }
+
+    router.push({
+      pathname: "/(dashboard)/broadcast/broadcast",
+      params: {
+        mode: "edit",
+        broadcastId: chat._id,
+        broadcastName: chat.chatName ?? "",
+        participants: JSON.stringify(chat.participants ?? []),
+      },
+    });
+  };
+  
   return (
     <>
       <Stack.Screen
@@ -35,16 +51,20 @@ export default function ContactInfoScreen() {
         }}
       />
 
-      {chat ? (
-        <ContactInfoPage chat={chat} />
-      ) : (
-        <View style={{ flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: colors.background, paddingHorizontal: 20 }}>
-          <Info size={22} color={colors.mutedText} />
-          <Text style={{ color: colors.mutedText, marginTop: 8, textAlign: "center" }}>
-            Unable to load contact details for this chat.
-          </Text>
-        </View>
-      )}
+      {chat 
+        ? (
+            <ContactInfoPage chat={chat} onEditBroadcast={handleEditBroadcast} />
+          ) 
+        : 
+          (
+            <View style={{ flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: colors.background, paddingHorizontal: 20 }}>
+              <Info size={22} color={colors.mutedText} />
+              <Text style={{ color: colors.mutedText, marginTop: 8, textAlign: "center" }}>
+                Unable to load contact details for this chat.
+              </Text>
+            </View>
+          )
+      }
     </>
   );
 }

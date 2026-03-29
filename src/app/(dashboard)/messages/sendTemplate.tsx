@@ -15,8 +15,10 @@ import {
 import * as DocumentPicker from "expo-document-picker";
 import * as ImagePicker from "expo-image-picker";
 
-import SearchBar from "@/src/components/common/SearchBar";
+import SearchBar from "@/src/components/common/search/SearchBar";
+import UserShimmer from "@/src/components/common/user/UserShimmer";
 import TemplatePreviewSection from "@/src/components/templates/editor/sections/TemplatePreviewSection";
+import TemplateTile from "@/src/components/templates/widgets/TemplateTile";
 import VariableInput from "@/src/components/templates/widgets/VariableInput";
 import { useTheme } from "@/src/context/ThemeContext";
 import { useMedia } from "@/src/hooks/messages/useMedia";
@@ -404,22 +406,27 @@ export default function SendTemplateScreen() {
               onSearch={searchTemplates}
               disablePadding={true}
             />
-            <FlatList
-              data={templates}
-              keyExtractor={(item) => item.id || item._id}
-              refreshing={loading}
-              onRefresh={() => searchTemplates(search)}
-              onEndReached={loadMore}
-              onEndReachedThreshold={0.3}
-              ListEmptyComponent={!loading ? <Text style={styles.emptyText}>No templates found.</Text> : null}
-              ListFooterComponent={loadingMore ? <ActivityIndicator color={colors.primary} /> : null}
-              renderItem={({ item }) => (
-                <Pressable style={styles.templateTile} onPress={() => onSelectTemplate(item)}>
-                  <Text style={styles.templateName}>{item.name}</Text>
-                  <Text style={styles.templateMeta}>{item.language} • {item.category}</Text>
-                </Pressable>
-              )}
-            />
+            {loading 
+              ? <UserShimmer count={10} />
+              : (
+                  <FlatList
+                    data={templates}
+                    keyExtractor={(item) => item.id || item._id}
+                    refreshing={loading}
+                    onRefresh={() => searchTemplates(search)}
+                    onEndReached={loadMore}
+                    onEndReachedThreshold={0.3}
+                    ListEmptyComponent={!loading ? <Text style={styles.emptyText}>No templates found.</Text> : null}
+                    ListFooterComponent={loadingMore ? <UserShimmer count={2} /> : null}
+                    renderItem={({ item }) => (
+                      <TemplateTile
+                        template={item}
+                        onPress={() => onSelectTemplate(item)}
+                      />
+                    )}
+                  />
+                )
+            }
           </>
         ) : (
           <ScrollView contentContainerStyle={styles.formWrap}>
@@ -613,25 +620,6 @@ const getStyles = (colors: typeof lightColors) =>
       textAlign: "center",
       marginTop: 30,
       color: colors.secondaryText,
-    },
-    templateTile: {
-      borderWidth: 1,
-      borderColor: colors.border,
-      borderRadius: 10,
-      backgroundColor: colors.messageCard,
-      padding: 12,
-      marginBottom: 8,
-    },
-    templateName: {
-      color: colors.text,
-      fontWeight: "700",
-      fontSize: 15,
-      marginBottom: 4,
-      textTransform: "lowercase",
-    },
-    templateMeta: {
-      color: colors.secondaryText,
-      fontSize: 12,
     },
     formWrap: {
       paddingBottom: 26,

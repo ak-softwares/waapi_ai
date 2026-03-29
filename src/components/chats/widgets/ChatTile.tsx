@@ -1,4 +1,4 @@
-import UserAvatar from "@/src/components/common/UserAvatar";
+import UserAvatar from "@/src/components/common/user/UserAvatar";
 import { useTheme } from "@/src/context/ThemeContext";
 import { darkColors, lightColors } from "@/src/theme/colors";
 import { Chat, ChatType } from "@/src/types/Chat";
@@ -50,6 +50,7 @@ export default function ChatTile({
       onPress={onPress}
       onLongPress={onLongPress}
       delayLongPress={250}
+      activeOpacity={0.8}
     >
       <View style={styles.avatar}>
         <UserAvatar

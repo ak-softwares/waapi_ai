@@ -1,4 +1,4 @@
-import SearchBar from "@/src/components/common/SearchBar";
+import SearchBar from "@/src/components/common/search/SearchBar";
 import { useTheme } from "@/src/context/ThemeContext";
 import { useBroadcast } from "@/src/hooks/broadcast/useBroadcast";
 import { useContacts } from "@/src/hooks/contacts/useContacts";
@@ -7,8 +7,8 @@ import { useExcelImport } from "@/src/hooks/contacts/useExcelImport";
 import { darkColors, lightColors } from "@/src/theme/colors";
 import { ChatParticipant } from "@/src/types/Chat";
 import { Contact, ImportedContact } from "@/src/types/Contact";
-import { router, Stack } from "expo-router";
-import { useEffect, useState } from "react";
+import { router, Stack, useLocalSearchParams } from "expo-router";
+import { useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
@@ -45,14 +45,35 @@ const contactToParticipant = (contact: Contact): ChatParticipant | null => {
 };
 
 export default function BroadcastScreen() {
+  const params = useLocalSearchParams<{
+    mode?: string;
+    broadcastId?: string;
+    broadcastName?: string;
+    participants?: string;
+  }>();
+
+  const isEditMode = params.mode === "edit" && Boolean(params.broadcastId);
+
+  const initialParticipants = useMemo<ChatParticipant[]>(() => {
+    if (!params.participants) return [];
+
+    try {
+      const parsed = JSON.parse(params.participants);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
+  }, [params.participants]);
+
   const { theme } = useTheme();
   const colors = theme === "dark" ? darkColors : lightColors;
   const styles = getStyles(colors);
 
   const [sourceMode, setSourceMode] = useState<SourceMode>("broadcast");
-  const [broadcastName, setBroadcastName] = useState("Broadcast List");
-  const [participants, setParticipants] = useState<ChatParticipant[]>([]);
-  const [bulkNumbersText, setBulkNumbersText] = useState("");
+  const [broadcastName, setBroadcastName] = useState(
+      params.broadcastName?.trim() ? params.broadcastName : "Broadcast List"
+    );
+  const [participants, setParticipants] = useState<ChatParticipant[]>(initialParticipants);
 
   const [contactSearch, setContactSearch] = useState("");
   const [excelSearch, setExcelSearch] = useState("");
@@ -65,10 +86,9 @@ export default function BroadcastScreen() {
 
   const { contacts, loading, loadingMore, hasMore, loadMore, searchContacts } = useContacts();
 
-  const { createBroadcast, creatingBroadcast } = useBroadcast(() => {
+  const { createBroadcast, creatingBroadcast, updateBroadcast, updatingBroadcast } = useBroadcast(() => {
     setBroadcastName("");
     setParticipants([]);
-    setBulkNumbersText("");
   });
 
   const {
@@ -94,8 +114,10 @@ export default function BroadcastScreen() {
   }, [sourceMode, importedDeviceContacts.length, importingDeviceContacts, importFromDeviceContacts]);
 
 
-  const canCreate =
-    broadcastName.trim().length > 0 && participants.length > 0 && !creatingBroadcast;
+  const canCreate = broadcastName.trim().length > 0
+      && participants.length > 0
+      && !creatingBroadcast
+      && !updatingBroadcast;
 
   const mergeParticipants = (incoming: ChatParticipant[]) => {
     setParticipants((previous) => {
@@ -113,7 +135,20 @@ export default function BroadcastScreen() {
     });
   };
 
-  const handleCreateBroadcast = async () => {
+  const handleSaveBroadcast = async () => {
+    if (isEditMode && params.broadcastId) {
+      const chat = await updateBroadcast({
+        broadcastId: params.broadcastId,
+        broadcastName,
+        participants,
+      });
+
+      if (chat?._id) {
+        router.back();
+      }
+      return;
+    }
+
     const chat = await createBroadcast({
       broadcastName,
       participants,
@@ -402,7 +437,7 @@ export default function BroadcastScreen() {
     <View style={styles.container}>
       <Stack.Screen
         options={{
-          title: "Broadcast Campaign"
+          title: isEditMode ? "Edit Broadcast" : "Broadcast Campaign",
         }}
       />
 
@@ -489,10 +524,16 @@ export default function BroadcastScreen() {
           <Pressable
             style={[styles.primaryButton, !canCreate && { opacity: 0.5 }]}
             disabled={!canCreate}
-            onPress={handleCreateBroadcast}
+            onPress={handleSaveBroadcast}
           >
             <Text style={styles.primaryButtonText}>
-              {creatingBroadcast ? "Creating campaign..." : "Create Broadcast Campaign"}
+              {creatingBroadcast || updatingBroadcast
+                ? isEditMode
+                  ? "Updating campaign..."
+                  : "Creating campaign..."
+                : isEditMode
+                  ? "Update Broadcast Campaign"
+                  : "Create Broadcast Campaign"}
             </Text>
           </Pressable>
         )}

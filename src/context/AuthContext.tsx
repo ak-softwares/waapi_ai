@@ -2,6 +2,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Application from "expo-application";
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { Platform } from "react-native";
+import { useGoogleSignin } from "../hooks/auth/useGoogleSignin";
 import { useOtpLogin } from "../hooks/auth/useOtpLogin";
 import { useSignin } from "../hooks/auth/useSignin";
 import { useSignup } from "../hooks/auth/useSignup";
@@ -30,6 +31,8 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isReady: boolean;
 
+  googleSignin: (accessToken: string) => Promise<boolean>;
+
   signin: (params: SigninParams) => Promise<boolean>;
   signup: (params: SignupParams) => Promise<boolean>;
 
@@ -45,13 +48,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const { loading: signinLoading, signin: signinHook } = useSignin();
   const { loading: otpLoading, sendOtp, verifyOtp: verifyOtpHook } = useOtpLogin();
   const { loading: signupLoading, signup: signupHook } = useSignup();
+  const { loading: googleSigninLoading, signinWithGoogle } = useGoogleSignin();
 
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isReady, setIsReady] = useState(false);
   const{ registerDevice, unregisterDevice } = usePushDevice();
 
-  const loading = signinLoading || otpLoading || signupLoading;
-  
+  const loading = signinLoading || googleSigninLoading || otpLoading || signupLoading;
+
   // ✅ Restore token on app start
   useEffect(() => {
     const checkAuth = async () => {
@@ -99,6 +103,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setIsAuthenticated(true);
 
       // ✅ Register device
+      await registerPush();
+
+      return true;
+    }
+
+    return false;
+  };
+
+  // ================= GOOGLE SIGNIN ================= //
+  const googleSignin = async (accessToken: string) => {
+    const res = await signinWithGoogle(accessToken);
+
+    if (res.success && res.data?.token) {
+      await AsyncStorage.setItem("token", res.data.token);
+      setIsAuthenticated(true);
+
       await registerPush();
 
       return true;
@@ -156,6 +176,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       value={{
         loading,
         isAuthenticated,
+        googleSignin,
         signin,
         signup,
         sendOtp,

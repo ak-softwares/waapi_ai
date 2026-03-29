@@ -1,4 +1,5 @@
-import SearchBar from "@/src/components/common/SearchBar";
+import SearchBar from "@/src/components/common/search/SearchBar";
+import UserShimmer from "@/src/components/common/user/UserShimmer";
 import TemplateTile from "@/src/components/templates/widgets/TemplateTile";
 import { useTheme } from "@/src/context/ThemeContext";
 import { useTemplates } from "@/src/hooks/template/useTemplates";
@@ -6,7 +7,6 @@ import { darkColors, lightColors } from "@/src/theme/colors";
 import { router } from "expo-router";
 import { useState } from "react";
 import {
-  ActivityIndicator,
   FlatList,
   StyleSheet,
   View
@@ -36,35 +36,33 @@ export default function Templates() {
         onSearch={searchTemplates}
       />
 
-      {/* List */}
-      <FlatList
-        data={templates}
-        keyExtractor={(item) => item.id!}
-        renderItem={({ item }) => (
-          <TemplateTile
-            template={item}
-            onPress={() =>
-              router.push({
-                pathname: "/(dashboard)/template/TemplateViewScreen",
-                  params: {
-                    template: JSON.stringify(item),
-                  },
-              })
-            }
-          />
-        )}
-        ItemSeparatorComponent={() => <View style={{ height: 4 }} />}
-        onEndReached={loadMore}
-        onEndReachedThreshold={0.5}
-        ListFooterComponent={
-          loadingMore ? (
-            <ActivityIndicator color={colors.primary} />
-          ) : null
-        }
-        refreshing={loading}
-        onRefresh={refreshTemplates}
-        contentContainerStyle={{ paddingBottom: 20 }}
-      />
+      {loading 
+        ? <UserShimmer count={10} />
+        : (<FlatList
+            data={templates}
+            keyExtractor={(item) => item.id!}
+            renderItem={({ item }) => (
+              <TemplateTile
+                template={item}
+                onPress={() =>
+                  router.push({
+                    pathname: "/(dashboard)/template/TemplateViewScreen",
+                      params: {
+                        template: JSON.stringify(item),
+                      },
+                  })
+                }
+              />
+            )}
+            ItemSeparatorComponent={() => <View style={{ height: 4 }} />}
+            onEndReached={loadMore}
+            onEndReachedThreshold={0.5}
+            ListFooterComponent={loadingMore ? <UserShimmer count={2} /> : null}
+            refreshing={loading}
+            onRefresh={refreshTemplates}
+            contentContainerStyle={{ paddingBottom: 20 }}
+          />)
+      }
     </View>
   );
 }
@@ -74,6 +72,7 @@ const getStyles = (colors: typeof lightColors) =>
     container: {
       flex: 1,
       backgroundColor: colors.background,
+      paddingHorizontal: 10,
     },
 
     header: {

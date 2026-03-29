@@ -1,5 +1,5 @@
 import AppMenu from "@/src/components/common/AppMenu";
-import UserAvatar from "@/src/components/common/UserAvatar";
+import UserAvatar from "@/src/components/common/user/UserAvatar";
 import { useTheme } from "@/src/context/ThemeContext";
 import { darkColors, lightColors } from "@/src/theme/colors";
 import { Contact } from "@/src/types/Contact";

@@ -2,7 +2,8 @@ import ChatTile from "@/src/components/chats/widgets/ChatTile";
 import AppMenu from "@/src/components/common/AppMenu";
 import ConfirmSheet from "@/src/components/common/ConfirmSheet";
 import FloatingButton from "@/src/components/common/FloatingButton";
-import SearchBar from "@/src/components/common/SearchBar";
+import SearchBar from "@/src/components/common/search/SearchBar";
+import UserShimmer from "@/src/components/common/user/UserShimmer";
 import { useTheme } from "@/src/context/ThemeContext";
 import { useChats } from "@/src/hooks/chat/useChats";
 import { useDeleteChats } from "@/src/hooks/chat/useDeleteChats";
@@ -12,11 +13,10 @@ import { Chat, FILTERS } from "@/src/types/Chat";
 import { DeleteMode } from "@/src/utiles/enums/deleteMode";
 import { showToast } from "@/src/utiles/toastHelper/toast";
 import { Ionicons } from "@expo/vector-icons";
-import { router, Stack } from "expo-router";
+import { router, Stack, useLocalSearchParams } from "expo-router";
 import { Check, Heart, Megaphone, MoreVertical, Trash2, X } from "lucide-react-native";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
-  ActivityIndicator,
   FlatList, ScrollView, StyleSheet,
   Text,
   TouchableOpacity,
@@ -24,6 +24,8 @@ import {
 } from "react-native";
 
 export default function ChatListScreen() {
+  const { refresh } = useLocalSearchParams();
+
   const {
     chats,
     loading,
@@ -60,6 +62,11 @@ export default function ChatListScreen() {
     setIsSelectionMode(false);
     setShowDeleteConfirm(false);
   });
+
+
+  useEffect(() => {
+    if (refresh) refreshChats();
+  }, [refresh]);
 
   const selectedIds = useMemo(
     () => new Set(selectedChats.map((chat) => chat._id ?? "")),
@@ -246,43 +253,46 @@ export default function ChatListScreen() {
           </ScrollView>
         </View>
 
-        <FlatList
-          data={filteredChats}
-          keyExtractor={(chat, index) => chat._id || `${chat.lastMessageAt}-${index}`}
-          renderItem={({ item: chat }) => (
-            <ChatTile
-              chat={chat}
-              isSelectionMode={isSelectionMode}
-              isSelected={selectedIds.has(chat._id ?? "")}
-              onLongPress={() => {
-                setIsSelectionMode(true);
-                toggleChatSelection(chat);
-              }}
-              onPress={() => {
-                if (isSelectionMode) {
-                  toggleChatSelection(chat);
-                  return;
-                }
+        {loading 
+          ? <UserShimmer count={10} paddingHorizontal={10} />
+          : (<FlatList
+                data={filteredChats}
+                keyExtractor={(chat, index) => chat._id || `${chat.lastMessageAt}-${index}`}
+                renderItem={({ item: chat }) => (
+                  <ChatTile
+                    chat={chat}
+                    isSelectionMode={isSelectionMode}
+                    isSelected={selectedIds.has(chat._id ?? "")}
+                    onLongPress={() => {
+                      setIsSelectionMode(true);
+                      toggleChatSelection(chat);
+                    }}
+                    onPress={() => {
+                      if (isSelectionMode) {
+                        toggleChatSelection(chat);
+                        return;
+                      }
 
-                router.push({
-                  pathname: "/(dashboard)/messages/messages",
-                  params: { 
-                    chatId: chat._id,
-                    chatData: JSON.stringify(chat), 
-                  },
-                });
-              }}
-            />
-          )}
-          ItemSeparatorComponent={() => <View style={{ height: 4 }} />}
-          onEndReached={loadMore}
-          onEndReachedThreshold={0.5}
-          ListEmptyComponent={!loading ? <Text style={styles.emptyText}>No chats found.</Text> : null}
-          ListFooterComponent={loadingMore ? <ActivityIndicator color={colors.primary} /> : null}
-          refreshing={loading}
-          onRefresh={refreshChats}
-          style={{ paddingHorizontal: 10 }}
-        />
+                      router.push({
+                        pathname: "/(dashboard)/messages/messages",
+                        params: { 
+                          chatId: chat._id,
+                          chatData: JSON.stringify(chat), 
+                        },
+                      });
+                    }}
+                  />
+                )}
+                ItemSeparatorComponent={() => <View style={{ height: 4 }} />}
+                onEndReached={loadMore}
+                onEndReachedThreshold={0.5}
+                ListEmptyComponent={!loading && !loadingMore ? <Text style={styles.emptyText}>No chats found.</Text> : null}
+                ListFooterComponent={loadingMore ? <UserShimmer count={2} /> : null}
+                refreshing={loading}
+                onRefresh={refreshChats}
+                style={{ paddingHorizontal: 10 }}
+              />)
+        }
 
         {!isSelectionMode && (
           <FloatingButton

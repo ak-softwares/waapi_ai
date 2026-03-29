@@ -22,12 +22,24 @@ export function useChats() {
         const updatedChat = existing
           ? { ...existing, ...incomingChat }
           : incomingChat;
+        const existingIndex = prev.findIndex((c) => c._id === incomingChat._id);
+        const existingLastMessageAt = existing?.lastMessageAt
+          ? new Date(existing.lastMessageAt).getTime()
+          : 0;
+        const incomingLastMessageAt = incomingChat.lastMessageAt
+          ? new Date(incomingChat.lastMessageAt).getTime()
+          : 0;
+        const shouldMoveToTop =
+          existingIndex === -1 || incomingLastMessageAt > existingLastMessageAt;
 
-        const filtered = prev.filter(
-          (c) => c._id !== incomingChat._id
+        if (shouldMoveToTop) {
+          const filtered = prev.filter((c) => c._id !== incomingChat._id);
+          return [updatedChat, ...filtered];
+        }
+
+        return prev.map((chat) =>
+          chat._id === incomingChat._id ? updatedChat : chat
         );
-
-        return [updatedChat, ...filtered];
       });
     });
 
@@ -80,15 +92,23 @@ export function useChats() {
   }, [fetchChats, page]);
 
   const loadMore = () => {
-    if (!loadingMore && hasMore && !loading && hasMore) {
+    if (!chats.length) return;
+
+    if (!loadingMore && hasMore && !loading) {
       setPage(prev => prev + 1);
     }
   };
 
   const refreshChats = () => {
-    setPage(1);
-    setChats([]);
+    setLoadingMore(false);
     setHasMore(true);
+
+    if (page === 1) {
+      fetchChats(1);
+      return;
+    }
+
+    setPage(1);
   };
 
   const searchChats = (text: string) => {

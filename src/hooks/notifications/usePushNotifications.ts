@@ -1,5 +1,4 @@
 import { emitChatUpdate } from "@/src/lib/events/chatEvents";
-import { emitMessage } from "@/src/lib/events/messageEvents";
 import { configureNotifications } from "@/src/lib/notification/notifications";
 import { Chat } from "@/src/types/Chat";
 import { NotificationPayload } from "@/src/types/Notification";
@@ -17,12 +16,12 @@ export function usePushNotifications() {
     const sub = Notifications.addNotificationReceivedListener((notification) => {
       const data = notification.request.content.data as NotificationPayload;
 
-      if (data?.chat) {
-        emitChatUpdate(data.chat);
-      }
-      if (data?.message) {
-        emitMessage(data.message);
-      }
+      // if (data?.chat) {
+      //   emitChatUpdate(data.chat);
+      // }
+      // if (data?.message) {
+      //   emitMessage(data.message);
+      // }
     });
 
     return () => sub.remove();

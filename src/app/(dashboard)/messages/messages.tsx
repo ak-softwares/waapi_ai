@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
 import {
-  ActivityIndicator,
   FlatList,
   ImageBackground,
   Keyboard,
@@ -28,7 +27,7 @@ import { Message, MessagePayload, MessageType } from "@/src/types/Messages";
 
 import EmojiSelector from "react-native-emoji-selector";
 
-import UserAvatar from "@/src/components/common/UserAvatar";
+import UserAvatar from "@/src/components/common/user/UserAvatar";
 import { ChatType } from "@/src/types/Chat";
 import { router, Stack, useLocalSearchParams } from "expo-router";
 import { ArrowLeft, MoreVertical, Search, Trash2, X } from "lucide-react-native";
@@ -41,12 +40,12 @@ import Info from "@/assets/menuIcons/info.svg";
 import Reply from "@/assets/menuIcons/reply.svg";
 
 import AttachmentSheet from "@/src/components/messages/widgets/AttachmentSheet";
+import MessageBubbleShimmer from "@/src/components/messages/widgets/MessageBubbleShimmer";
 import MessageContactInfoCard from "@/src/components/messages/widgets/MessageContactInfoCard";
 import { useSendMessage } from "@/src/hooks/messages/useSendMessage";
 import { MediaSourceType } from "@/src/utiles/enums/mediaTypes";
 import { formatInternationalPhoneNumber } from "@/src/utiles/formater/formatPhone";
 import { Platform } from "react-native";
-import { KeyboardAvoidingView } from "react-native-keyboard-controller";
 
 const WHATSAPP_BG = require("@/assets/whatsapp/message-bg.png");
 
@@ -340,76 +339,72 @@ export default function MessageScreen() {
           style={styles.messagesArea}
           imageStyle={styles.bgImage}
         >
-          {loading && (
-            <View style={styles.loaderWrap}>
-              <ActivityIndicator color={colors.primary} />
-            </View>
-          )}
 
-          <FlatList
-            data={messages}
-            inverted
-            keyExtractor={(item) =>
-              item._id || `${item.createdAt}-${item.message}`
-            }
-            ListFooterComponent={
-              <View>
-                {/* ✅ Show ONLY when no more messages AND not loading */}
-                {!hasMore && !loadingMore && (
-                  <MessageContactInfoCard
-                    chat={chat}
-                    onCall={handleCallContact}
-                  />
-                )}
-                {loadingMore && (
-                  <View style={styles.loadMoreWrap}>
-                    <ActivityIndicator color={colors.primary} />
+          {loading
+            ? <MessageBubbleShimmer count={8} />
+            : (
+              <FlatList
+                data={messages}
+                inverted
+                keyExtractor={(item) =>
+                  item._id || `${item.createdAt}-${item.message}`
+                }
+                ListFooterComponent={
+                  <View>
+                    {/* ✅ Show ONLY when no more messages AND not loading */}
+                    {!hasMore && !loadingMore && (
+                      <MessageContactInfoCard
+                        chat={chat}
+                        onCall={handleCallContact}
+                      />
+                    )}
+                    {loadingMore ? <MessageBubbleShimmer count={2} /> : null}
                   </View>
-                )}
-              </View>
-            }
-            renderItem={({ item, index }) => {
-              const prevMsg = messages[index + 1];
+                }
+                renderItem={({ item, index }) => {
+                  const prevMsg = messages[index + 1];
 
-              const showDate =
-                !prevMsg ||
-                new Date(prevMsg.createdAt ?? "").toDateString() !==
-                  new Date(item.createdAt ?? "").toDateString();
+                  const showDate =
+                    !prevMsg ||
+                    new Date(prevMsg.createdAt ?? "").toDateString() !==
+                      new Date(item.createdAt ?? "").toDateString();
 
-              return (
-                <View>
-                  {/* DATE LABEL */}
-                  {showDate && (
-                    <View style={styles.dateSeparator}>
-                      <Text style={styles.dateText}>
-                        {getDateLabel(item.createdAt ?? "")}
-                      </Text>
+                  return (
+                    <View>
+                      {/* DATE LABEL */}
+                      {showDate && (
+                        <View style={styles.dateSeparator}>
+                          <Text style={styles.dateText}>
+                            {getDateLabel(item.createdAt ?? "")}
+                          </Text>
+                        </View>
+                      )}
+
+                      {/* MESSAGE */}
+                      <MessageBubble
+                        chat={chat}
+                        message={item}
+                        isSelected={selectedIds.has(item._id)}
+                        isSelectionMode={isSelectionMode}
+                        onPress={() =>
+                          isSelectionMode ? toggleMessageSelection(item) : null
+                        }
+                        onLongPress={() => {
+                          setIsSelectionMode(true);
+                          toggleMessageSelection(item);
+                        }}
+                      />
                     </View>
-                  )}
-
-                  {/* MESSAGE */}
-                  <MessageBubble
-                    chat={chat}
-                    message={item}
-                    isSelected={selectedIds.has(item._id)}
-                    isSelectionMode={isSelectionMode}
-                    onPress={() =>
-                      isSelectionMode ? toggleMessageSelection(item) : null
-                    }
-                    onLongPress={() => {
-                      setIsSelectionMode(true);
-                      toggleMessageSelection(item);
-                    }}
-                  />
-                </View>
-              );
-            }}
-            contentContainerStyle={styles.messagesContent}
-            onEndReached={() => {
-              if (hasMore) loadMore();
-            }}
-            onEndReachedThreshold={0.3}
-          />
+                  );
+                }}
+                contentContainerStyle={styles.messagesContent}
+                onEndReached={() => {
+                  if (hasMore) loadMore();
+                }}
+                onEndReachedThreshold={0.3}
+              />
+            )
+          }
 
           <SafeAreaView edges={["bottom"]}>
             <WhatsAppInputBar

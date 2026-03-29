@@ -96,7 +96,6 @@ const getStyles = (colors: typeof lightColors) =>
       flexDirection: "row",
       alignItems: "center",
       padding: 14,
-      marginHorizontal: 14,
       marginVertical: 2,
       borderRadius: 14,
       backgroundColor: colors.surface,

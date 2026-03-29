@@ -2,6 +2,7 @@ import SingleTik from "@/assets/messageMetaIcons/status-check.svg";
 import DoubleTik from "@/assets/messageMetaIcons/status-dblcheck.svg";
 import Warning from "@/assets/messageMetaIcons/warning.svg";
 import AppMenu from "@/src/components/common/AppMenu";
+import SearchBar from "@/src/components/common/search/SearchBar";
 import { useTheme } from "@/src/context/ThemeContext";
 import { useBroadcastMessageReport } from "@/src/hooks/broadcast/useBroadcastMessageReport";
 import { useBroadcastReportExcel } from "@/src/hooks/broadcast/useBroadcastReportExcel";
@@ -10,13 +11,12 @@ import { Message, MessageStatus } from "@/src/types/Messages";
 import { formatInternationalPhoneNumber } from "@/src/utiles/formater/formatPhone";
 import { router, Stack, useLocalSearchParams } from "expo-router";
 import { ArrowLeft, Download, Loader2, MessageSquare, MoreVertical, RefreshCw } from "lucide-react-native";
-import React, { useMemo, useState } from "react";
+import React, { useMemo } from "react";
 import {
   ActivityIndicator,
   FlatList,
   StyleSheet,
   Text,
-  TextInput,
   TouchableOpacity,
   View
 } from "react-native";
@@ -256,7 +256,6 @@ export default function BroadcastReportScreen() {
   });
 
   const { downloading, downloadExcel } = useBroadcastReportExcel();
-  const [searchValue, setSearchValue] = useState("");
 
   const canDownload = useMemo(() => Boolean(chatId && messageId), [chatId, messageId]);
 
@@ -328,15 +327,10 @@ export default function BroadcastReportScreen() {
           />
         </View>
 
-        <TextInput
-          value={searchValue}
-          onChangeText={(value) => {
-            setSearchValue(value);
-            searchMessages(value);
-          }}
+        <SearchBar
           placeholder="Search number..."
-          placeholderTextColor={colors.placeHolderText}
-          style={styles.searchInput}
+          onSearch={searchMessages}
+          disablePadding={true}
         />
 
         {loading && rows.length === 0 ? (
