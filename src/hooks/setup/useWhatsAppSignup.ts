@@ -1,59 +1,96 @@
 import { api } from "@/src/lib/api/apiClient";
 import { ApiResponse } from "@/src/types/ApiResponse";
+import { WaSetupStatus } from "@/src/types/WabaAccount";
 import { API_BASE_DOMAIN } from "@/src/utiles/constans/apiConstans";
 import { showToast } from "@/src/utiles/toastHelper/toast";
 import * as Linking from "expo-linking";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
-type CheckStatusData = {
-  isTokenAvailable?: boolean;
-};
+type WabaAccount = any; // replace with actual type
 
 interface UseWhatsAppSignupReturn {
   launchWhatsAppSignup: () => Promise<void>;
   refreshStatus: () => Promise<void>;
-  facebookConnected: boolean;
-  isSaving: boolean;
-  isLoading: boolean;
+  waSetupStatus: WaSetupStatus | null;
+  isFacebookConnected: boolean;
+  isLaunchingSignup: boolean;
+  isCheckingStatus: boolean;
+  wabaAccount: WabaAccount | null;
+  isLoadingWaba: boolean;
 }
 
-const WHATSAPP_SIGNUP_URL = "https://wa-api.me/dashboard/setup";
-
 export function useWhatsAppSignup(): UseWhatsAppSignupReturn {
-  const [facebookConnected, setFacebookConnected] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLaunchingSignup, setIsLaunchingSignup] = useState(false);
+  const [isCheckingStatus, setIsCheckingStatus] = useState(false);
 
-  const refreshStatus = useCallback(async () => {
-    setIsLoading(true);
+  const [waSetupStatus, setWaSetupStatus] = useState<WaSetupStatus | null>(null);
+
+  const [wabaAccount, setWabaAccount] = useState<WabaAccount | null>(null);
+  const [isLoadingWaba, setIsLoadingWaba] = useState(false);
+
+  // ✅ Derived state (single source of truth)
+  const isFacebookConnected = useMemo(() => {
+    return !!waSetupStatus?.isTokenAvailable;
+  }, [waSetupStatus]);
+
+  // ✅ Fetch WABA (only when connected)
+  const fetchWaba = useCallback(async () => {
     try {
-      const response = await api.get<ApiResponse<CheckStatusData>>("/wa-accounts/check-status");
-      const isConnected = !!response.data?.success && !!response.data?.data?.isTokenAvailable;
-      setFacebookConnected(isConnected);
+      setIsLoadingWaba(true);
+
+      const response = await api.get<ApiResponse<WabaAccount>>("/facebook/waba");
+
+      if (response.data.success && response.data.data) {
+        setWabaAccount(response.data.data);
+      }
     } catch {
-      setFacebookConnected(false);
+      // optional: log error in dev
     } finally {
-      setIsLoading(false);
+      setIsLoadingWaba(false);
     }
   }, []);
 
+  // ✅ Refresh full setup status
+  const refreshStatus = useCallback(async () => {
+    setIsCheckingStatus(true);
+    try {
+      const response = await api.get<ApiResponse<WaSetupStatus>>(
+        "/wa-accounts/check-status"
+      );
+
+      if (response.data.success && response.data.data) {
+        setWaSetupStatus(response.data.data);
+      } else {
+        setWaSetupStatus(null);
+      }
+    } catch {
+      setWaSetupStatus(null);
+    } finally {
+      setIsCheckingStatus(false);
+    }
+  }, []);
+
+  // ✅ Initial load
   useEffect(() => {
     refreshStatus();
   }, [refreshStatus]);
 
+  // ✅ Fetch WABA only when connected
+  useEffect(() => {
+    if (isFacebookConnected) {
+      fetchWaba();
+    } else {
+      setWabaAccount(null);
+    }
+  }, [isFacebookConnected, fetchWaba]);
+
+  // ✅ Launch signup
   const launchWhatsAppSignup = useCallback(async () => {
-    setIsSaving(true);
+    setIsLaunchingSignup(true);
 
     try {
-      // 1. Call your backend route
       const response = await api.post<
-        ApiResponse<{
-          token: string;
-          expiresAt: string;
-          ttlMinutes: number;
-          headerName: string;
-          setupUrl: string;
-        }>
+        ApiResponse<{ token: string }>
       >("/auth/temp-token");
 
       if (!response.data?.success) {
@@ -62,33 +99,32 @@ export function useWhatsAppSignup(): UseWhatsAppSignupReturn {
 
       const { token } = response.data.data!;
 
-      // 2. Build full URL with token
       const fullUrl = `${API_BASE_DOMAIN}/dashboard/setup/?token=${token}`;
 
-      // 3. Open in browser
       await Linking.openURL(fullUrl);
 
       showToast({
         type: "info",
         message: "Complete setup in browser, then tap Refresh Status.",
       });
-    } catch (error) {
-      console.log("Signup error:", error);
-
+    } catch {
       showToast({
         type: "error",
         message: "Could not start WhatsApp signup.",
       });
     } finally {
-      setIsSaving(false);
+      setIsLaunchingSignup(false);
     }
   }, []);
 
   return {
     launchWhatsAppSignup,
     refreshStatus,
-    facebookConnected,
-    isSaving,
-    isLoading,
+    waSetupStatus,
+    isFacebookConnected,
+    isLaunchingSignup,
+    isCheckingStatus,
+    wabaAccount,
+    isLoadingWaba,
   };
 }

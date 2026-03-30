@@ -9,6 +9,7 @@ import { useState } from "react";
 import {
   FlatList,
   StyleSheet,
+  Text,
   View
 } from "react-native";
 
@@ -54,6 +55,7 @@ export default function Templates() {
                 }
               />
             )}
+            ListEmptyComponent={!loading && !loadingMore ? <Text style={styles.emptyText}>No templates found.</Text> : null}
             ItemSeparatorComponent={() => <View style={{ height: 4 }} />}
             onEndReached={loadMore}
             onEndReachedThreshold={0.5}
@@ -88,7 +90,11 @@ const getStyles = (colors: typeof lightColors) =>
       fontWeight: "700",
       color: colors.text,
     },
-
+    emptyText: {
+      textAlign: "center",
+      marginTop: 60,
+      color: colors.mutedText,
+    },
     addButton: {
       backgroundColor: colors.primary,
       paddingHorizontal: 14,

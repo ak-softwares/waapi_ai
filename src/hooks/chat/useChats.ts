@@ -1,5 +1,5 @@
 import { api } from "@/src/lib/api/apiClient";
-import { subscribeChatUpdates } from "@/src/lib/events/chatEvents";
+import { subscribeChat } from "@/src/lib/events/chatEvents";
 import { Chat, ChatFilterType } from "@/src/types/Chat";
 import { ITEMS_PER_PAGE } from "@/src/utiles/constans/apiConstans";
 import { useCallback, useEffect, useState } from "react";
@@ -15,7 +15,7 @@ export function useChats() {
   const [filter, setFilter] = useState<ChatFilterType>("all");
 
   useEffect(() => {
-    const unsubscribe = subscribeChatUpdates((incomingChat) => {
+    const unsubscribe = subscribeChat((incomingChat) => {
       setChats((prev) => {
         const existing = prev.find((c) => c._id === incomingChat._id);
 

@@ -32,7 +32,7 @@ export default function SettingsTile({
   const styles = getStyles(colors);
 
   return (
-    <TouchableOpacity style={styles.container} onPress={onPress} onLongPress={onLongPress}>
+    <TouchableOpacity style={styles.container} onPress={onPress} onLongPress={onLongPress} activeOpacity={0.8}>
       {icon && <View style={styles.icon}>{icon}</View>}
 
       <View style={styles.content}>

@@ -1,19 +1,16 @@
+import PhoneNumberCard from "@/src/components/setup/PhoneNumberCard";
 import { useTheme } from "@/src/context/ThemeContext";
 import { useDeleteWabaAccount } from "@/src/hooks/setup/useDeleteWabaAccount";
 import { usePhoneCodeVerification } from "@/src/hooks/setup/usePhoneCodeVerification";
 import { useRegisterPhoneNumber } from "@/src/hooks/setup/useRegisterPhoneNumber";
 import { useSubscribeApp } from "@/src/hooks/setup/useSubscribeApp";
-import { useWabaSetupData } from "@/src/hooks/setup/useWabaSetupData";
+import { useWhatsAppSignup } from "@/src/hooks/setup/useWhatsAppSignup";
 import { darkColors, lightColors } from "@/src/theme/colors";
-import { WabaPhoneNumber } from "@/src/types/WabaAccount";
 import { Stack } from "expo-router";
 import {
-  AlertCircle,
   CheckCircle,
   CircleCheck,
-  ExternalLink,
-  Info,
-  Trash2,
+  ExternalLink
 } from "lucide-react-native";
 import { useMemo, useState } from "react";
 import {
@@ -29,13 +26,25 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import SetupRequiredCard from "./SetupRequiredCard";
+import StepItem from "./widgets/StepItems";
 
 export default function WhatsAppSetupScreen() {
   const { theme } = useTheme();
   const colors = theme === "dark" ? darkColors : lightColors;
   const styles = getStyles(colors);
 
-  const { loadingWaba, loadingSetupData, waSetupStatus, wabaAccount, fetchStatus } = useWabaSetupData();
+  const { 
+    isFacebookConnected,
+    isLaunchingSignup,
+    isCheckingStatus,
+    waSetupStatus,
+    wabaAccount,
+    isLoadingWaba,
+    refreshStatus: fetchStatus,
+    launchWhatsAppSignup,
+   } = useWhatsAppSignup();
+
   const [openVerifyPhoneDialog, setOpenVerifyPhoneDialog] = useState(false);
   const [verificationCode, setVerificationCode] = useState("");
 
@@ -65,7 +74,7 @@ export default function WhatsAppSetupScreen() {
   }, [waSetupStatus, wabaAccount]);
 
   const goToSetup = async () => {
-    await Linking.openURL("https://wa-api.me/dashboard/setup");
+    await launchWhatsAppSignup();
   };
 
   const goToWhatsappAccount = async () => {
@@ -105,7 +114,7 @@ export default function WhatsAppSetupScreen() {
     }
   };
 
-  if (loadingWaba || loadingSetupData) {
+  if (isCheckingStatus || isLoadingWaba) {
     return (
       <>
         <Stack.Screen options={{ title: "WhatsApp API Setup" }} />
@@ -123,35 +132,11 @@ export default function WhatsAppSetupScreen() {
 
       <ScrollView style={styles.container} contentContainerStyle={styles.content}>
         {!waSetupStatus?.isTokenAvailable ? (
-          <View style={styles.card}>
-            <View style={styles.rowStart}>
-              <AlertCircle size={20} color="#CA8A04" />
-              <Text style={styles.cardTitle}>WhatsApp Setup Required</Text>
-            </View>
-            <Text style={styles.cardDescription}>Connect your number to WhatsApp Cloud API</Text>
-
-            <View style={styles.warningBox}>
-              <AlertCircle size={16} color="#CA8A04" />
-              <Text style={styles.warningText}>
-                Your number is not connected to WhatsApp API. Setup is required to use messaging.
-              </Text>
-            </View>
-
-            <View style={styles.stepsList}>
-              <Text style={styles.stepText}>1. Tap Connect WhatsApp below</Text>
-              <Text style={styles.stepText}>2. Login with Facebook and grant permissions</Text>
-              <Text style={styles.stepText}>3. Select your WhatsApp Business Account & phone</Text>
-            </View>
-
-            <View style={styles.rowGap}>
-              <TouchableOpacity style={styles.primaryButton} onPress={goToSetup}>
-                <Text style={styles.primaryButtonText}>Connect WhatsApp</Text>
-              </TouchableOpacity>
-              <View style={styles.iconButton}>
-                <Info size={18} color={colors.secondaryText} />
-              </View>
-            </View>
-          </View>
+          <SetupRequiredCard
+            colors={colors}
+            onConnect={goToSetup}
+            isLoading={isLaunchingSignup}
+          />
         ) : (
           <View style={styles.card}>
             <View style={styles.rowStart}>
@@ -168,38 +153,38 @@ export default function WhatsAppSetupScreen() {
             ) : (
               <View style={styles.stepperContainer}>
                 <StepItem
-                  styles={styles}
                   step={1}
                   title="Connect WhatsApp Number"
                   done={currentStepIndex > 1}
                   actionLabel="Connect WhatsApp"
                   onAction={goToSetup}
+                  colors={colors}
                 />
                 <StepItem
-                  styles={styles}
                   step={2}
                   title="WhatsApp Account Status"
                   done={currentStepIndex > 2}
                   actionLabel="Visit WhatsApp Business"
                   onAction={goToWhatsappAccount}
+                  colors={colors}
                 />
                 <StepItem
-                  styles={styles}
                   step={3}
                   title="Subscribe App"
                   done={currentStepIndex > 3}
                   actionLabel={isSubscribing ? "Subscribing..." : "Subscribe App"}
                   onAction={() => subscribeAppToWABA(fetchStatus)}
                   disabled={isSubscribing}
+                  colors={colors}
                 />
                 <StepItem
-                  styles={styles}
                   step={4}
                   title="Register Phone Number"
                   done={currentStepIndex > 4}
                   actionLabel={isPhoneRegistering ? "Registering..." : "Register Phone"}
                   onAction={() => registerPhoneNumber(fetchStatus)}
                   disabled={isPhoneRegistering}
+                  colors={colors}
                 />
               </View>
             )}
@@ -226,13 +211,13 @@ export default function WhatsAppSetupScreen() {
                 wabaAccount?.phone_numbers?.map((phoneNumber: any) => (
                   <PhoneNumberCard
                     key={phoneNumber.id}
-                    styles={styles}
                     phoneNumber={phoneNumber}
                     allDone={allDone}
                     requestCodeLoading={requestCodeLoading}
                     onVerifyPhone={handleSendCodeAndOpenDialog}
                     deleting={deleting}
                     onDelete={onAskDelete}
+                    colors={colors}
                   />
                 ))
               ) : (
@@ -277,91 +262,6 @@ export default function WhatsAppSetupScreen() {
         </View>
       </Modal>
     </>
-  );
-}
-
-type SetupStyles = ReturnType<typeof getStyles>;
-
-function StepItem({
-  styles,
-  step,
-  title,
-  done,
-  actionLabel,
-  onAction,
-  disabled,
-}: {
-  styles: SetupStyles;
-  step: number;
-  title: string;
-  done: boolean;
-  actionLabel: string;
-  onAction: () => void;
-  disabled?: boolean;
-}) {
-  return (
-    <View style={styles.stepRow}>
-      <Text style={styles.stepIndex}>Step {step}</Text>
-      <Text style={styles.stepTitle}>{title}</Text>
-      <Text style={[styles.stepState, done && styles.stepDone]}>{done ? "Done" : "Pending"}</Text>
-      {!done ? (
-        <TouchableOpacity style={[styles.outlineButton, disabled && styles.disabledButton]} onPress={onAction} disabled={disabled}>
-          <Text style={styles.outlineButtonText}>{actionLabel}</Text>
-        </TouchableOpacity>
-      ) : null}
-    </View>
-  );
-}
-
-function PhoneNumberCard({
-  styles,
-  phoneNumber,
-  allDone,
-  requestCodeLoading,
-  onVerifyPhone,
-  deleting,
-  onDelete,
-}: {
-  styles: SetupStyles;
-  phoneNumber: WabaPhoneNumber;
-  allDone: boolean;
-  requestCodeLoading: boolean;
-  onVerifyPhone: () => void;
-  deleting: boolean;
-  onDelete: () => void;
-}) {
-  return (
-    <View style={styles.phoneCard}>
-      <Text style={styles.phoneText}>Name: {phoneNumber?.verified_name || "Not set"}</Text>
-      <Text style={styles.phoneText}>Phone: {phoneNumber?.display_phone_number || "N/A"}</Text>
-      <Text style={styles.phoneText}>Quality: {phoneNumber?.quality_rating || "Unknown"}</Text>
-      <Text style={styles.phoneText}>
-        Onboarded:{" "}
-        {phoneNumber?.last_onboarded_time
-          ? new Date(phoneNumber.last_onboarded_time).toLocaleDateString("en-IN", {
-              year: "numeric",
-              month: "short",
-              day: "2-digit",
-            })
-          : "N/A"}
-      </Text>
-
-      <View style={styles.rowGap}>
-        {phoneNumber?.code_verification_status !== "VERIFIED" && !allDone ? (
-          <TouchableOpacity
-            style={[styles.outlineButton, requestCodeLoading && styles.disabledButton]}
-            disabled={requestCodeLoading}
-            onPress={onVerifyPhone}
-          >
-            <Text style={styles.outlineButtonText}>{requestCodeLoading ? "Sending..." : "Verify Phone"}</Text>
-          </TouchableOpacity>
-        ) : null}
-
-        <TouchableOpacity style={[styles.deleteButton, deleting && styles.disabledButton]} onPress={onDelete} disabled={deleting}>
-          <Trash2 size={16} color={"#DC2626"} />
-        </TouchableOpacity>
-      </View>
-    </View>
   );
 }
 
@@ -422,6 +322,17 @@ const getStyles = (colors: typeof lightColors) =>
       alignItems: "center",
       gap: 8,
     },
+    emptyPhoneCard: {
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: 10,
+      backgroundColor: colors.background,
+      padding: 14,
+      alignItems: "center",
+      justifyContent: "center",
+      gap: 6,
+      opacity: 0.8,
+    },
     warningText: {
       color: themeAwareWarningText(colors),
       flex: 1,
@@ -474,31 +385,6 @@ const getStyles = (colors: typeof lightColors) =>
     stepperContainer: {
       gap: 8,
     },
-    stepRow: {
-      borderWidth: 1,
-      borderColor: colors.border,
-      borderRadius: 10,
-      padding: 10,
-      gap: 6,
-      backgroundColor: colors.background,
-    },
-    stepIndex: {
-      fontSize: 11,
-      color: colors.secondaryText,
-    },
-    stepTitle: {
-      fontSize: 14,
-      fontWeight: "600",
-      color: colors.text,
-    },
-    stepState: {
-      color: colors.warning,
-      fontSize: 12,
-      fontWeight: "600",
-    },
-    stepDone: {
-      color: colors.success,
-    },
     outlineButton: {
       borderWidth: 1,
       borderColor: colors.border,
@@ -541,34 +427,6 @@ const getStyles = (colors: typeof lightColors) =>
       marginTop: 4,
       textAlign: "center",
       fontSize: 12,
-    },
-    phoneCard: {
-      borderWidth: 1,
-      borderColor: colors.border,
-      borderRadius: 10,
-      backgroundColor: colors.background,
-      padding: 10,
-      gap: 5,
-    },
-    phoneText: {
-      color: colors.text,
-      fontSize: 13,
-    },
-    deleteButton: {
-      borderWidth: 1,
-      borderColor: "#FCA5A5",
-      borderRadius: 8,
-      paddingHorizontal: 10,
-      paddingVertical: 8,
-      alignSelf: "flex-start",
-      backgroundColor: "rgba(239,68,68,0.08)",
-    },
-    emptyPhoneCard: {
-      borderWidth: 1,
-      borderColor: colors.border,
-      borderRadius: 10,
-      padding: 10,
-      backgroundColor: colors.background,
     },
     modalOverlay: {
       flex: 1,

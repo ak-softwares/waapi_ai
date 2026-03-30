@@ -68,7 +68,6 @@ export function useSendMessage(onSent?: (message: Message) => void) {
       }
 
       const realMessage: Message = json.data.message;
-
       // 🔥 Callback
       onSent?.(realMessage);
 

@@ -1,7 +1,6 @@
 import { api } from "@/src/lib/api/apiClient";
 import { Contact } from "@/src/types/Contact";
 import { ITEMS_PER_PAGE } from "@/src/utiles/constans/apiConstans";
-import { showToast } from "@/src/utiles/toastHelper/toast";
 import { useCallback, useEffect, useState } from "react";
 
 export function useContacts() {
@@ -43,7 +42,8 @@ export function useContacts() {
           setHasMore(false);
         }
       } catch {
-        showToast({ type: "error", message: "Failed to load contacts." });
+        setHasMore(false);
+        setTotalContacts(0);
       } finally {
         if (pageToFetch === 1) {
           setLoading(false);

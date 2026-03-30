@@ -366,74 +366,72 @@ export default function MessageScreen() {
             imageStyle={styles.bgImage}
           >
 
-            {loading
-              ? <MessageBubbleShimmer count={8} />
-              : (
-                <FlatList
-                  // ref={ref}
-                  data={messages}
-                  inverted
-                  keyExtractor={(item) =>
-                    item._id || `${item.createdAt}-${item.message}`
-                  }
-                  ListFooterComponent={
-                    <View>
-                      {/* ✅ Show ONLY when no more messages AND not loading */}
-                      {!hasMore && !loadingMore && (
-                        <MessageContactInfoCard
-                          chat={chat}
-                          onCall={handleCallContact}
-                        />
-                      )}
-                      {loadingMore ? <MessageBubbleShimmer count={2} /> : null}
-                    </View>
-                  }
-                  renderItem={({ item, index }) => {
-                    const prevMsg = messages[index + 1];
+            <FlatList
+              // ref={ref}
+              data={loading ? [] : messages} // 👈 important
+              inverted
+              keyExtractor={(item) =>
+                item._id || `${item.createdAt}-${item.message}`
+              }
+              ListEmptyComponent={
+                loading ? <MessageBubbleShimmer count={8} /> : null
+              }
+              ListFooterComponent={
+                <View>
+                  {/* ✅ Show ONLY when no more messages AND not loading */}
+                  {!hasMore && !loadingMore && (
+                    <MessageContactInfoCard
+                      chat={chat}
+                      onCall={handleCallContact}
+                    />
+                  )}
+                  {loadingMore ? <MessageBubbleShimmer count={2} /> : null}
+                </View>
+              }
+              renderItem={({ item, index }) => {
+                const prevMsg = messages[index + 1];
 
-                    const showDate =
-                      !prevMsg ||
-                      new Date(prevMsg.createdAt ?? "").toDateString() !==
-                        new Date(item.createdAt ?? "").toDateString();
+                const showDate =
+                  !prevMsg ||
+                  new Date(prevMsg.createdAt ?? "").toDateString() !==
+                    new Date(item.createdAt ?? "").toDateString();
 
-                    return (
-                      <View>
-                        {/* DATE LABEL */}
-                        {showDate && (
-                          <View style={styles.dateSeparator}>
-                            <Text style={styles.dateText}>
-                              {getDateLabel(item.createdAt ?? "")}
-                            </Text>
-                          </View>
-                        )}
-
-                        {/* MESSAGE */}
-                        <MessageBubble
-                          chat={chat}
-                          message={item}
-                          isSelected={selectedIds.has(item._id)}
-                          isSelectionMode={isSelectionMode}
-                          onPress={() =>
-                            isSelectionMode ? toggleMessageSelection(item) : null
-                          }
-                          onLongPress={() => {
-                            setIsSelectionMode(true);
-                            toggleMessageSelection(item);
-                          }}
-                        />
+                return (
+                  <View>
+                    {/* DATE LABEL */}
+                    {showDate && (
+                      <View style={styles.dateSeparator}>
+                        <Text style={styles.dateText}>
+                          {getDateLabel(item.createdAt ?? "")}
+                        </Text>
                       </View>
-                    );
-                  }}
-                  contentContainerStyle={styles.messagesContent}
-                  onEndReached={() => {
-                    if (hasMore) loadMore();
-                  }}
-                  onEndReachedThreshold={0.3}
-                  renderScrollComponent={renderScrollComponent}
-                  keyboardShouldPersistTaps="handled"
-                />
-              )
-            }
+                    )}
+
+                    {/* MESSAGE */}
+                    <MessageBubble
+                      chat={chat}
+                      message={item}
+                      isSelected={selectedIds.has(item._id)}
+                      isSelectionMode={isSelectionMode}
+                      onPress={() =>
+                        isSelectionMode ? toggleMessageSelection(item) : null
+                      }
+                      onLongPress={() => {
+                        setIsSelectionMode(true);
+                        toggleMessageSelection(item);
+                      }}
+                    />
+                  </View>
+                );
+              }}
+              contentContainerStyle={styles.messagesContent}
+              onEndReached={() => {
+                if (hasMore) loadMore();
+              }}
+              onEndReachedThreshold={0.3}
+              renderScrollComponent={renderScrollComponent}
+              keyboardShouldPersistTaps="handled"
+            />
 
             <KeyboardStickyView offset={stickyViewOffset}>
               <WhatsAppInputBar

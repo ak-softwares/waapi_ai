@@ -4,7 +4,7 @@ import { useBroadcast } from "@/src/hooks/broadcast/useBroadcast";
 import { useContacts } from "@/src/hooks/contacts/useContacts";
 import { useDeviceContactsImport } from "@/src/hooks/contacts/useDeviceContactsImport";
 import { useExcelImport } from "@/src/hooks/contacts/useExcelImport";
-import { emitChatUpdate } from "@/src/lib/events/chatEvents";
+import { emitChat } from "@/src/lib/events/chatEvents";
 import { darkColors, lightColors } from "@/src/theme/colors";
 import { ChatParticipant } from "@/src/types/Chat";
 import { Contact, ImportedContact } from "@/src/types/Contact";
@@ -163,7 +163,7 @@ export default function BroadcastScreen() {
     });
 
     if (chat?._id) {
-      emitChatUpdate(chat);
+      emitChat(chat);
       router.back();
       // router.push({ pathname: "/(dashboard)/messages", params: { chatId: chat._id } });
     }

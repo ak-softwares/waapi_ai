@@ -16,15 +16,15 @@ export function useGoogleAuth(
   const config = Constants.expoConfig?.extra;
   // const webClientId = process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID || config?.googleWebClientId
   const [request, response, promptAsync] = Google.useAuthRequest({
-    clientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
+    // clientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
 
-    // androidClientId: process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID,
+    androidClientId: process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID,
     // iosClientId: process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID,
     // webClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
 
-    scopes: ["openid", "profile", "email"],
+    // scopes: ["openid", "profile", "email"],
     // ✅ THIS IS THE FIX
-    redirectUri: "https://auth.expo.io/@waapi.me/waapi_ai",
+    // redirectUri: "https://auth.expo.io/@waapi.me/waapi_ai",
   });
 
   useEffect(() => {

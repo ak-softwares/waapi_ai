@@ -1,10 +1,10 @@
 import { useAuth } from "@/src/context/AuthContext";
 import { useTheme } from "@/src/context/ThemeContext";
-import { useGoogleAuth } from "@/src/hooks/auth/useGoogleAuth";
 import { signInSchema } from "@/src/schemas/signInSchema";
 import { darkColors, lightColors } from "@/src/theme/colors";
 import { AntDesign } from "@expo/vector-icons";
 import { zodResolver } from "@hookform/resolvers/zod";
+import * as Google from "expo-auth-session/providers/google";
 import { useRouter } from "expo-router";
 import { Controller, useForm } from "react-hook-form";
 import { ActivityIndicator, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
@@ -18,7 +18,6 @@ export default function SignInScreen() {
 
   const { theme } = useTheme();
   const colors = theme === "dark" ? darkColors : lightColors;
-  // const colors = lightColors;
   const styles = getStyles(colors);
 
   const {
@@ -33,8 +32,12 @@ export default function SignInScreen() {
     },
   });
 
-  const { request, promptAsync } = useGoogleAuth(async ({ accessToken }) => {
-    await googleSignin(accessToken);
+  // const { request, promptAsync } = useGoogleAuth(async ({ accessToken }) => {
+  //   await googleSignin(accessToken);
+  // });
+
+  const [request, response, promptAsync] = Google.useAuthRequest({
+    androidClientId: process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID,
   });
 
   // ✅ Submit Handler
@@ -135,7 +138,7 @@ export default function SignInScreen() {
       {/* Google Login */}
       <TouchableOpacity
         style={[styles.button, styles.outlineButton, styles.socialButton]}
-        onPress={() => promptAsync()}
+        onPress={() => promptAsync().catch((err) => console.log("Google Signin Error: ", err))}
         disabled={!request || loading}
       >
         <AntDesign name="google" size={20} color={colors.text} />

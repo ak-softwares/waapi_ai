@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import { api } from "@/src/lib/api/apiClient";
 import { ApiResponse } from "@/src/types/ApiResponse";
 import { WabaAccount, WaSetupStatus } from "@/src/types/WabaAccount";
-import { showToast } from "@/src/utiles/toastHelper/toast";
 
 export function useWabaSetupData() {
   const [loadingWaba, setLoadingWaba] = useState(true);
@@ -19,10 +18,10 @@ export function useWabaSetupData() {
         setWaSetupStatus(response.data.data);
       }
     } catch (error: any) {
-      showToast({
-        type: "error",
-        message: `Error loading setup status: ${error?.message || "Unknown error"}`,
-      });
+      // showToast({
+      //   type: "error",
+      //   message: `Error loading setup status: ${error?.message || "Unknown error"}`,
+      // });
     } finally {
       setLoadingWaba(false);
     }

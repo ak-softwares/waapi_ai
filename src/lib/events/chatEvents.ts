@@ -1,14 +1,14 @@
 import { Chat } from "@/src/types/Chat";
 
-type ChatUpdateListener = (chat: Chat) => void;
+type ChatListener = (chat: Chat) => void;
 
-const listeners = new Set<ChatUpdateListener>();
+const listeners = new Set<ChatListener>();
 
-export function emitChatUpdate(chat: Chat) {
+export function emitChat(chat: Chat) {
   listeners.forEach((listener) => listener(chat));
 }
 
-export function subscribeChatUpdates(listener: ChatUpdateListener) {
+export function subscribeChat(listener: ChatListener) {
   listeners.add(listener);
 
   return () => {

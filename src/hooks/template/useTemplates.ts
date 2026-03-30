@@ -53,7 +53,8 @@ export function useTemplates() {
           setHasMore(false);
         }
       } catch (error) {
-        console.log("Failed to fetch templates", error);
+        setHasMore(false);
+        setTotalTemplates(0);
       } finally {
         pageToFetch === 1
           ? setLoading(false)
