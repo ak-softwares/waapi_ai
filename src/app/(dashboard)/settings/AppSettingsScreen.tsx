@@ -1,7 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Application from "expo-application";
 import { router, Stack } from "expo-router";
-import { Bell, Moon } from "lucide-react-native";
+import { Bell, KeyRound, Moon } from "lucide-react-native";
 import { useEffect, useState } from "react";
 import { Platform, ScrollView, StyleSheet } from "react-native";
 
@@ -136,6 +136,12 @@ export default function AppSettingsScreen() {
           subtitle={`Current: ${themeMode.charAt(0).toUpperCase() + themeMode.slice(1)}`}
           onPress={() => router.push("/(dashboard)/settings/ThemeScreen")}
         />
+        <SettingsTile
+          icon={<KeyRound size={22} color={colors.primary} />}
+          title="API Key"
+          subtitle="Generate API key here"
+          onPress={() => router.push("/(dashboard)/settings/ApiTokenScreen")}
+        />    
       </ScrollView>
     </>
   );

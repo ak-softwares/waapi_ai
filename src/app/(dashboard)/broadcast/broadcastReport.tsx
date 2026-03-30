@@ -330,7 +330,6 @@ export default function BroadcastReportScreen() {
         <SearchBar
           placeholder="Search number..."
           onSearch={searchMessages}
-          disablePadding={true}
         />
 
         {loading && rows.length === 0 ? (

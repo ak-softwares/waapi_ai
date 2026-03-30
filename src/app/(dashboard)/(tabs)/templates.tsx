@@ -2,6 +2,7 @@ import SearchBar from "@/src/components/common/search/SearchBar";
 import UserShimmer from "@/src/components/common/user/UserShimmer";
 import TemplateTile from "@/src/components/templates/widgets/TemplateTile";
 import { useTheme } from "@/src/context/ThemeContext";
+import { useFacebookConnectionStatus } from "@/src/hooks/setup/useFacebookConnectionStatus";
 import { useTemplates } from "@/src/hooks/template/useTemplates";
 import { darkColors, lightColors } from "@/src/theme/colors";
 import { router } from "expo-router";
@@ -12,6 +13,7 @@ import {
   Text,
   View
 } from "react-native";
+import FacebookConnectCard from "../setup/widgets/FacebookConnectCard";
 
 export default function Templates() {
   const {
@@ -23,6 +25,7 @@ export default function Templates() {
     searchTemplates,
   } = useTemplates();
 
+  const { isLoadingFacebookStatus, isFacebookConnected } = useFacebookConnectionStatus();
   const [search, setSearch] = useState("");
 
   const { theme } = useTheme();
@@ -37,34 +40,42 @@ export default function Templates() {
         onSearch={searchTemplates}
       />
 
-      {loading 
-        ? <UserShimmer count={10} />
-        : (<FlatList
-            data={templates}
-            keyExtractor={(item) => item.id!}
-            renderItem={({ item }) => (
-              <TemplateTile
-                template={item}
-                onPress={() =>
-                  router.push({
-                    pathname: "/(dashboard)/template/TemplateViewScreen",
-                      params: {
-                        template: JSON.stringify(item),
-                      },
-                  })
-                }
-              />
-            )}
-            ListEmptyComponent={!loading && !loadingMore ? <Text style={styles.emptyText}>No templates found.</Text> : null}
-            ItemSeparatorComponent={() => <View style={{ height: 4 }} />}
-            onEndReached={loadMore}
-            onEndReachedThreshold={0.5}
-            ListFooterComponent={loadingMore ? <UserShimmer count={2} /> : null}
-            refreshing={loading}
-            onRefresh={refreshTemplates}
-            contentContainerStyle={{ paddingBottom: 20 }}
-          />)
-      }
+      {!isFacebookConnected && !isLoadingFacebookStatus && (
+        <FacebookConnectCard
+          colors={colors}
+          onPress={() => router.push("/(dashboard)/setup/WhatsAppSetupScreen")}
+          subtitle="Connect WhatsApp Cloud API before using templates."
+        />
+      )}
+
+      <FlatList
+        data={loading ? [] : templates}
+        keyExtractor={(item) => item.id!}
+        ListEmptyComponent={
+          loading ? <UserShimmer count={10}/> : <Text style={styles.emptyText}>No templates found.</Text>
+        }
+        renderItem={({ item }) => (
+          <TemplateTile
+            template={item}
+            onPress={() =>
+              router.push({
+                pathname: "/(dashboard)/template/TemplateViewScreen",
+                  params: {
+                    template: JSON.stringify(item),
+                  },
+              })
+            }
+          />
+        )}
+        ItemSeparatorComponent={() => <View style={{ height: 4 }} />}
+        onEndReached={loadMore}
+        onEndReachedThreshold={0.5}
+        ListFooterComponent={loadingMore ? <UserShimmer count={2} /> : null}
+        refreshing={loading}
+        onRefresh={refreshTemplates}
+        contentContainerStyle={{ paddingBottom: 20 }}
+      />
+
     </View>
   );
 }

@@ -404,7 +404,6 @@ export default function SendTemplateScreen() {
             <SearchBar
               placeholder="Search template..."
               onSearch={searchTemplates}
-              disablePadding={true}
             />
             {loading 
               ? <UserShimmer count={10} />

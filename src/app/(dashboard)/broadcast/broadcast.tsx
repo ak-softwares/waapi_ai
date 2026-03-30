@@ -256,7 +256,6 @@ export default function BroadcastScreen() {
         value={contactSearch}
         placeholder="Search contact list..."
         onSearch={handleSearchContacts}
-        disablePadding={true}
       />
       <FlatList
         data={contacts}
@@ -340,7 +339,6 @@ export default function BroadcastScreen() {
             value={excelSearch}
             placeholder="Search imported contacts..."
             onSearch={setExcelSearch}
-            disablePadding={true}
           />
           <FlatList
             data={filteredExcelContacts}
@@ -405,7 +403,6 @@ export default function BroadcastScreen() {
             value={deviceSearch}
             placeholder="Search phone contacts..."
             onSearch={setDeviceSearch}
-            disablePadding={true}
           />
           <FlatList
             data={filteredDeviceContacts}
@@ -487,7 +484,6 @@ export default function BroadcastScreen() {
             value={audienceSearch}
             placeholder="Search contacts..."
             onSearch={setAudienceSearch}
-            disablePadding={true}
           />
           <FlatList
             data={filteredParticipants}

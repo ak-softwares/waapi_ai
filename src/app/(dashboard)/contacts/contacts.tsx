@@ -7,6 +7,7 @@ import { useGetOrCreateChat } from "@/src/hooks/chat/useGetOrCreateChat";
 import { useContacts } from "@/src/hooks/contacts/useContacts";
 import { useDeleteContacts } from "@/src/hooks/contacts/useDeleteContacts";
 import { useExportContacts } from "@/src/hooks/contacts/useExportContacts";
+import { useFacebookConnectionStatus } from "@/src/hooks/setup/useFacebookConnectionStatus";
 import { darkColors, lightColors } from "@/src/theme/colors";
 import { ChatParticipant } from "@/src/types/Chat";
 import { Contact } from "@/src/types/Contact";
@@ -33,6 +34,7 @@ import {
   TouchableOpacity,
   View
 } from "react-native";
+import FacebookConnectCard from "../setup/widgets/FacebookConnectCard";
 import ContactTile from "./widgets/ContactTile";
 
 export default function ContactsScreen() {
@@ -60,6 +62,7 @@ export default function ContactsScreen() {
   const [targetContact, setTargetContact] = useState<Contact | null>(null);
   const [showDelete, setShowDelete] = useState(false);
   const { getOrCreateChat } = useGetOrCreateChat();
+  const { isLoadingFacebookStatus, isFacebookConnected } = useFacebookConnectionStatus();
   const { deleteContact, deleteContactsBulk, deleteAllContacts, isDeleting } =
     useDeleteContacts(({ mode, deletedIds }) => {
 
@@ -299,8 +302,15 @@ export default function ContactsScreen() {
           value={searchValue}
           placeholder="Search contacts..."
           onSearch={searchContacts}
-          disablePadding={true}
         />
+
+        {!isFacebookConnected && !isLoadingFacebookStatus && (
+          <FacebookConnectCard
+            colors={colors}
+            onPress={() => router.push("/(dashboard)/setup/WhatsAppSetupScreen")}
+            subtitle="Connect WhatsApp Cloud API before using chats."
+          />
+        )}
 
         {loading 
           ? <UserShimmer count={10} />

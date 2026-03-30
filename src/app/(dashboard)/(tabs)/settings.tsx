@@ -9,15 +9,16 @@ import { router } from "expo-router";
 import {
   BarChart3,
   Headphones,
-  KeyRound,
   LogOut,
   MessageCircleMore,
   Settings,
   User,
-  Wallet
+  Wallet,
+  Youtube
 } from "lucide-react-native";
 import { useState } from "react";
 import {
+  Linking,
   ScrollView,
   StyleSheet,
   Text,
@@ -35,7 +36,7 @@ export default function SettingsScreen() {
   const handleLogout = () => {
     setShowDelete(true);
   };
-
+  const handleYouTube = () => Linking.openURL("https://www.youtube.com/@wa-api-me");
   // 🔥 Version (replace with Constants if needed)
   // const APP_VERSION = "1.0.0";
   const APP_VERSION = Application.nativeApplicationVersion ?? "";
@@ -53,17 +54,10 @@ export default function SettingsScreen() {
           onPress={() => router.push("/(dashboard)/profile/profilePage")}
         />
         <SettingsTile
-          icon={<Wallet size={22} color={colors.primary} />}
-          title="Wallet"
-          subtitle="Credits, quota and balance"
-          onPress={() => router.push("/(dashboard)/wallet/WalletScreen")}
-        />
-        
-        <SettingsTile
-          icon={<KeyRound size={22} color={colors.primary} />}
-          title="API Key"
-          subtitle="Generate API key here"
-          onPress={() => router.push("/(dashboard)/settings/ApiTokenScreen")}
+          icon={<MessageCircleMore size={22} color={colors.primary} />}
+          title="WhatsApp Setup"
+          subtitle="Connect WhatsApp Business account"
+          onPress={() => router.push("/(dashboard)/setup/WhatsAppSetupScreen")}
         />
         <SettingsTile
           icon={<BarChart3 size={22} color={colors.primary} />}
@@ -72,10 +66,22 @@ export default function SettingsScreen() {
           onPress={() => router.push("/(dashboard)/analytics/AnalyticsScreen")}
         />
         <SettingsTile
-          icon={<MessageCircleMore size={22} color={colors.primary} />}
-          title="WhatsApp Setup"
-          subtitle="Connect WhatsApp Business account"
-          onPress={() => router.push("/(dashboard)/setup/WhatsAppSetupScreen")}
+          icon={<Wallet size={22} color={colors.primary} />}
+          title="Wallet"
+          subtitle="Credits, quota and balance"
+          onPress={() => router.push("/(dashboard)/wallet/WalletScreen")}
+        />    
+        <SettingsTile
+          icon={<Youtube size={22} color={colors.primary} />}
+          title="YouTube Channel"
+          subtitle="Watch app usage guides"
+          onPress={handleYouTube}
+        />
+        <SettingsTile
+          icon={<Settings size={22} color={colors.primary} />}
+          title="Settings"
+          subtitle={`Theme: ${themeMode.charAt(0).toUpperCase() + themeMode.slice(1)} · Notifications`}
+          onPress={() => router.push("/(dashboard)/settings/AppSettingsScreen")}
         />
         <SettingsTile
           icon={<Headphones size={22} color={colors.primary} />}
@@ -83,14 +89,6 @@ export default function SettingsScreen() {
           subtitle="Call, WhatsApp or Email"
           onPress={() => router.push("/(dashboard)/settings/SupportScreen")}
         />
-        
-        <SettingsTile
-          icon={<Settings size={22} color={colors.primary} />}
-          title="Settings"
-          subtitle={`Theme: ${themeMode.charAt(0).toUpperCase() + themeMode.slice(1)} · Notifications`}
-          onPress={() => router.push("/(dashboard)/settings/AppSettingsScreen")}
-        />
-
         <SettingsTile
           icon={<LogOut size={22} color={colors.error} />}
           title="Logout"

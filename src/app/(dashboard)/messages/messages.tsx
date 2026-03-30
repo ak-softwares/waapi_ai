@@ -368,7 +368,7 @@ export default function MessageScreen() {
 
             <FlatList
               // ref={ref}
-              data={loading ? [] : messages} // 👈 important
+              data={loading ? [] : messages}
               inverted
               keyExtractor={(item) =>
                 item._id || `${item.createdAt}-${item.message}`

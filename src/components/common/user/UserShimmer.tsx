@@ -9,14 +9,13 @@ const Shimmer = createShimmerPlaceholder(LinearGradient);
 
 type Props = {
   count?: number;
-  paddingHorizontal?: number;
 };
 
-export default function UserShimmer({ count = 8, paddingHorizontal = 0 }: Props) {
+export default function UserShimmer({ count = 8 }: Props) {
   const { theme } = useTheme();
   const colors = theme === "dark" ? darkColors : lightColors;
 
-  const styles = getStyles(colors, paddingHorizontal);
+  const styles = getStyles(colors);
 
   const shimmerColors =
     theme === "dark"
@@ -60,11 +59,10 @@ export default function UserShimmer({ count = 8, paddingHorizontal = 0 }: Props)
   );
 }
 
-const getStyles = (colors: typeof lightColors, paddingHorizontal: number) =>
+const getStyles = (colors: typeof lightColors) =>
   StyleSheet.create({
     container: {
       flex: 1,
-      paddingHorizontal: paddingHorizontal,
       backgroundColor: colors.background,
     },
 

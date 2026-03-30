@@ -15,7 +15,6 @@ interface SearchBarProps {
   placeholder?: string;
   onSearch?: (query: string) => void;
   delay?: number;
-  disablePadding?: boolean;
 }
 
 // 🔢 Normalize phone (same logic)
@@ -36,14 +35,13 @@ export default function SearchBar({
   placeholder = "Search...",
   onSearch,
   delay = 500,
-  disablePadding = false,
 }: SearchBarProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [isActive, setIsActive] = useState(false);
 
   const { theme } = useTheme();
   const colors = theme === "dark" ? darkColors : lightColors;
-  const styles = getStyles(colors, disablePadding);
+  const styles = getStyles(colors);
 
   const debouncedSearchTerm = useDebounce(searchTerm, delay);
 
@@ -99,9 +97,8 @@ export default function SearchBar({
   );
 }
 
-const getStyles = (colors: typeof lightColors, disablePadding: boolean) => StyleSheet.create({
+const getStyles = (colors: typeof lightColors) => StyleSheet.create({
   container: {
-    paddingHorizontal: disablePadding ? 0 : 16,
     paddingVertical: 10,
   },
   inputWrapper: {

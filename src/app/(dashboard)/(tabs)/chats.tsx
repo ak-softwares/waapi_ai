@@ -8,6 +8,7 @@ import { useTheme } from "@/src/context/ThemeContext";
 import { useChats } from "@/src/hooks/chat/useChats";
 import { useDeleteChats } from "@/src/hooks/chat/useDeleteChats";
 import { useFavourite } from "@/src/hooks/chat/useFavourite";
+import { useFacebookConnectionStatus } from "@/src/hooks/setup/useFacebookConnectionStatus";
 import { darkColors, lightColors } from "@/src/theme/colors";
 import { Chat, FILTERS } from "@/src/types/Chat";
 import { DeleteMode } from "@/src/utiles/enums/deleteMode";
@@ -22,6 +23,7 @@ import {
   TouchableOpacity,
   View
 } from "react-native";
+import FacebookConnectCard from "../setup/widgets/FacebookConnectCard";
 
 export default function ChatListScreen() {
   const { refresh } = useLocalSearchParams();
@@ -38,13 +40,13 @@ export default function ChatListScreen() {
     setChats,
   } = useChats();
 
-  const [search, setSearch] = useState("");
   const [isSelectionMode, setIsSelectionMode] = useState(false);
   const [selectedChats, setSelectedChats] = useState<Chat[]>([]);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleteMode, setDeleteMode] = useState<DeleteMode | null>(null);
   const { toggleFavourite } = useFavourite();
-
+  const { isLoadingFacebookStatus, isFacebookConnected } = useFacebookConnectionStatus();
+  
   const { theme } = useTheme();
   const colors = theme === "dark" ? darkColors : lightColors;
   const styles = getStyles(colors);
@@ -224,81 +226,92 @@ export default function ChatListScreen() {
 
       <View style={styles.container}>
 
-        <SearchBar
-          placeholder="Search chats..."
-          onSearch={searchChats}
-        />
-        
-        <View>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.filterContainer}
-          >
-            {FILTERS.map((item) => {
-              const active = filter === item.key;
+        <View style={styles.upperSection}>
+          <SearchBar
+            placeholder="Search chats..."
+            onSearch={searchChats}
+          />
+          
+          <View>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.filterContainer}
+            >
+              {FILTERS.map((item) => {
+                const active = filter === item.key;
 
-              return (
-                <TouchableOpacity
-                  key={item.key}
-                  onPress={() => {
-                    if (filter === item.key) {
-                      refreshChats();
-                    } else {
-                      setFilter(item.key);
-                    }
-                  }}
-                  style={[styles.chip, active && styles.activeChip]}
-                >
-                  <Text style={[styles.chipText, active && { color: colors.primary }]}> 
-                    {item.label}
-                  </Text>
-                </TouchableOpacity>
-              );
-            })}
-          </ScrollView>
+                return (
+                  <TouchableOpacity
+                    key={item.key}
+                    onPress={() => {
+                      if (filter === item.key) {
+                        refreshChats();
+                      } else {
+                        setFilter(item.key);
+                      }
+                    }}
+                    style={[styles.chip, active && styles.activeChip]}
+                  >
+                    <Text style={[styles.chipText, active && { color: colors.primary }]}> 
+                      {item.label}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </ScrollView>
+          </View>
+            {!isFacebookConnected && !isLoadingFacebookStatus && (
+              <FacebookConnectCard
+                colors={colors}
+                onPress={() => router.push("/(dashboard)/setup/WhatsAppSetupScreen")}
+                subtitle="Connect WhatsApp Cloud API before using chats."
+              />
+            )}
         </View>
 
-        {loading 
-          ? <UserShimmer count={10} paddingHorizontal={10} />
-          : (<FlatList
-                data={filteredChats}
-                keyExtractor={(chat, index) => chat._id || `${chat.lastMessageAt}-${index}`}
-                renderItem={({ item: chat }) => (
-                  <ChatTile
-                    chat={chat}
-                    isSelectionMode={isSelectionMode}
-                    isSelected={selectedIds.has(chat._id ?? "")}
-                    onLongPress={() => {
-                      setIsSelectionMode(true);
-                      toggleChatSelection(chat);
-                    }}
-                    onPress={() => {
-                      if (isSelectionMode) {
-                        toggleChatSelection(chat);
-                        return;
-                      }
+        <FlatList
+          data={loading ? [] : filteredChats}
+          keyExtractor={(item) =>
+            item._id || `${item.createdAt}-${item.lastMessageAt}`
+          }
+          ListEmptyComponent={
+            loading ? <UserShimmer count={10} /> : <Text style={styles.emptyText}>No chats found.</Text>
+          }
+          renderItem={({ item: chat }) => (
+            <ChatTile
+              chat={chat}
+              isSelectionMode={isSelectionMode}
+              isSelected={selectedIds.has(chat._id ?? "")}
+              onLongPress={() => {
+                setIsSelectionMode(true);
+                toggleChatSelection(chat);
+              }}
+              onPress={() => {
+                if (isSelectionMode) {
+                  toggleChatSelection(chat);
+                  return;
+                }
 
-                      router.push({
-                        pathname: "/(dashboard)/messages/messages",
-                        params: { 
-                          chatId: chat._id,
-                          chatData: JSON.stringify(chat), 
-                        },
-                      });
-                    }}
-                  />
-                )}
-                ItemSeparatorComponent={() => <View style={{ height: 4 }} />}
-                onEndReached={loadMore}
-                onEndReachedThreshold={0.5}
-                ListEmptyComponent={!loading && !loadingMore ? <Text style={styles.emptyText}>No chats found.</Text> : null}
-                ListFooterComponent={loadingMore ? <UserShimmer count={2} /> : null}
-                refreshing={loading}
-                onRefresh={refreshChats}
-                style={{ paddingHorizontal: 10 }}
-              />)
-        }
+                router.push({
+                  pathname: "/(dashboard)/messages/messages",
+                  params: { 
+                    chatId: chat._id,
+                    chatData: JSON.stringify(chat), 
+                  },
+                });
+              }}
+            />
+          )}
+          ItemSeparatorComponent={() => <View style={{ height: 4 }} />}
+          onEndReached={loadMore}
+          onEndReachedThreshold={0.5}
+          ListFooterComponent={loadingMore ? <UserShimmer count={2} /> : null}
+          refreshing={loading}
+          onRefresh={refreshChats}
+          style={{ paddingHorizontal: 10 }}
+        />
+        
 
         {!isSelectionMode && (
           <FloatingButton
@@ -336,6 +349,9 @@ const getStyles = (colors: typeof lightColors) =>
       flex: 1,
       backgroundColor: colors.background,
     },
+    upperSection: {
+      paddingHorizontal: 10,
+    },
     selectionBar: {
       flexDirection: "row",
       justifyContent: "space-between",
@@ -368,7 +384,7 @@ const getStyles = (colors: typeof lightColors) =>
     },
 
     filterContainer: {
-      paddingHorizontal: 15,
+      paddingHorizontal: 5,
       gap: 8,
       marginTop: 5,
       marginBottom: 10,
@@ -393,8 +409,8 @@ const getStyles = (colors: typeof lightColors) =>
       color: colors.text,
     },
     emptyText: {
+      marginTop: 50,
       textAlign: "center",
-      marginTop: 60,
       color: colors.mutedText,
     },
   });
