@@ -1,4 +1,4 @@
-import AppPhoneInput from "@/src/components/common/AppPhoneInput";
+import AppPhoneInput from "@/src/components/common/phoneInput/AppPhoneInput";
 import { useTheme } from "@/src/context/ThemeContext";
 import { useAddContact } from "@/src/hooks/contacts/useAddContact";
 import { contactSchema } from "@/src/schemas/contactSchema";
@@ -10,12 +10,12 @@ import { CirclePlus, X } from "lucide-react-native";
 import React, { useEffect, useLayoutEffect, useMemo, useState } from "react";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
 import {
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import { z } from "zod";
 

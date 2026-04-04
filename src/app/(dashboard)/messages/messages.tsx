@@ -383,6 +383,7 @@ export default function MessageScreen() {
                     <MessageContactInfoCard
                       chat={chat}
                       onCall={handleCallContact}
+                      onProfile={handleOpenContactInfo}
                     />
                   )}
                   {loadingMore ? <MessageBubbleShimmer count={2} /> : null}

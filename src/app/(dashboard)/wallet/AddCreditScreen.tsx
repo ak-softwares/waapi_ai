@@ -1,4 +1,4 @@
-import { Stack } from "expo-router";
+import { router, Stack } from "expo-router";
 import { Sparkles, Wallet, Zap } from "lucide-react-native";
 import { useMemo, useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
@@ -6,7 +6,9 @@ import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-
 import { useTheme } from "@/src/context/ThemeContext";
 import { useRazorpayPayment } from "@/src/hooks/payment/useRazorpayPayment";
 import { useWallet } from "@/src/hooks/wallet/useWallet";
+import { creditsToAmount, detectCurrency } from "@/src/lib/wallet/pricing";
 import { darkColors, lightColors } from "@/src/theme/colors";
+import { CURRENCY_CONFIG, CurrencyCode } from "@/src/utiles/constans/wallet";
 import { showToast } from "@/src/utiles/toastHelper/toast";
 
 const CREDIT_STEPS = [500, 1000, 2500, 5000, 10000];
@@ -21,13 +23,19 @@ export default function AddCreditScreen() {
   const [customCredits, setCustomCredits] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
   const { initiatePayment, loading } = useRazorpayPayment();
+  const [currency, setCurrency] = useState<CurrencyCode>(() => detectCurrency());
 
   const creditBalance = data?.creditBalance ?? 0;
-  const pricePerCreditUSD = data?.pricePerCreditUSD ?? 0;
+  const { symbol, name } = CURRENCY_CONFIG[currency];
+
+  const displayPricePerCredit = useMemo(
+    () => creditsToAmount({ credits: 1, currency }),
+    [currency]
+  );
 
   const totalAmount = useMemo(
-    () => Number((credits * pricePerCreditUSD).toFixed(2)),
-    [credits, pricePerCreditUSD]
+    () => creditsToAmount({ credits, currency }),
+    [credits, currency]
   );
 
   const applyCustomCredits = () => {
@@ -60,8 +68,8 @@ export default function AddCreditScreen() {
       }
 
       await initiatePayment({
-        amount: Math.round(totalAmount),
-        currency: "INR",
+        amount: Number(totalAmount.toFixed(2)),
+        currency,
         name: "WA API",
         description: `${credits} Credits Purchase`,
 
@@ -70,13 +78,9 @@ export default function AddCreditScreen() {
             type: "success",
             message: "Payment successful 🎉",
           });
-
+          router.back();
           // 🔥 optional: refetch wallet instead of optimistic
           // refetchWallet();
-
-          // optional callbacks (if exist)
-          // onAddCredits?.(credits);
-          // onClose?.();
         },
 
         onFailure: (error) => {
@@ -87,7 +91,7 @@ export default function AddCreditScreen() {
         },
       });
     } catch (err) {
-      console.log("PayNow Error:", err);
+      // console.log("PayNow Error:", err);
 
       showToast({
         type: "error",
@@ -109,6 +113,27 @@ export default function AddCreditScreen() {
           <View style={styles.balanceRow}>
             <Wallet size={14} color={colors.mutedText} />
             <Text style={styles.subtitle}>Current balance: {creditBalance.toLocaleString()} credits</Text>
+          </View>
+          <Text style={styles.subtitle}>Selected currency: {currency} ({symbol}) — {name}</Text>
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Currency</Text>
+          <View style={styles.optionsWrap}>
+            {(Object.keys(CURRENCY_CONFIG) as CurrencyCode[]).map((code) => {
+              const selected = code === currency;
+              return (
+                <Pressable
+                  key={code}
+                  style={[styles.optionChip, selected ? styles.optionChipSelected : null]}
+                  onPress={() => setCurrency(code)}
+                >
+                  <Text style={[styles.optionChipText, selected ? styles.optionChipTextSelected : null]}>
+                    {code} ({CURRENCY_CONFIG[code].symbol})
+                  </Text>
+                </Pressable>
+              );
+            })}
           </View>
         </View>
 
@@ -167,12 +192,12 @@ export default function AddCreditScreen() {
 
           <View style={styles.summaryRow}>
             <Text style={styles.summaryLabel}>Price / credit</Text>
-            <Text style={styles.summaryValue}>${pricePerCreditUSD.toFixed(3)}</Text>
+            <Text style={styles.summaryValue}>{symbol}{displayPricePerCredit.toFixed(3)}</Text>
           </View>
 
           <View style={styles.summaryRow}>
             <Text style={styles.summaryLabel}>Total</Text>
-            <Text style={styles.totalValue}>${totalAmount.toFixed(2)}</Text>
+            <Text style={styles.totalValue}>{symbol}{totalAmount.toFixed(2)}</Text>
           </View>
 
           <Text style={styles.note}>
@@ -180,8 +205,12 @@ export default function AddCreditScreen() {
           </Text>
         </View>
 
-        <Pressable style={styles.payBtn} onPress={handlePayNow}>
-          <Text style={styles.payBtnText}>Pay ${totalAmount.toFixed(2)}</Text>
+        <Pressable
+          style={[styles.payBtn, loading ? styles.payBtnDisabled : null]}
+          onPress={handlePayNow}
+          disabled={loading}
+        >
+          <Text style={styles.payBtnText}>{loading ? "Processing..." : `Pay ${symbol}${totalAmount.toFixed(2)}`}</Text>
         </Pressable>
       </ScrollView>
     </>
@@ -198,6 +227,9 @@ const getStyles = (colors: typeof lightColors) =>
     content: {
       padding: 16,
       gap: 14,
+    },
+    payBtnDisabled: {
+      opacity: 0.7,
     },
 
     headerCard: {

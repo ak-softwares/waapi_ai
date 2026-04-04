@@ -5,6 +5,7 @@ import { useState } from "react";
 
 interface ForgotPayload {
   email: string;
+  delivery: "email" | "whatsapp";
 }
 
 export const useForgotPassword = () => {
@@ -35,11 +36,11 @@ export const useForgotPassword = () => {
 
       showToast({
         type: "success",
-        message: "Reset link sent. Check your email.",
+        message: response.data.message || "Reset link sent successfully.",
       });
       return {
         success: true,
-        message: "Reset link sent. Check your email.",
+        message: response.data.message || "Reset link sent successfully.",
       };
     } catch (error: any) {
       showToast({

@@ -1,5 +1,5 @@
 import { Stack, router } from "expo-router";
-import { CircleAlert, RefreshCw, Wallet, Zap } from "lucide-react-native";
+import { CircleAlert, Coins, Gift, RefreshCw, Wallet, Zap } from "lucide-react-native";
 import React from "react";
 import {
   ActivityIndicator,
@@ -32,6 +32,10 @@ export default function WalletScreen() {
       : 0;
 
   const isLow = percentage >= 80;
+
+  const handleWatchAd = () => {
+    router.push("/(dashboard)/wallet/EarnCreditsScreen");
+  }
 
   return (
     <>
@@ -114,6 +118,18 @@ export default function WalletScreen() {
               </View>
             </View>
 
+            <View style={styles.earnCard}>
+              <View style={styles.titleWrap}>
+                <Gift size={16} color={colors.primary} />
+                <Text style={styles.cardTitle}>Earn Credits</Text>
+              </View>
+              <Text style={styles.subText}>Watch a short rewarded ad and claim bonus credits.</Text>
+              <Pressable style={styles.rewardedBtn} onPress={handleWatchAd}>
+                <Coins size={14} color={colors.primary} />
+                <Text style={styles.refreshText}>Earn credit by watching ads</Text>
+              </Pressable>
+            </View>
+
             {error ? (
               <View style={styles.errorBox}>
                 <CircleAlert size={14} color={colors.error} />
@@ -143,6 +159,20 @@ const getStyles = (colors: typeof lightColors) =>
 
     loader: {
       marginTop: 40,
+    },
+    earnCard: {
+      backgroundColor: colors.surface,
+      borderRadius: 12,
+      borderWidth: 1,
+      borderColor: colors.border,
+      padding: 14,
+      gap: 8,
+    },
+
+    earnLink: {
+      color: colors.primary,
+      fontSize: 13,
+      fontWeight: "700",
     },
 
     card: {
@@ -306,6 +336,18 @@ const getStyles = (colors: typeof lightColors) =>
       borderRadius: 10,
       paddingVertical: 10,
       backgroundColor: colors.surface,
+    },
+
+    rewardedBtn: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: 6,
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: 10,
+      paddingVertical: 10,
+      backgroundColor: colors.background,
     },
 
     refreshText: {

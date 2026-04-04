@@ -1,4 +1,4 @@
-import AppPhoneInput from "@/src/components/common/AppPhoneInput";
+import AppPhoneInput from "@/src/components/common/phoneInput/AppPhoneInput";
 import { useAuth } from "@/src/context/AuthContext";
 import { useTheme } from "@/src/context/ThemeContext";
 import { signUpSchema } from "@/src/schemas/signUpSchema";
@@ -9,12 +9,12 @@ import { router } from "expo-router";
 import React from "react";
 import { Controller, useForm } from "react-hook-form";
 import {
-  ActivityIndicator,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View
+    ActivityIndicator,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View
 } from "react-native";
 import z from "zod";
 

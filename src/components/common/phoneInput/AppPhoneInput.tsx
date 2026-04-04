@@ -4,13 +4,15 @@ import parsePhoneNumberFromString from "libphonenumber-js";
 import React, { useEffect, useRef } from "react";
 import { StyleSheet } from "react-native";
 import PhoneInput from "react-native-phone-number-input";
+import Icon from "react-native-vector-icons/MaterialIcons";
 
 interface Props {
   value: string;
   onChange: (phone: string) => void;
+  autoFocus?: boolean;
 }
 
-export default function AppPhoneInput({ value, onChange }: Props) {
+export default function AppPhoneInput({ value, onChange, autoFocus=false }: Props) {
   const { theme } = useTheme();
   const colors = theme === "dark" ? darkColors : lightColors;
   const styles = getStyles(colors);
@@ -35,7 +37,8 @@ export default function AppPhoneInput({ value, onChange }: Props) {
   return (
     <PhoneInput
       ref={phoneRef}
-      withDarkTheme={theme === "dark"}
+      withDarkTheme
+      autoFocus={autoFocus}
       defaultCode="IN"
       layout="first"
       value={value}
@@ -60,8 +63,14 @@ export default function AppPhoneInput({ value, onChange }: Props) {
         width: 60,
         justifyContent: "center",
         alignItems: "center",
-        
       }}
+      renderDropdownImage={
+        <Icon
+          name="arrow-drop-down"
+          size={22}
+          color={theme === "dark" ? "#fff" : "#000"} // ✅ dynamic color
+        />
+      }
     />
   );
 }

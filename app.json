@@ -2,7 +2,7 @@
   "expo": {
     "name": "WA-API AI",
     "slug": "waapi_ai",
-    "version": "1.3.0",
+    "version": "1.3.1",
     "orientation": "portrait",
     "owner": "waapi.me",
     "icon": "./assets/logos/adaptive-icon.png",
@@ -65,7 +65,14 @@
           "color": "#25D366"
         }
       ],
-      "expo-web-browser"
+      "expo-web-browser",
+      [
+        "react-native-google-mobile-ads",
+        {
+          "androidAppId": "ca-app-pub-3911355756516980~1239342935",
+          "iosAppId": "ca-app-pub-3911355756516980~1239342935"
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,

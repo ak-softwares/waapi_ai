@@ -4,20 +4,20 @@ import { LogOut, MoreVertical } from "lucide-react-native";
 import React, { useEffect, useLayoutEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import {
-  ActivityIndicator,
-  RefreshControl,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View
+    ActivityIndicator,
+    RefreshControl,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View
 } from "react-native";
 import { z } from "zod";
 
 import AppMenu from "@/src/components/common/AppMenu";
-import AppPhoneInput from "@/src/components/common/AppPhoneInput";
 import ConfirmSheet from "@/src/components/common/ConfirmSheet";
+import AppPhoneInput from "@/src/components/common/phoneInput/AppPhoneInput";
 import { useAuth } from "@/src/context/AuthContext";
 import { useTheme } from "@/src/context/ThemeContext";
 import { useProfile } from "@/src/hooks/profile/useProfile";

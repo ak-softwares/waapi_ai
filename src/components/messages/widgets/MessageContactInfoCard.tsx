@@ -4,10 +4,7 @@ import { darkColors, lightColors } from "@/src/theme/colors";
 import { Chat, ChatType } from "@/src/types/Chat";
 import { getCountryName } from "@/src/utiles/formater/country";
 import { formatInternationalPhoneNumber } from "@/src/utiles/formater/formatPhone";
-import {
-  getCountryCallingCode,
-  parsePhoneNumberFromString
-} from "libphonenumber-js";
+import { getCountryCallingCode } from "libphonenumber-js";
 import { Ban, Phone } from "lucide-react-native";
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
@@ -16,10 +13,10 @@ import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 type Props = {
   chat: Chat;
   onCall?: () => void;
-  onBlock?: () => void;
+  onProfile?: () => void;
 };
 
-export default function MessageContactInfoCard({ chat, onCall, onBlock }: Props) {
+export default function MessageContactInfoCard({ chat, onCall, onProfile }: Props) {
   const { theme } = useTheme();
   const colors = theme === "dark" ? darkColors : lightColors;
   const styles = getStyles(colors);
@@ -27,9 +24,8 @@ export default function MessageContactInfoCard({ chat, onCall, onBlock }: Props)
   const isBroadcast = chat.type === ChatType.BROADCAST;
   const partner = chat.participants?.[0];
 
-  const parsed = parsePhoneNumberFromString(String(partner?.number ?? ""), "IN");
-
-  const countryCode = parsed?.country;
+  const formattedPhone = formatInternationalPhoneNumber(String(partner?.number ?? ""));
+  const countryCode = formattedPhone.country;
 
   const countryName = countryCode
     ? getCountryName(countryCode)
@@ -61,8 +57,8 @@ export default function MessageContactInfoCard({ chat, onCall, onBlock }: Props)
 
       <Text style={styles.name}>{displayName}</Text>
 
-      {!!phoneNumber && (
-        <Text style={styles.phone}>{formatInternationalPhoneNumber(phoneNumber).international}</Text>
+      {!!phoneNumber && formattedPhone &&(
+        <Text style={styles.phone}>{formattedPhone.international}</Text>
       )}
 
       {!isBroadcast && (
@@ -76,9 +72,9 @@ export default function MessageContactInfoCard({ chat, onCall, onBlock }: Props)
             <Text style={styles.callText}>Call</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.callButton} onPress={onBlock}>
-            <Ban size={18} color={colors.danger} />
-            <Text style={styles.blockText}>Block</Text>
+          <TouchableOpacity style={styles.callButton} onPress={onProfile}>
+            <Ban size={18} color={colors.primary} />
+            <Text style={styles.profileText}>Profile</Text>
           </TouchableOpacity>
         </View>
       )}
@@ -151,8 +147,8 @@ const getStyles = (colors: typeof lightColors) =>
       fontSize: 14,
     },
 
-    blockText: {
-      color: colors.danger,
+    profileText: {
+      color: colors.primary,
       fontWeight: "600",
       fontSize: 14,
     },

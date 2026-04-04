@@ -1,4 +1,4 @@
-import AppPhoneInput from "@/src/components/common/AppPhoneInput";
+import AppPhoneInput from "@/src/components/common/phoneInput/AppPhoneInput";
 import { useTheme } from "@/src/context/ThemeContext";
 import { useOtpLogin } from "@/src/hooks/auth/useOtpLogin";
 import { darkColors, lightColors } from "@/src/theme/colors";
@@ -50,7 +50,7 @@ export default function LoginScreen() {
         Enter your mobile number to continue
       </Text>
 
-      <AppPhoneInput value={phone} onChange={setPhone} />
+      <AppPhoneInput value={phone} onChange={setPhone} autoFocus={true} />
       <View style={{ marginBottom: 5 }} />
 
       {/* WhatsApp Login */}

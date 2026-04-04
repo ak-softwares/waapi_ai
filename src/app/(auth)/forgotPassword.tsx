@@ -34,11 +34,12 @@ export default function ForgotPasswordScreen() {
     resolver: zodResolver(forgotPasswordSchema),
     defaultValues: {
       email: "",
+      delivery: "email",
     },
   });
 
   const onSubmit = async (data: FormData) => {
-    await sendResetLink({ email: data.email });
+    await sendResetLink({ email: data.email, delivery: data.delivery });
   };
 
   return (
@@ -53,8 +54,50 @@ export default function ForgotPasswordScreen() {
       <Text style={styles.title}>Forgot Password?</Text>
 
       <Text style={styles.subtitle}>
-        Enter your email and we’ll send a reset link.
+        Enter your email, choose a delivery method, and continue.
       </Text>
+
+      <Controller
+        control={control}
+        name="delivery"
+        render={({ field: { onChange, value } }) => (
+          <View style={styles.deliveryContainer}>
+            <TouchableOpacity
+              style={[
+                styles.deliveryButton,
+                value === "email" && styles.deliveryButtonActive,
+              ]}
+              onPress={() => onChange("email")}
+            >
+              <Text
+                style={[
+                  styles.deliveryButtonText,
+                  value === "email" && styles.deliveryButtonTextActive,
+                ]}
+              >
+                Email
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[
+                styles.deliveryButton,
+                value === "whatsapp" && styles.deliveryButtonActive,
+              ]}
+              onPress={() => onChange("whatsapp")}
+            >
+              <Text
+                style={[
+                  styles.deliveryButtonText,
+                  value === "whatsapp" && styles.deliveryButtonTextActive,
+                ]}
+              >
+                WhatsApp
+              </Text>
+            </TouchableOpacity>
+          </View>
+        )}
+      />
 
       {/* Email */}
       <Controller
@@ -142,6 +185,31 @@ const getStyles = (colors: typeof lightColors) =>
       padding: 12,
       marginBottom: 10,
       color: colors.inputText,
+    },
+    deliveryContainer: {
+      flexDirection: "row",
+      gap: 10,
+      marginBottom: 12,
+    },
+    deliveryButton: {
+      flex: 1,
+      borderWidth: 1,
+      borderColor: colors.inputBorder,
+      backgroundColor: colors.inputBackground,
+      borderRadius: 8,
+      paddingVertical: 10,
+      alignItems: "center",
+    },
+    deliveryButtonActive: {
+      borderColor: colors.buttonBackground,
+      backgroundColor: colors.buttonBackground,
+    },
+    deliveryButtonText: {
+      color: colors.text,
+      fontWeight: "600",
+    },
+    deliveryButtonTextActive: {
+      color: colors.butttonText,
     },
     error: {
       color: colors.error,
