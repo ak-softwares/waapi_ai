@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 import {
-  ActivityIndicator,
-  Image,
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
+    ActivityIndicator,
+    Image,
+    Pressable,
+    StyleSheet,
+    Text,
+    View,
 } from "react-native";
 
 import { Video } from "expo-av";
@@ -15,7 +15,7 @@ import { useTheme } from "@/src/context/ThemeContext";
 import { darkColors, lightColors } from "@/src/theme/colors";
 
 import { useMedia } from "@/src/hooks/messages/useMedia";
-import { MediaType } from "@/src/utiles/enums/mediaTypes";
+import { MediaType } from "@/src/utils/enums/mediaTypes";
 
 import AudioIcon from "@/assets/messageIcons/audio.svg";
 import DocumentIcon from "@/assets/messageIcons/document-icon.svg";

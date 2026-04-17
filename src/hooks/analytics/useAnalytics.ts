@@ -1,7 +1,7 @@
 import { api } from "@/src/lib/api/apiClient";
 import { AnalyticsData } from "@/src/types/Analytics";
-import { DateRangeEnum } from "@/src/utiles/enums/dateRangeEnum";
-import { dateRanges } from "@/src/utiles/helper/dateRangePresetsHelper";
+import { DateRangeEnum } from "@/src/utils/enums/dateRangeEnum";
+import { dateRanges } from "@/src/utils/helper/dateRangePresetsHelper";
 import { useCallback, useEffect, useState } from "react";
 
 export function useAnalytics() {

@@ -1,6 +1,6 @@
 import { api } from "@/src/lib/api/apiClient";
 import { WalletTransaction, WalletTransactionType } from "@/src/types/WalletTransaction";
-import { ITEMS_PER_PAGE } from "@/src/utiles/constans/apiConstans";
+import { ITEMS_PER_PAGE } from "@/src/utils/constans/apiConstans";
 import { useCallback, useEffect, useState } from "react";
 
 export function useTransactionHistory() {

@@ -3,7 +3,7 @@ import { StyleSheet, View } from "react-native";
 import MediaRenderer from "./MediaRenderer";
 
 import { Message } from "@/src/types/Messages";
-import { MediaType } from "@/src/utiles/enums/mediaTypes";
+import { MediaType } from "@/src/utils/enums/mediaTypes";
 
 interface Props {
   message: Message;

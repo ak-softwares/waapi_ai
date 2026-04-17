@@ -1,15 +1,15 @@
 import { router, Stack, useLocalSearchParams } from "expo-router";
 import React, { useMemo, useState } from "react";
 import {
-  ActivityIndicator,
-  FlatList,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    FlatList,
+    Pressable,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from "react-native";
 
 import * as DocumentPicker from "expo-document-picker";
@@ -28,18 +28,18 @@ import { darkColors, lightColors } from "@/src/theme/colors";
 import { ChatParticipant, ChatType } from "@/src/types/Chat";
 import { MessagePayload, MessageType } from "@/src/types/Messages";
 import {
-  Template,
-  TemplateBodyComponentCreate,
-  TemplateButtonsComponentCreate,
-  TemplateHeaderComponentCreate,
+    Template,
+    TemplateBodyComponentCreate,
+    TemplateButtonsComponentCreate,
+    TemplateHeaderComponentCreate,
 } from "@/src/types/Template";
-import { MediaType } from "@/src/utiles/enums/mediaTypes";
+import { MediaType } from "@/src/utils/enums/mediaTypes";
 import {
-  TemplateButtonType,
-  TemplateComponentType,
-  TemplateHeaderType,
-} from "@/src/utiles/enums/template";
-import { showToast } from "@/src/utiles/toastHelper/toast";
+    TemplateButtonType,
+    TemplateComponentType,
+    TemplateHeaderType,
+} from "@/src/utils/enums/template";
+import { showToast } from "@/src/utils/toastHelper/toast";
 import { Image } from "react-native";
 
 type Params = {

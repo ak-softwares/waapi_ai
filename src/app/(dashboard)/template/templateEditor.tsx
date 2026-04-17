@@ -9,10 +9,10 @@ import { useTemplateEditor } from "@/src/hooks/template/useTemplateEditor";
 import { darkColors, lightColors } from "@/src/theme/colors";
 import { Template, TemplateComponentCreate } from "@/src/types/Template";
 import {
-  TemplateCategory,
-  TemplateComponentType,
-  TemplateHeaderType,
-} from "@/src/utiles/enums/template";
+    TemplateCategory,
+    TemplateComponentType,
+    TemplateHeaderType,
+} from "@/src/utils/enums/template";
 import { router, Stack, useLocalSearchParams } from "expo-router";
 import { Pressable, ScrollView, StyleSheet, Text } from "react-native";
 

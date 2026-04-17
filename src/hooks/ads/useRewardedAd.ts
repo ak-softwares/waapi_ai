@@ -1,9 +1,9 @@
 import { AD_UNIT_IDS } from '@/src/ads/admobConfig';
-import { showToast } from '@/src/utiles/toastHelper/toast';
+import { showToast } from '@/src/utils/toastHelper/toast';
 import { useEffect, useState } from 'react';
 import {
-  RewardedAd,
-  RewardedAdEventType,
+    RewardedAd,
+    RewardedAdEventType,
 } from 'react-native-google-mobile-ads';
 
 export const useRewardedAd = () => {

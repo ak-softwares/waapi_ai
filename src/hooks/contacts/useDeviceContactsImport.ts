@@ -1,5 +1,5 @@
 import { ImportedContact } from "@/src/types/Contact";
-import { showToast } from "@/src/utiles/toastHelper/toast";
+import { showToast } from "@/src/utils/toastHelper/toast";
 import { parsePhoneNumberFromString } from "libphonenumber-js";
 import { useCallback, useMemo, useState } from "react";
 

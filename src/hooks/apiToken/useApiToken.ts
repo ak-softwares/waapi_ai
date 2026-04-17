@@ -1,5 +1,5 @@
 import { api } from "@/src/lib/api/apiClient";
-import { showToast } from "@/src/utiles/toastHelper/toast";
+import { showToast } from "@/src/utils/toastHelper/toast";
 import { useCallback, useEffect, useState } from "react";
 
 export type ApiToken = {

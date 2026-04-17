@@ -1,4 +1,4 @@
-import { CURRENCY_CONFIG, CurrencyCode, PRICE_PER_CREDIT_USD } from "@/src/utiles/constans/wallet";
+import { CURRENCY_CONFIG, CurrencyCode, PRICE_PER_CREDIT_USD } from "@/src/utils/constans/wallet";
 
 interface CreditsToAmountParams {
   credits: number;

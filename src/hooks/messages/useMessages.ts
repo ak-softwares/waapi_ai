@@ -1,8 +1,8 @@
 import { api } from "@/src/lib/api/apiClient";
 import { subscribeMessages } from "@/src/lib/events/messageEvents";
 import { Message } from "@/src/types/Messages";
-import { ITEMS_PER_PAGE } from "@/src/utiles/constans/apiConstans";
-import { EventType } from "@/src/utiles/enums/notification";
+import { ITEMS_PER_PAGE } from "@/src/utils/constans/apiConstans";
+import { EventType } from "@/src/utils/enums/notification";
 import { useCallback, useEffect, useState } from "react";
 import { useChatOpenClose } from "../chat/useChatOpenClose";
 

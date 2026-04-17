@@ -1,8 +1,8 @@
 import { api } from "@/src/lib/api/apiClient";
 import { ApiResponse } from "@/src/types/ApiResponse";
 import { WaSetupStatus } from "@/src/types/WabaAccount";
-import { API_BASE_DOMAIN } from "@/src/utiles/constans/apiConstans";
-import { showToast } from "@/src/utiles/toastHelper/toast";
+import { API_BASE_DOMAIN } from "@/src/utils/constans/apiConstans";
+import { showToast } from "@/src/utils/toastHelper/toast";
 import * as Linking from "expo-linking";
 import { useCallback, useEffect, useMemo, useState } from "react";
 

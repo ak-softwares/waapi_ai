@@ -1,19 +1,19 @@
 import {
-  Template,
-  TemplateBodyComponentCreate,
-  TemplateButton,
-  TemplateButtonsComponentCreate,
-  TemplateComponentCreate,
-  TemplateFooterComponentCreate,
-  TemplateHeaderComponentCreate,
+    Template,
+    TemplateBodyComponentCreate,
+    TemplateButton,
+    TemplateButtonsComponentCreate,
+    TemplateComponentCreate,
+    TemplateFooterComponentCreate,
+    TemplateHeaderComponentCreate,
 } from "@/src/types/Template";
 import {
-  TemplateButtonType,
-  TemplateCategory,
-  TemplateComponentType,
-  TemplateHeaderType,
-} from "@/src/utiles/enums/template";
-import { showToast } from "@/src/utiles/toastHelper/toast";
+    TemplateButtonType,
+    TemplateCategory,
+    TemplateComponentType,
+    TemplateHeaderType,
+} from "@/src/utils/enums/template";
+import { showToast } from "@/src/utils/toastHelper/toast";
 import { useEffect, useMemo, useState } from "react";
 import { useHeaderMediaUpload } from "./useHeaderMediaUpload";
 import { useTemplateMutation } from "./useTemplateMutation";

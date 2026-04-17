@@ -1,10 +1,10 @@
 import React from "react";
 import {
-  Linking,
-  Pressable,
-  StyleSheet,
-  Text,
-  View
+    Linking,
+    Pressable,
+    StyleSheet,
+    Text,
+    View
 } from "react-native";
 
 import * as Clipboard from "expo-clipboard";
@@ -14,15 +14,15 @@ import { darkColors, lightColors } from "@/src/theme/colors";
 
 import { Template } from "@/src/types/Template";
 import {
-  TemplateButtonType,
-  TemplateCategory,
-  TemplateComponentType,
-  TemplateHeaderType,
-} from "@/src/utiles/enums/template";
+    TemplateButtonType,
+    TemplateCategory,
+    TemplateComponentType,
+    TemplateHeaderType,
+} from "@/src/utils/enums/template";
 
 import { Message } from "@/src/types/Messages";
-import { FormatRichText } from "@/src/utiles/formater/formatRichText";
-import { showToast } from "@/src/utiles/toastHelper/toast";
+import { FormatRichText } from "@/src/utils/formater/formatRichText";
+import { showToast } from "@/src/utils/toastHelper/toast";
 import MessageMetaInfo from "../widgets/MessageMetaInfo";
 
 // SVG Icons
@@ -30,7 +30,7 @@ import CopyIcon from "@/assets/menuIcons/copy.svg";
 import LaunchIcon from "@/assets/menuIcons/launch.svg";
 import ReplyIcon from "@/assets/menuIcons/reply.svg";
 import CallIcon from "@/assets/messageIcons/call.svg";
-import { MediaType } from "@/src/utiles/enums/mediaTypes";
+import { MediaType } from "@/src/utils/enums/mediaTypes";
 import MediaRenderer from "./MediaRenderer";
 
 function mapTemplateFormat(format: string): MediaType {

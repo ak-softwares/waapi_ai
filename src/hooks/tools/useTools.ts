@@ -1,8 +1,8 @@
 import { api } from "@/src/lib/api/apiClient";
 import { ApiResponse } from "@/src/types/ApiResponse";
 import { ToolCatalog } from "@/src/types/Tool";
-import { ITEMS_PER_PAGE } from "@/src/utiles/constans/apiConstans";
-import { showToast } from "@/src/utiles/toastHelper/toast";
+import { ITEMS_PER_PAGE } from "@/src/utils/constans/apiConstans";
+import { showToast } from "@/src/utils/toastHelper/toast";
 import { useCallback, useEffect, useState } from "react";
 
 export function useTools() {

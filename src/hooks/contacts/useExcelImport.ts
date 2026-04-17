@@ -1,5 +1,5 @@
 import { ImportedContact } from "@/src/types/Contact";
-import { showToast } from "@/src/utiles/toastHelper/toast";
+import { showToast } from "@/src/utils/toastHelper/toast";
 import * as DocumentPicker from "expo-document-picker";
 import * as FileSystem from "expo-file-system/legacy";
 import * as Sharing from "expo-sharing";

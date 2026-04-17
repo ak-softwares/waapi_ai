@@ -1,7 +1,7 @@
 import { api } from "@/src/lib/api/apiClient";
 import { ApiResponse } from "@/src/types/ApiResponse";
 import { Chat, ChatParticipant } from "@/src/types/Chat";
-import { showToast } from "@/src/utiles/toastHelper/toast";
+import { showToast } from "@/src/utils/toastHelper/toast";
 import { useState } from "react";
 
 export function useGetOrCreateChat(onSuccess?: () => void) {

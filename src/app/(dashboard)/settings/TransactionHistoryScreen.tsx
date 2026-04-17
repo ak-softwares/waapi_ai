@@ -1,21 +1,21 @@
 import { Stack } from "expo-router";
 import React from "react";
 import {
-  ActivityIndicator,
-  FlatList,
-  StyleSheet,
-  Text,
-  View
+    ActivityIndicator,
+    FlatList,
+    StyleSheet,
+    Text,
+    View
 } from "react-native";
 
 import { useTheme } from "@/src/context/ThemeContext";
 import { useTransactionHistory } from "@/src/hooks/transaction/useTransactionHistory";
 import { darkColors, lightColors } from "@/src/theme/colors";
 import {
-  PaymentStatus,
-  WalletTransactionType,
+    PaymentStatus,
+    WalletTransactionType,
 } from "@/src/types/WalletTransaction";
-import { formatDateIST } from "@/src/utiles/formater/formatTime";
+import { formatDateIST } from "@/src/utils/formater/formatTime";
 
 export default function TransactionHistoryScreen() {
   const { theme } = useTheme();

@@ -1,4 +1,4 @@
-import { Media, MediaType } from "../utiles/enums/mediaTypes";
+import { Media, MediaType } from "../utils/enums/mediaTypes";
 import { ChatParticipant, ChatType } from "./Chat";
 import { Template, TemplatePayload } from "./Template";
 

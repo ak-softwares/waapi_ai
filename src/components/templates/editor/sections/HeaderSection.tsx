@@ -1,6 +1,6 @@
 import { useTheme } from "@/src/context/ThemeContext";
 import { darkColors, lightColors } from "@/src/theme/colors";
-import { TemplateHeaderType } from "@/src/utiles/enums/template";
+import { TemplateHeaderType } from "@/src/utils/enums/template";
 import { Picker } from "@react-native-picker/picker";
 import * as DocumentPicker from "expo-document-picker";
 import * as ImagePicker from "expo-image-picker";

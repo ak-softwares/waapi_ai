@@ -2,7 +2,7 @@
 
 import { api } from "@/src/lib/api/apiClient";
 import { User } from "@/src/types/User";
-import { showToast } from "@/src/utiles/toastHelper/toast";
+import { showToast } from "@/src/utils/toastHelper/toast";
 import { useCallback, useEffect, useState } from "react";
 
 export function useProfile() {

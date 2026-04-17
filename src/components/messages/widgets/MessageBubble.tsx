@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import {
-  Pressable,
-  StyleSheet,
-  Text,
-  View
+    Pressable,
+    StyleSheet,
+    Text,
+    View
 } from "react-native";
 
 import * as Clipboard from "expo-clipboard";
@@ -12,8 +12,8 @@ import { useTheme } from "@/src/context/ThemeContext";
 import { darkColors, lightColors } from "@/src/theme/colors";
 import { Chat } from "@/src/types/Chat";
 import { Message, MessageType } from "@/src/types/Messages";
-import { FormatRichText } from "@/src/utiles/formater/formatRichText";
-import { showToast } from "@/src/utiles/toastHelper/toast";
+import { FormatRichText } from "@/src/utils/formater/formatRichText";
+import { showToast } from "@/src/utils/toastHelper/toast";
 import LocationMessage from "../renderMessages/LocationMessage";
 import MediaMessage from "../renderMessages/MediaMessage";
 import TemplateMessage from "../renderMessages/TemplateMessage";

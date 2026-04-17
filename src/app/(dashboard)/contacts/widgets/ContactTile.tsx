@@ -3,7 +3,7 @@ import UserAvatar from "@/src/components/common/user/UserAvatar";
 import { useTheme } from "@/src/context/ThemeContext";
 import { darkColors, lightColors } from "@/src/theme/colors";
 import { Contact } from "@/src/types/Contact";
-import { formatAndJoinPhones, formatInternationalPhoneNumber } from "@/src/utiles/formater/formatPhone";
+import { formatAndJoinPhones, formatInternationalPhoneNumber } from "@/src/utils/formater/formatPhone";
 import { Check, Edit, MessageCircle, MoreVertical, Trash2 } from "lucide-react-native";
 import { Pressable, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 

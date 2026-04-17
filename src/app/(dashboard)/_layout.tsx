@@ -26,9 +26,9 @@ export default function DashboardLayout() {
         }}
       >
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="messages" options={{ headerShown: false }} />
+        <Stack.Screen name="messages/messages" options={{ headerShown: false }} />
         <Stack.Screen name="contacts/contacts" options={{ title: "Contacts" }} />
-        <Stack.Screen name="ai-assistant" />
+        <Stack.Screen name="ai/aiAssistant" />
       </Stack>
     </FacebookConnectionProvider>
   );

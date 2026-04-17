@@ -4,13 +4,13 @@ import * as FileSystem from "expo-file-system/legacy";
 import { useCallback, useState } from "react";
 
 import { api } from "@/src/lib/api/apiClient";
-import { showToast } from "@/src/utiles/toastHelper/toast";
+import { showToast } from "@/src/utils/toastHelper/toast";
 
 import {
-  MEDIA_EXTENSIONS,
-  MEDIA_MIME_TYPES,
-  MediaType,
-} from "@/src/utiles/enums/mediaTypes";
+    MEDIA_EXTENSIONS,
+    MEDIA_MIME_TYPES,
+    MediaType,
+} from "@/src/utils/enums/mediaTypes";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 /* ------------------------------------------------

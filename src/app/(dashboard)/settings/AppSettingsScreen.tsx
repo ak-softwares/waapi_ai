@@ -11,7 +11,7 @@ import { useTheme } from "@/src/context/ThemeContext";
 import { usePushDevice } from "@/src/hooks/notifications/usePushDevice";
 import { registerForPushNotificationsAsync } from "@/src/lib/notification/notifications";
 import { darkColors, lightColors } from "@/src/theme/colors";
-import { showToast } from "@/src/utiles/toastHelper/toast";
+import { showToast } from "@/src/utils/toastHelper/toast";
 
 const NOTIFICATION_ENABLED_KEY = "notification_enabled";
 

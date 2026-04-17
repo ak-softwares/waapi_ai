@@ -2,15 +2,15 @@ import UserAvatar from "@/src/components/common/user/UserAvatar";
 import { useTheme } from "@/src/context/ThemeContext";
 import { darkColors, lightColors } from "@/src/theme/colors";
 import { Chat, ChatType } from "@/src/types/Chat";
-import { formatInternationalPhoneNumber } from "@/src/utiles/formater/formatPhone";
+import { formatInternationalPhoneNumber } from "@/src/utils/formater/formatPhone";
 import { Edit2, Image as ImageIcon, Star, Trash2 } from "lucide-react-native";
 import React from "react";
 import {
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
 
 type Props = {

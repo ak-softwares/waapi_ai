@@ -1,4 +1,4 @@
-import { EventType } from "../utiles/enums/notification";
+import { EventType } from "../utils/enums/notification";
 import { Chat } from "./Chat";
 import { Message } from "./Messages";
 

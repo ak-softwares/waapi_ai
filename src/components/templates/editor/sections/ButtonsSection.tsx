@@ -1,7 +1,7 @@
 import { useTheme } from "@/src/context/ThemeContext";
 import { darkColors, lightColors } from "@/src/theme/colors";
 import { TemplateButton } from "@/src/types/Template";
-import { TemplateButtonType } from "@/src/utiles/enums/template";
+import { TemplateButtonType } from "@/src/utils/enums/template";
 import { Picker } from "@react-native-picker/picker";
 import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 

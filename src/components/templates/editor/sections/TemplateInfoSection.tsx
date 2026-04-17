@@ -1,6 +1,6 @@
 import { useTheme } from "@/src/context/ThemeContext";
 import { darkColors, lightColors } from "@/src/theme/colors";
-import { TemplateCategory } from "@/src/utiles/enums/template";
+import { TemplateCategory } from "@/src/utils/enums/template";
 import { Picker } from "@react-native-picker/picker";
 import { StyleSheet, Text, TextInput, View } from "react-native";
 

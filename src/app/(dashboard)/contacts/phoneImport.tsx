@@ -1,16 +1,16 @@
 import { useAddContact } from "@/src/hooks/contacts/useAddContact";
 import { useDeviceContactsImport } from "@/src/hooks/contacts/useDeviceContactsImport";
 import { ImportedContact } from "@/src/types/Contact";
-import { showToast } from "@/src/utiles/toastHelper/toast";
+import { showToast } from "@/src/utils/toastHelper/toast";
 import { router, Stack } from "expo-router";
 import { useEffect, useMemo, useState } from "react";
 import {
-  ActivityIndicator,
-  FlatList,
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
+    ActivityIndicator,
+    FlatList,
+    Pressable,
+    StyleSheet,
+    Text,
+    View,
 } from "react-native";
 
 import { useTheme } from "@/src/context/ThemeContext";

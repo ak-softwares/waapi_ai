@@ -3,7 +3,7 @@ import { useTheme } from "@/src/context/ThemeContext";
 import { darkColors, lightColors } from "@/src/theme/colors";
 import { Message, MessageStatus, MessageType } from "@/src/types/Messages";
 import { Template, TemplateComponentCreate } from "@/src/types/Template";
-import { TemplateCategory } from "@/src/utiles/enums/template";
+import { TemplateCategory } from "@/src/utils/enums/template";
 import { StyleSheet, Text, View } from "react-native";
 
 export default function TemplatePreviewSection({ name, components }: { name: string; components: TemplateComponentCreate[] }) {

@@ -1,5 +1,5 @@
 import { Message } from "@/src/types/Messages";
-import { EventType } from "@/src/utiles/enums/notification";
+import { EventType } from "@/src/utils/enums/notification";
 
 export type MessageEvent = {
   message?: Message;

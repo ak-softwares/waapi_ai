@@ -1,13 +1,13 @@
 import {
-  TemplateBodyType,
-  TemplateButtonType,
-  TemplateButtonsParametersType,
-  TemplateCategory,
-  TemplateComponentType,
-  TemplateFooterType,
-  TemplateHeaderType,
-  TemplateStatus
-} from "../utiles/enums/template";
+    TemplateBodyType,
+    TemplateButtonType,
+    TemplateButtonsParametersType,
+    TemplateCategory,
+    TemplateComponentType,
+    TemplateFooterType,
+    TemplateHeaderType,
+    TemplateStatus
+} from "../utils/enums/template";
 
 export type Template = {
   _id: string;

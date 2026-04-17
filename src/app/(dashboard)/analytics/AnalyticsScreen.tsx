@@ -5,8 +5,8 @@ import { useTheme } from "@/src/context/ThemeContext";
 import { useAnalytics } from "@/src/hooks/analytics/useAnalytics";
 import { calcPercentage } from "@/src/lib/helper/math";
 import { darkColors, lightColors } from "@/src/theme/colors";
-import { DateRangeEnum, DateRangeLabels } from "@/src/utiles/enums/dateRangeEnum";
-import { dateRanges } from "@/src/utiles/helper/dateRangePresetsHelper";
+import { DateRangeEnum, DateRangeLabels } from "@/src/utils/enums/dateRangeEnum";
+import { dateRanges } from "@/src/utils/helper/dateRangePresetsHelper";
 import { Stack } from "expo-router";
 import {
   BarChart3,

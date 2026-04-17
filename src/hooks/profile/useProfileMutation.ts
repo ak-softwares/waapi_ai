@@ -2,7 +2,7 @@
 
 import { useAuth } from "@/src/context/AuthContext";
 import { api } from "@/src/lib/api/apiClient";
-import { showToast } from "@/src/utiles/toastHelper/toast";
+import { showToast } from "@/src/utils/toastHelper/toast";
 import { useState } from "react";
 
 export function useProfileMutation(

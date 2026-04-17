@@ -1,6 +1,6 @@
 import { api } from "@/src/lib/api/apiClient";
 import { Template } from "@/src/types/Template";
-import { ITEMS_PER_PAGE } from "@/src/utiles/constans/apiConstans";
+import { ITEMS_PER_PAGE } from "@/src/utils/constans/apiConstans";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 export function useTemplates() {

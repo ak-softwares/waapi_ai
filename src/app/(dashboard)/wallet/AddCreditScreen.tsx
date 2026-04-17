@@ -8,8 +8,8 @@ import { useRazorpayPayment } from "@/src/hooks/payment/useRazorpayPayment";
 import { useWallet } from "@/src/hooks/wallet/useWallet";
 import { creditsToAmount, detectCurrency } from "@/src/lib/wallet/pricing";
 import { darkColors, lightColors } from "@/src/theme/colors";
-import { CURRENCY_CONFIG, CurrencyCode } from "@/src/utiles/constans/wallet";
-import { showToast } from "@/src/utiles/toastHelper/toast";
+import { CURRENCY_CONFIG, CurrencyCode } from "@/src/utils/constans/wallet";
+import { showToast } from "@/src/utils/toastHelper/toast";
 
 const CREDIT_STEPS = [500, 1000, 2500, 5000, 10000];
 

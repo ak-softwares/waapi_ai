@@ -3,7 +3,7 @@ import { emitChat } from "@/src/lib/events/chatEvents";
 import { emitMessage } from "@/src/lib/events/messageEvents";
 import { getPusher } from "@/src/lib/pusher/pusherClient";
 import { NotificationPayload } from "@/src/types/Notification";
-import { PusherEvent } from "@/src/utiles/enums/notification";
+import { PusherEvent } from "@/src/utils/enums/notification";
 import { useEffect } from "react";
 
 export function usePusher() {

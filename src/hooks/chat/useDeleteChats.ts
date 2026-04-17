@@ -1,6 +1,6 @@
 import { api } from "@/src/lib/api/apiClient";
-import { DeleteMode } from "@/src/utiles/enums/deleteMode";
-import { showToast } from "@/src/utiles/toastHelper/toast";
+import { DeleteMode } from "@/src/utils/enums/deleteMode";
+import { showToast } from "@/src/utils/toastHelper/toast";
 import { useState } from "react";
 
 interface OnDeletedPayload {

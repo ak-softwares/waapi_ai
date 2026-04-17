@@ -1,15 +1,15 @@
 import { router, Stack, useLocalSearchParams } from "expo-router";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
-  FlatList,
-  Image,
-  Pressable,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  useWindowDimensions,
-  View
+    FlatList,
+    Image,
+    Pressable,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    useWindowDimensions,
+    View
 } from "react-native";
 
 import { Video } from "expo-av";
@@ -24,12 +24,12 @@ import { useSendMessage } from "@/src/hooks/messages/useSendMessage";
 import { darkColors, lightColors } from "@/src/theme/colors";
 import { ChatParticipant, ChatType } from "@/src/types/Chat";
 import { MessagePayload, MessageType } from "@/src/types/Messages";
-import { MediaSourceType, MediaType } from "@/src/utiles/enums/mediaTypes";
+import { MediaSourceType, MediaType } from "@/src/utils/enums/mediaTypes";
 import { ActivityIndicator } from "react-native";
 import { KeyboardStickyView } from "react-native-keyboard-controller";
 import {
-  SafeAreaView,
-  useSafeAreaInsets,
+    SafeAreaView,
+    useSafeAreaInsets,
 } from "react-native-safe-area-context";
 
 type UploadedFile = {

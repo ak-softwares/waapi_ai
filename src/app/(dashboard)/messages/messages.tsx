@@ -13,19 +13,19 @@ import { darkColors, lightColors } from "@/src/theme/colors";
 import { Message, MessagePayload, MessageType } from "@/src/types/Messages";
 import React, { useCallback, useMemo, useRef, useState } from "react";
 import {
-  FlatList,
-  ImageBackground,
-  LayoutChangeEvent,
-  Linking,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View
+    FlatList,
+    ImageBackground,
+    LayoutChangeEvent,
+    Linking,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View
 } from "react-native";
 import {
-  SafeAreaView,
+    SafeAreaView,
 } from "react-native-safe-area-context";
 
 
@@ -43,8 +43,8 @@ import AttachmentSheet from "@/src/components/messages/widgets/AttachmentSheet";
 import MessageBubbleShimmer from "@/src/components/messages/widgets/MessageBubbleShimmer";
 import MessageContactInfoCard from "@/src/components/messages/widgets/MessageContactInfoCard";
 import { useSendMessage } from "@/src/hooks/messages/useSendMessage";
-import { MediaSourceType } from "@/src/utiles/enums/mediaTypes";
-import { formatInternationalPhoneNumber } from "@/src/utiles/formater/formatPhone";
+import { MediaSourceType } from "@/src/utils/enums/mediaTypes";
+import { formatInternationalPhoneNumber } from "@/src/utils/formater/formatPhone";
 import { KeyboardChatScrollView, KeyboardGestureArea, KeyboardStickyView } from "react-native-keyboard-controller";
 import { useSharedValue, withTiming } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";

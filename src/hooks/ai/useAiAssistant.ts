@@ -1,6 +1,6 @@
 import { api } from "@/src/lib/api/apiClient";
 import { AIAssistant } from "@/src/types/Ai";
-import { showToast } from "@/src/utiles/toastHelper/toast";
+import { showToast } from "@/src/utils/toastHelper/toast";
 import { useCallback, useEffect, useState } from "react";
 
 export function useAiAssistant() {

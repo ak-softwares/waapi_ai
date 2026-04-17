@@ -1,16 +1,16 @@
 import {
-  Template,
-  TemplateComponentSend,
-  TemplatePayload,
+    Template,
+    TemplateComponentSend,
+    TemplatePayload,
 } from "@/src/types/Template";
 
 import {
-  TemplateBodyType,
-  TemplateButtonType,
-  TemplateButtonsParametersType,
-  TemplateComponentType,
-  TemplateHeaderType,
-} from "@/src/utiles/enums/template";
+    TemplateBodyType,
+    TemplateButtonType,
+    TemplateButtonsParametersType,
+    TemplateComponentType,
+    TemplateHeaderType,
+} from "@/src/utils/enums/template";
 
 export function convertToMetaSendTemplate({ template }: { template: Template; }) {
   const components: TemplateComponentSend[] = [];

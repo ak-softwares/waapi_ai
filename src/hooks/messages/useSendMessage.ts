@@ -2,14 +2,14 @@ import { api } from "@/src/lib/api/apiClient";
 import { emitMessage } from "@/src/lib/events/messageEvents";
 import { convertToMetaSendTemplate } from "@/src/lib/mapping/convertToMetaSendTemplate";
 import {
-  Message,
-  MessagePayload,
-  MessageStatus,
-  MessageType,
+    Message,
+    MessagePayload,
+    MessageStatus,
+    MessageType,
 } from "@/src/types/Messages";
 import { Template } from "@/src/types/Template";
-import { EventType } from "@/src/utiles/enums/notification";
-import { showToast } from "@/src/utiles/toastHelper/toast";
+import { EventType } from "@/src/utils/enums/notification";
+import { showToast } from "@/src/utils/toastHelper/toast";
 import { useState } from "react";
 
 interface SendMessageOptions {

@@ -4,9 +4,9 @@ import ChatIcon from "@/assets/appIcons/chat.svg";
 import SettingActiveIcon from "@/assets/appIcons/setting-active.svg";
 import SettingIcon from "@/assets/appIcons/setting.svg";
 import TemplateIcon from "@/assets/appIcons/template.svg";
-
 import { useTheme } from "@/src/context/ThemeContext";
 import { darkColors, lightColors } from "@/src/theme/colors";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { router, Tabs } from "expo-router";
 import {
@@ -20,8 +20,8 @@ import {
 export default function RootLayout() {
   const { theme } = useTheme();
   const colors = theme === "dark" ? darkColors : lightColors;
-
-  const styles = getStyles(colors); // ✅ FIX
+  const styles = getStyles(colors);
+  const insets = useSafeAreaInsets();
 
   return (
     <Tabs
@@ -30,7 +30,8 @@ export default function RootLayout() {
         tabBarInactiveTintColor: colors.tabLabelInactive,
 
         tabBarStyle: {
-          height: 70,
+          height: 60 + insets.bottom,
+          paddingBottom: insets.bottom > 0 ? insets.bottom : 8,
           backgroundColor: colors.tabBackground,
           borderTopWidth: 0,
         },

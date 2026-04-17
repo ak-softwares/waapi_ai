@@ -11,17 +11,17 @@ import { useFavourite } from "@/src/hooks/chat/useFavourite";
 import { useFacebookConnectionStatus } from "@/src/hooks/setup/useFacebookConnectionStatus";
 import { darkColors, lightColors } from "@/src/theme/colors";
 import { Chat, FILTERS } from "@/src/types/Chat";
-import { DeleteMode } from "@/src/utiles/enums/deleteMode";
-import { showToast } from "@/src/utiles/toastHelper/toast";
+import { DeleteMode } from "@/src/utils/enums/deleteMode";
+import { showToast } from "@/src/utils/toastHelper/toast";
 import { Ionicons } from "@expo/vector-icons";
 import { router, Stack, useLocalSearchParams } from "expo-router";
 import { Check, Heart, Megaphone, MoreVertical, Trash2, X } from "lucide-react-native";
 import { useEffect, useMemo, useState } from "react";
 import {
-  FlatList, ScrollView, StyleSheet,
-  Text,
-  TouchableOpacity,
-  View
+    FlatList, ScrollView, StyleSheet,
+    Text,
+    TouchableOpacity,
+    View
 } from "react-native";
 import FacebookConnectCard from "../setup/widgets/FacebookConnectCard";
 

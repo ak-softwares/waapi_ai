@@ -11,28 +11,28 @@ import { useFacebookConnectionStatus } from "@/src/hooks/setup/useFacebookConnec
 import { darkColors, lightColors } from "@/src/theme/colors";
 import { ChatParticipant } from "@/src/types/Chat";
 import { Contact } from "@/src/types/Contact";
-import { DeleteMode } from "@/src/utiles/enums/deleteMode";
-import { showToast } from "@/src/utiles/toastHelper/toast";
+import { DeleteMode } from "@/src/utils/enums/deleteMode";
+import { showToast } from "@/src/utils/toastHelper/toast";
 import { router, Stack } from "expo-router";
 import {
-  ArrowLeft,
-  Check,
-  Download,
-  Import,
-  Megaphone,
-  MoreVertical,
-  Phone,
-  Trash2,
-  UserPlus,
-  X
+    ArrowLeft,
+    Check,
+    Download,
+    Import,
+    Megaphone,
+    MoreVertical,
+    Phone,
+    Trash2,
+    UserPlus,
+    X
 } from "lucide-react-native";
 import { useMemo, useState } from "react";
 import {
-  FlatList,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View
+    FlatList,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View
 } from "react-native";
 import FacebookConnectCard from "../setup/widgets/FacebookConnectCard";
 import ContactTile from "./widgets/ContactTile";

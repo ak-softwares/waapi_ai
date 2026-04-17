@@ -3,7 +3,7 @@ import { Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 import { ChatType } from "@/src/types/Chat";
 import { Message, MessageStatus, MessageType } from "@/src/types/Messages";
-import { formatTimeOnly } from "@/src/utiles/formater/formatTime";
+import { formatTimeOnly } from "@/src/utils/formater/formatTime";
 
 import { useTheme } from "@/src/context/ThemeContext";
 import { darkColors, lightColors } from "@/src/theme/colors";
@@ -19,7 +19,7 @@ import AiIcon from "@/assets/messageMetaIcons/ai-icon.svg";
 import BroadcastIcon from "@/assets/messageMetaIcons/broadcast-icon.svg";
 import TemplateIcon from "@/assets/messageMetaIcons/template.svg";
 
-import { MESSAGE_TAGS } from "@/src/utiles/enums/messageTags";
+import { MESSAGE_TAGS } from "@/src/utils/enums/messageTags";
 
 interface Props {
   message: Message;
