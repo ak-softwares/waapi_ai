@@ -5,7 +5,7 @@ import { Chat, ChatType } from "@/src/types/Chat";
 import { getCountryName } from "@/src/utils/formater/country";
 import { formatInternationalPhoneNumber } from "@/src/utils/formater/formatPhone";
 import { getCountryCallingCode } from "libphonenumber-js";
-import { Ban, Phone } from "lucide-react-native";
+import { Phone, User } from "lucide-react-native";
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
@@ -73,7 +73,7 @@ export default function MessageContactInfoCard({ chat, onCall, onProfile }: Prop
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.callButton} onPress={onProfile}>
-            <Ban size={18} color={colors.primary} />
+            <User size={18} color={colors.primary} />
             <Text style={styles.profileText}>Profile</Text>
           </TouchableOpacity>
         </View>

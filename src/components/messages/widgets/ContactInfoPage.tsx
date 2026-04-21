@@ -3,14 +3,16 @@ import { useTheme } from "@/src/context/ThemeContext";
 import { darkColors, lightColors } from "@/src/theme/colors";
 import { Chat, ChatType } from "@/src/types/Chat";
 import { formatInternationalPhoneNumber } from "@/src/utils/formater/formatPhone";
-import { Edit2, Image as ImageIcon, Star, Trash2 } from "lucide-react-native";
+import * as Clipboard from "expo-clipboard";
+import { Copy, Edit2, Image as ImageIcon, Star, Trash2 } from "lucide-react-native";
 import React from "react";
 import {
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 
 type Props = {
@@ -48,6 +50,12 @@ export default function ContactInfoPage({
     onEditBroadcast?.();
   };
   
+  const handleCopy = async () => {
+    if (!phoneNumber) return;
+
+    await Clipboard.setStringAsync(String(phoneNumber));
+  };
+
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
       <View style={styles.profileSection}>
@@ -59,8 +67,18 @@ export default function ContactInfoPage({
         />
 
         <Text style={styles.name}>{displayName}</Text>
-        {!!phoneNumber && <Text style={styles.phone}>{formatInternationalPhoneNumber(String(phoneNumber)).international}</Text>}
-      </View>
+          {!!phoneNumber && (
+            <View style={styles.phoneRow}>
+              <Text style={styles.phone}>
+                {formatInternationalPhoneNumber(String(phoneNumber)).international}
+              </Text>
+
+              <Pressable onPress={handleCopy} style={styles.copyBtn}>
+                <Copy size={16} color={colors.primary} />
+              </Pressable>
+            </View>
+          )}      
+        </View>
 
       <View style={styles.sectionCard}>
         <Text style={styles.sectionTitle}>About</Text>
@@ -159,6 +177,16 @@ const getStyles = (colors: typeof lightColors) =>
       fontSize: 24,
       fontWeight: "700",
       color: colors.text,
+    },
+    phoneRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 8,
+      marginTop: 4,
+    },
+
+    copyBtn: {
+      padding: 4,
     },
     emptyParticipantsText: {
       color: colors.mutedText,

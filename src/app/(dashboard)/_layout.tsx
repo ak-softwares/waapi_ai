@@ -1,11 +1,14 @@
 import { FacebookConnectionProvider } from "@/src/context/FacebookConnectionContext";
 import { useTheme } from "@/src/context/ThemeContext";
+import { useInAppUpdates } from "@/src/hooks/updates/useInAppUpdates";
 import { darkColors, lightColors } from "@/src/theme/colors";
 import { Stack } from "expo-router";
 
 export default function DashboardLayout() {
   const { theme } = useTheme();
   const colors = theme === "dark" ? darkColors : lightColors;
+  useInAppUpdates();
+
   return (
     <FacebookConnectionProvider>
       <Stack
@@ -26,8 +29,8 @@ export default function DashboardLayout() {
         }}
       >
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="messages/messages" options={{ headerShown: false }} />
-        <Stack.Screen name="contacts/contacts" options={{ title: "Contacts" }} />
+        <Stack.Screen name="messages/messages" />
+        <Stack.Screen name="contacts/contacts" />
         <Stack.Screen name="ai/aiAssistant" />
       </Stack>
     </FacebookConnectionProvider>

@@ -1,10 +1,10 @@
 import React from "react";
 import {
-    Linking,
-    Pressable,
-    StyleSheet,
-    Text,
-    View
+  Linking,
+  Pressable,
+  StyleSheet,
+  Text,
+  View
 } from "react-native";
 
 import * as Clipboard from "expo-clipboard";
@@ -14,10 +14,10 @@ import { darkColors, lightColors } from "@/src/theme/colors";
 
 import { Template } from "@/src/types/Template";
 import {
-    TemplateButtonType,
-    TemplateCategory,
-    TemplateComponentType,
-    TemplateHeaderType,
+  TemplateButtonType,
+  TemplateCategory,
+  TemplateComponentType,
+  TemplateHeaderType,
 } from "@/src/utils/enums/template";
 
 import { Message } from "@/src/types/Messages";
@@ -60,7 +60,6 @@ export default function TemplateMessage({ message, template }: Props) {
   const styles = getStyles(colors);
 
   if (!template?.components) return null;
-
   return (
     <View style={styles.container}>
       {/* HEADER */}

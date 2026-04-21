@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 import {
-    ActivityIndicator,
-    Image,
-    Pressable,
-    StyleSheet,
-    Text,
-    View,
+  ActivityIndicator,
+  Image,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
 } from "react-native";
 
 import { Video } from "expo-av";
@@ -44,19 +44,26 @@ export default function MediaRenderer({
   const [error, setError] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
 
+  const isUrl = (value: string) => {
+    return value.startsWith("http://") || value.startsWith("https://");
+  };
+  
   /* LOAD MEDIA IF ONLY ID IS GIVEN */
-
   useEffect(() => {
     if (initialUrl) return;
     if (!mediaId) return;
 
     let mounted = true;
+    let url: string;
 
     const load = async () => {
       try {
         setLoading(true);
-
-        const url = await fetchMedia(mediaId);
+        if (isUrl(mediaId)) {
+          url = mediaId;
+        } else {
+          url = await fetchMedia(mediaId);
+        }
 
         if (mounted) setMediaUrl(url);
       } catch {
