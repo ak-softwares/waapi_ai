@@ -1,3 +1,4 @@
+import YoutubeSection from "@/src/components/common/video/YoutubeSection";
 import PhoneNumberCard from "@/src/components/setup/PhoneNumberCard";
 import { useTheme } from "@/src/context/ThemeContext";
 import { useDeleteWabaAccount } from "@/src/hooks/setup/useDeleteWabaAccount";
@@ -228,6 +229,22 @@ export default function WhatsAppSetupScreen() {
             </View>
           </View>
         )}
+
+        {/* ── Video Section ── */}
+        <YoutubeSection
+          videoId="Vmm4yY9enqA"
+          title="▶ WhatsApp API Integration"
+          subtitle="Connect & start messaging"
+          autoplay
+          colors={colors}
+        />
+        <YoutubeSection
+          videoId="RMmwtAdY2VE"
+          title="▶ Send Bulk Message"
+          subtitle="Send messages to thousands"
+          autoplay
+          colors={colors}
+        />
       </ScrollView>
 
       <Modal visible={openVerifyPhoneDialog} transparent animationType="fade" onRequestClose={() => setOpenVerifyPhoneDialog(false)}>

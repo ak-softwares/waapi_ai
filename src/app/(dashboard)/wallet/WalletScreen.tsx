@@ -1,5 +1,5 @@
 import { Stack, router } from "expo-router";
-import { CircleAlert, Coins, Gift, RefreshCw, Wallet, Zap } from "lucide-react-native";
+import { CircleAlert, RefreshCw, Wallet, Zap } from "lucide-react-native";
 import React from "react";
 import {
   ActivityIndicator,
@@ -118,7 +118,7 @@ export default function WalletScreen() {
               </View>
             </View>
 
-            <View style={styles.earnCard}>
+            {/* <View style={styles.earnCard}>
               <View style={styles.titleWrap}>
                 <Gift size={16} color={colors.primary} />
                 <Text style={styles.cardTitle}>Earn Credits</Text>
@@ -128,7 +128,7 @@ export default function WalletScreen() {
                 <Coins size={14} color={colors.primary} />
                 <Text style={styles.refreshText}>Earn credit by watching ads</Text>
               </Pressable>
-            </View>
+            </View> */}
 
             {error ? (
               <View style={styles.errorBox}>

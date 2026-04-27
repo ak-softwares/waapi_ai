@@ -1,3 +1,4 @@
+import WhatsAppSupportWidget from "@/src/components/auth/WhatsAppSupportWidget";
 import { useAuth } from "@/src/context/AuthContext";
 import { useTheme } from "@/src/context/ThemeContext";
 import { signInSchema } from "@/src/schemas/signInSchema";
@@ -148,7 +149,7 @@ export default function SignInScreen() {
       </TouchableOpacity>
 
       <Text style={styles.alignCenter}>
-        Don't have an account?{" "}
+        Don’t have an account?{" "}
         <Text
           style={styles.link}
           onPress={() => router.push("/(auth)/signup")}
@@ -157,6 +158,8 @@ export default function SignInScreen() {
         </Text>
       </Text>
 
+      <WhatsAppSupportWidget colors={colors} compact />
+    
     </View>
   );
 }

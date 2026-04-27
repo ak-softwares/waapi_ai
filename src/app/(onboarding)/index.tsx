@@ -1,4 +1,5 @@
 import FloatingButton from "@/src/components/common/FloatingButton";
+import YoutubeSection from "@/src/components/common/video/YoutubeSection";
 import { useOnboarding } from "@/src/context/OnboardingContext";
 import { useTheme } from "@/src/context/ThemeContext";
 import { darkColors, lightColors } from "@/src/theme/colors";
@@ -13,7 +14,6 @@ import {
   View
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import YoutubePlayer from "react-native-youtube-iframe";
 
 const { width } = Dimensions.get("window");
 
@@ -165,24 +165,13 @@ export default function OnboardingScreenTwo() {
           </View>
 
           {/* ── Video Section ── */}
-          <View style={styles.videoSection}>
-            <View style={styles.videoLabelRow}>
-              <View style={styles.videoTag}>
-                <Text style={styles.videoTagText}>▶ Integration Guide</Text>
-              </View>
-              <Text style={styles.videoSubtitle}>
-                Send bulk messages easily
-              </Text>
-            </View>
-
-            <View style={styles.videoWrapper}>
-              <YoutubePlayer
-                height={220}
-                play={true}
-                videoId={"Vmm4yY9enqA"}
-              />
-            </View>
-          </View>
+          <YoutubeSection
+            videoId="Vmm4yY9enqA"
+            title="▶ WhatsApp API Integration"
+            subtitle="Connect & start messaging"
+            autoplay
+            colors={colors}
+          />
 
           {/* ── Trust Strip ── */}
           <View style={styles.trustStrip}>
@@ -229,19 +218,19 @@ const getStyles = (colors: typeof lightColors, isDark: boolean) =>
     logoPill: {
       flexDirection: "row",
       alignItems: "center",
-      backgroundColor: "#25D36615",
+      backgroundColor: colors.surface,
       borderRadius: 999,
       paddingVertical: 6,
       paddingHorizontal: 12,
       borderWidth: 1,
-      borderColor: "#25D36630",
+      borderColor: colors.border,
       gap: 6,
     },
     logoEmoji: {
       fontSize: 14,
     },
     logoLabel: {
-      color: "#25D366",
+      color: colors.text,
       fontSize: 13,
       fontWeight: "700",
       letterSpacing: 0.4,
@@ -275,15 +264,15 @@ const getStyles = (colors: typeof lightColors, isDark: boolean) =>
       gap: 2,
     },
     statCardMid: {
-      borderColor: "#25D36640",
-      backgroundColor: "#25D36610",
+      borderColor: colors.border,
+      backgroundColor: colors.surface,
     },
     statNum: {
       color: colors.text,
       fontSize: 18,
       fontWeight: "800",
     },
-    statNumGreen: { color: "#25D366" },
+    statNumGreen: { color: colors.text },
     statLabel: {
       color: colors.mutedText,
       fontSize: 10,
@@ -413,6 +402,6 @@ const getStyles = (colors: typeof lightColors, isDark: boolean) =>
     },
     dotActive: {
       width: 20,
-      backgroundColor: "#25D366",
+      backgroundColor: colors.primary,
     },
   });

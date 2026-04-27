@@ -11,7 +11,7 @@ import { useTheme } from "@/src/context/ThemeContext";
 import { useMessages } from "@/src/hooks/messages/useMessages";
 import { darkColors, lightColors } from "@/src/theme/colors";
 import { Message, MessagePayload, MessageType } from "@/src/types/Messages";
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useMemo, useRef, useState } from "react";
 import {
   FlatList,
   ImageBackground,
@@ -42,7 +42,6 @@ import Reply from "@/assets/menuIcons/reply.svg";
 import AttachmentSheet from "@/src/components/messages/widgets/AttachmentSheet";
 import MessageBubbleShimmer from "@/src/components/messages/widgets/MessageBubbleShimmer";
 import MessageContactInfoCard from "@/src/components/messages/widgets/MessageContactInfoCard";
-import { useDailyMessageOpenAd } from "@/src/hooks/ads/useDailyMessageOpenAd";
 import { useSendMessage } from "@/src/hooks/messages/useSendMessage";
 import { MediaSourceType } from "@/src/utils/enums/mediaTypes";
 import { formatInternationalPhoneNumber } from "@/src/utils/formater/formatPhone";
@@ -86,12 +85,13 @@ export default function MessageScreen() {
     () => ({ opened: bottom }),
     [bottom],
   );
-  const { maybeShowAd } = useDailyMessageOpenAd();
+  
+  // const { maybeShowAd } = useDailyMessageOpenAd();
 
-  useEffect(() => {
-    if (!chatId) return;
-    maybeShowAd();
-  }, [chatId, maybeShowAd]);
+  // useEffect(() => {
+  //   if (!chatId) return;
+  //   maybeShowAd();
+  // }, [chatId, maybeShowAd]);
 
   const ChatScrollView = React.forwardRef((props: any, ref: any) => {
     const { bottom } = useSafeAreaInsets();
