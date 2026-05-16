@@ -8,13 +8,12 @@ import { router } from "expo-router";
 
 import {
   BarChart3,
+  CreditCard,
   Headphones,
   LogOut,
   MessageCircleMore,
   Settings,
-  User,
-  Wallet,
-  Youtube
+  User
 } from "lucide-react-native";
 import { useState } from "react";
 import {
@@ -65,18 +64,18 @@ export default function SettingsScreen() {
           subtitle="Messaging and AI performance"
           onPress={() => router.push("/(dashboard)/analytics/AnalyticsScreen")}
         />
-        <SettingsTile
+        {/* <SettingsTile
           icon={<Wallet size={22} color={colors.primary} />}
           title="Wallet"
           subtitle="Credits, quota and balance"
           onPress={() => router.push("/(dashboard)/wallet/WalletScreen")}
-        />    
+        /> */}
         <SettingsTile
-          icon={<Youtube size={22} color={colors.primary} />}
-          title="YouTube Channel"
-          subtitle="Watch app usage guides"
-          onPress={handleYouTube}
-        />
+          icon={<CreditCard size={22} color={colors.primary} />}
+          title="Manage Subscription"
+          subtitle="Upgrade plans and view payment history"
+          onPress={() => router.push("/(dashboard)/subscriptions/ManageSubscriptionScreen")}
+        /> 
         <SettingsTile
           icon={<Settings size={22} color={colors.primary} />}
           title="Settings"

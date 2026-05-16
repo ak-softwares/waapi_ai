@@ -85,7 +85,7 @@ export default function LoginScreen() {
       </TouchableOpacity>
 
       {/* Google Login */}
-      <TouchableOpacity
+      {/* <TouchableOpacity
         style={[styles.button, styles.outlineButton]}
         onPress={onGoogleSignIn}
       >
@@ -93,7 +93,7 @@ export default function LoginScreen() {
         <Text style={[styles.outlineText, { marginLeft: 10 }]}>
           Continue with Google
         </Text>
-      </TouchableOpacity>
+      </TouchableOpacity> */}
 
       <Text style={styles.footerText}>
         Don’t have an account?{" "}

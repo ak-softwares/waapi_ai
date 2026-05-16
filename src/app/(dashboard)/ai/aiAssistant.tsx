@@ -33,6 +33,8 @@ export default function AIAssistantScreen() {
     await updateAiAssistant({
       prompt: aiAssistant.prompt,
       isActive: aiAssistant.isActive,
+      messageLimit: aiAssistant.messageLimit ?? 20,
+      limitWindowInHours: aiAssistant.limitWindowInHours ?? 1,
     });
   };
 
@@ -96,6 +98,47 @@ export default function AIAssistantScreen() {
             </TouchableOpacity>
           }
         />
+
+        {/* Reply Limit Section */}
+        <View style={styles.promptContainer}>
+          <Text style={styles.label}>Reply Limit (per hour)</Text>
+
+          <TextInput
+            keyboardType="number-pad"
+            value={String(aiAssistant.messageLimit ?? 20)}
+            onChangeText={(text) => {
+              const parsed = Number.parseInt(text || "20", 10);
+              setAiAssistant((prev) => ({
+                ...prev,
+                messageLimit: Number.isNaN(parsed) ? 20 : Math.max(1, parsed),
+              }));
+            }}
+            placeholder="20"
+            placeholderTextColor={colors.mutedText}
+            style={styles.limitInput}
+          />
+
+          <Text style={styles.counter}>
+            Default is 20 replies in a 1-hour span.
+          </Text>
+
+          <Text style={[styles.label, { marginTop: 10 }]}>Limit Window (hours)</Text>
+          <TextInput
+            keyboardType="number-pad"
+            value={String(aiAssistant.limitWindowInHours ?? 1)}
+            onChangeText={(text) => {
+              const parsed = Number.parseInt(text || "1", 10);
+              setAiAssistant((prev) => ({
+                ...prev,
+                limitWindowInHours: Number.isNaN(parsed) ? 1 : Math.max(1, parsed),
+              }));
+            }}
+            placeholder="1"
+            placeholderTextColor={colors.mutedText}
+            style={styles.limitInput}
+          />
+        </View>
+
         {/* Prompt Section */}
         <View style={styles.promptContainer}>
           <Text style={styles.label}>System Prompt</Text>
@@ -196,6 +239,16 @@ const getStyles = (colors: typeof lightColors) =>
       justifyContent: "space-between",
       alignItems: "center",
       marginTop: 10,
+    },
+    limitInput: {
+      borderRadius: 10,
+      borderWidth: 1,
+      borderColor: colors.border,
+      padding: 12,
+      color: colors.text,
+      backgroundColor: colors.background,
+      fontSize: 14,
+      marginBottom: 8,
     },
 
     counter: {

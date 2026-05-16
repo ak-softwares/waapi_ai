@@ -4,14 +4,14 @@ import { LogOut, MoreVertical } from "lucide-react-native";
 import React, { useEffect, useLayoutEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import {
-    ActivityIndicator,
-    RefreshControl,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View
+  ActivityIndicator,
+  RefreshControl,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
 } from "react-native";
 import { z } from "zod";
 
@@ -185,9 +185,10 @@ export default function ProfileScreen() {
           name="phone"
           render={({ field: { onChange, value } }) => (
             <AppPhoneInput
-              key={profile?._id ?? "phone"}   // ✅ stable key
-              value={value ?? ""}   // ✅ safe fallback
+              key={profile?._id ?? "phone"}
+              value={value ?? ""}
               onChange={(val: string) => onChange(val ?? "")}
+              stopCountryCode={false}
             />
           )}
         />

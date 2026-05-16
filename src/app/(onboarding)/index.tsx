@@ -6,7 +6,6 @@ import { darkColors, lightColors } from "@/src/theme/colors";
 import { router } from "expo-router";
 import React, { useState } from "react";
 import {
-  Dimensions,
   ScrollView,
   StyleSheet,
   Text,
@@ -14,8 +13,6 @@ import {
   View
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-
-const { width } = Dimensions.get("window");
 
 const BULK_FEATURES = [
   {
@@ -31,47 +28,18 @@ const BULK_FEATURES = [
     accent: "#25D366",
   },
   {
-    icon: "⚡",
-    label: "Smart Campaigns",
-    desc: "Run targeted campaigns with ease.",
+    icon: "🌍",
+    label: "75+ Countries",
+    desc: "Trusted by businesses across 75+ countries.",
     accent: "#FF9500",
   },
   {
-    icon: "📊",
-    label: "Analytics & Tracking",
-    desc: "Track delivery and performance in real time.",
+    icon: "🤝",
+    label: "5,000+ Customers",
+    desc: "Over 5K happy businesses rely on us every day.",
     accent: "#AF52DE",
   },
 ];
-
-const YOUTUBE_HTML = (videoId: string) => `
-<!DOCTYPE html>
-<html>
-  <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-      * { margin: 0; padding: 0; box-sizing: border-box; }
-      body { background: #000; }
-      iframe {
-        position: absolute;
-        top: 0; left: 0;
-        width: 100%; height: 100%;
-        border: none;
-      }
-      .wrap { position: relative; width: 100%; padding-bottom: 56.25%; height: 0; }
-    </style>
-  </head>
-  <body>
-    <div class="wrap">
-      <iframe
-        src="https://www.youtube.com/embed/${videoId}?playsinline=1&autoplay=1&mute=1&controls=1&rel=0&modestbranding=1"
-        allow="autoplay; encrypted-media"
-        allowfullscreen
-      ></iframe>
-    </div>
-  </body>
-</html>
-`;
 
 export default function OnboardingScreenTwo() {
   const { theme } = useTheme();
@@ -112,6 +80,19 @@ export default function OnboardingScreenTwo() {
             >
               <Text style={styles.skipText}>Skip</Text>
             </TouchableOpacity>
+          </View>
+
+          {/* ── Official Partner Badge ── */}
+          <View style={styles.partnerBadge}>
+            <View style={styles.partnerBadgeInner}>
+              <View style={styles.partnerIconRow}>
+                <Text style={styles.partnerIcon}>🏅</Text>
+                <Text style={styles.partnerTitle}>Official Business Partner</Text>
+              </View>
+              <Text style={styles.partnerSub}>
+                Meta & WhatsApp Certified · BSP Verified
+              </Text>
+            </View>
           </View>
 
           {/* ── Hero Block ── */}
@@ -291,6 +272,40 @@ const getStyles = (colors: typeof lightColors, isDark: boolean) =>
       fontSize: 14,
       lineHeight: 20,
       marginTop: -8,
+    },
+    /* ── Partner Badge ── */
+    partnerBadge: {
+      marginBottom: 18,
+      borderRadius: 14,
+      overflow: "hidden",
+      borderWidth: 1,
+      borderColor: "#25D36640",
+      backgroundColor: isDark ? "#25D36610" : "#25D36608",
+    },
+    partnerBadgeInner: {
+      paddingVertical: 12,
+      paddingHorizontal: 14,
+      gap: 4,
+    },
+    partnerIconRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 8,
+    },
+    partnerIcon: {
+      fontSize: 18,
+    },
+    partnerTitle: {
+      color: "#25D366",
+      fontSize: 14,
+      fontWeight: "800",
+      letterSpacing: 0.2,
+    },
+    partnerSub: {
+      color: colors.mutedText,
+      fontSize: 12,
+      fontWeight: "500",
+      marginLeft: 26,
     },
     /* Feature Grid */
     featureGrid: {

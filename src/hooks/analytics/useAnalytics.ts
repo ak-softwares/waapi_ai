@@ -20,7 +20,6 @@ export function useAnalytics() {
         setData(null);
       }
     } catch (error) {
-      console.log("Failed to load analytics", error);
       setData(null);
     } finally {
       setLoading(false);

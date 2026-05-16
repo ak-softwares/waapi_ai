@@ -7,6 +7,8 @@ export function useAiAssistant() {
   const [aiAssistant, setAiAssistant] = useState<AIAssistant>({
     prompt: "",
     isActive: false,
+    messageLimit: 20,
+    limitWindowInHours: 1,
   });
 
   const [loading, setLoading] = useState(false);
@@ -26,7 +28,7 @@ export function useAiAssistant() {
       const json = res.data;
 
       if (json?.success) {
-        const data = json.data ?? { prompt: "", isActive: false };
+        const data = json.data ?? { prompt: "", isActive: false, messageLimit: 20, limitWindowInHours: 1 };
         setAiAssistant(data);
         return data;
       } else {

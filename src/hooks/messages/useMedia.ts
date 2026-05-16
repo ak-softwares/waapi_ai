@@ -1,17 +1,17 @@
 // hooks/useMedia.ts
 
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as FileSystem from "expo-file-system/legacy";
+import * as MediaLibrary from "expo-media-library";
 import { useCallback, useState } from "react";
 
 import { api } from "@/src/lib/api/apiClient";
-import { showToast } from "@/src/utils/toastHelper/toast";
-
 import {
-    MEDIA_EXTENSIONS,
-    MEDIA_MIME_TYPES,
-    MediaType,
+  MEDIA_EXTENSIONS,
+  MEDIA_MIME_TYPES,
+  MediaType,
 } from "@/src/utils/enums/mediaTypes";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { showToast } from "@/src/utils/toastHelper/toast";
 
 /* ------------------------------------------------
    HOOK
@@ -20,6 +20,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 export function useMedia() {
   const [uploading, setUploading] = useState(false);
   const [loadingMedia, setLoadingMedia] = useState(false);
+  const [downloading, setDownloading] = useState(false);
 
   /* ------------------------------------------------
      VALIDATE MEDIA
@@ -50,9 +51,7 @@ export function useMedia() {
       }
 
       if (ext && !MEDIA_EXTENSIONS[format].includes(ext)) {
-        return `${format} must be one of: ${MEDIA_EXTENSIONS[format].join(
-          ", "
-        )}`;
+        return `${format} must be one of: ${MEDIA_EXTENSIONS[format].join(", ")}`;
       }
 
       return null;
@@ -81,9 +80,7 @@ export function useMedia() {
       } as any);
 
       const res = await api.post("/wa-accounts/media", form, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
+        headers: { "Content-Type": "multipart/form-data" },
       });
 
       const json = res.data;
@@ -98,7 +95,6 @@ export function useMedia() {
         type: "error",
         message: err?.message || "Media upload failed",
       });
-
       throw err;
     } finally {
       setUploading(false);
@@ -109,17 +105,19 @@ export function useMedia() {
      FETCH MEDIA (WITH CACHE)
   ------------------------------------------------ */
 
-  const fetchMedia = useCallback(async (mediaId: string) => {
+  const fetchMedia = useCallback(async (mediaId: string, fileName?: string) => {
     setLoadingMedia(true);
 
     try {
       const token = await AsyncStorage.getItem("token");
 
-      const fileUri = `${FileSystem.cacheDirectory}${mediaId}`;
+      // Use fileName in cache key so the file has the right extension
+      // e.g. cacheDir/abc123_invoice.pdf  — avoids serving wrong mime type
+      const cacheKey = fileName ? `${mediaId}_${fileName}` : mediaId;
+      const fileUri = `${FileSystem.cacheDirectory}${cacheKey}`;
 
-      // check cache
+      // Return from cache if already downloaded
       const fileInfo = await FileSystem.getInfoAsync(fileUri);
-
       if (fileInfo.exists) {
         return fileUri;
       }
@@ -132,27 +130,77 @@ export function useMedia() {
         },
       });
 
+      // Verify the file actually has content
+      const resultInfo = await FileSystem.getInfoAsync(result.uri);
+      if (!resultInfo.exists || resultInfo.size === 0) {
+        throw new Error("Downloaded file is empty");
+      }
+
       return result.uri;
     } catch (err: any) {
-      console.error("Media download error:", err);
-
+      console.error("Media fetch error:", err);
       showToast({
         type: "error",
         message: "Failed to load media",
       });
-
       throw err;
     } finally {
       setLoadingMedia(false);
     }
   }, []);
 
+  /* ------------------------------------------------
+     DOWNLOAD MEDIA TO DEVICE
+  ------------------------------------------------ */
+
+  const downloadMedia = useCallback(
+    async (mediaId?: string, fileName?: string) => {
+      if (!mediaId) {
+        showToast({ type: "error", message: "Media not found" });
+        return;
+      }
+
+      setDownloading(true);
+
+      try {
+        // 1. Request device storage permission
+        const { status } = await MediaLibrary.requestPermissionsAsync();
+        if (status !== "granted") {
+          showToast({ type: "error", message: "Storage permission denied" });
+          return;
+        }
+
+        // 2. Resolve a clean filename — strip query params if URL was passed
+        const resolvedName =
+          fileName ||
+          `media_${mediaId}_${Date.now()}`;
+
+        // 3. Fetch (uses cache if already downloaded before)
+        const cachedUri = await fetchMedia(mediaId, resolvedName);
+
+        // 4. Save cached file to device gallery / files
+        await MediaLibrary.createAssetAsync(cachedUri);
+
+        showToast({ type: "success", message: "Saved to gallery" });
+      } catch (err: any) {
+        showToast({
+          type: "error",
+          message: err?.message || "Failed to download file",
+        });
+      } finally {
+        setDownloading(false);
+      }
+    },
+    [fetchMedia]
+  );
 
   return {
     uploading,
     loadingMedia,
+    downloading,
     validateMedia,
     uploadMedia,
     fetchMedia,
+    downloadMedia,
   };
 }

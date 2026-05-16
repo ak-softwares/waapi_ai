@@ -11,6 +11,7 @@ import { useTheme } from "@/src/context/ThemeContext";
 import { useMessages } from "@/src/hooks/messages/useMessages";
 import { darkColors, lightColors } from "@/src/theme/colors";
 import { Message, MessagePayload, MessageType } from "@/src/types/Messages";
+import * as Clipboard from "expo-clipboard";
 import React, { useCallback, useMemo, useRef, useState } from "react";
 import {
   FlatList,
@@ -24,10 +25,7 @@ import {
   TouchableOpacity,
   View
 } from "react-native";
-import {
-  SafeAreaView,
-} from "react-native-safe-area-context";
-
+import { SafeAreaView } from "react-native-safe-area-context";
 
 import UserAvatar from "@/src/components/common/user/UserAvatar";
 import { ChatType } from "@/src/types/Chat";
@@ -36,18 +34,26 @@ import { ArrowLeft, MoreVertical, Search, Trash2, X } from "lucide-react-native"
 
 import Copy from "@/assets/menuIcons/copy.svg";
 import Delete from "@/assets/menuIcons/delete.svg";
+import Download from "@/assets/menuIcons/download.svg";
 import Forward from "@/assets/menuIcons/forward.svg";
 import Info from "@/assets/menuIcons/info.svg";
 import Reply from "@/assets/menuIcons/reply.svg";
+import ConfirmSheet from "@/src/components/common/ConfirmSheet";
 import AttachmentSheet from "@/src/components/messages/widgets/AttachmentSheet";
 import MessageBubbleShimmer from "@/src/components/messages/widgets/MessageBubbleShimmer";
 import MessageContactInfoCard from "@/src/components/messages/widgets/MessageContactInfoCard";
+import MessageInfoDialog from "@/src/components/messages/widgets/MessageInfoDialog";
+import { useDeleteMessages } from "@/src/hooks/messages/useDeleteMessages";
+import { useMedia } from "@/src/hooks/messages/useMedia";
 import { useSendMessage } from "@/src/hooks/messages/useSendMessage";
 import { MediaSourceType } from "@/src/utils/enums/mediaTypes";
+import { TemplateComponentType } from "@/src/utils/enums/template";
 import { formatInternationalPhoneNumber } from "@/src/utils/formater/formatPhone";
+import { showToast } from "@/src/utils/toastHelper/toast";
 import { KeyboardChatScrollView, KeyboardGestureArea, KeyboardStickyView } from "react-native-keyboard-controller";
 import { useSharedValue, withTiming } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+
 
 const WHATSAPP_BG = require("@/assets/whatsapp/message-bg.png");
 
@@ -78,20 +84,25 @@ export default function MessageScreen() {
   const [isSelectionMode, setIsSelectionMode] = useState(false);
   const [showAttachmentOptions, setShowAttachmentOptions] = useState(false);
 
+  // ─── Delete confirmation state ────────────────────────────────────────────
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  // Holds the IDs that are waiting for the user to confirm deletion
+  const pendingDeleteIdsRef = useRef<string[]>([]);
+
   const extraContentPadding = useSharedValue(0);
   const { bottom } = useSafeAreaInsets();
+
+  // No onDeleted callback needed here — we handle UI update optimistically
+  const { deleteMessage, deleteMessagesBulk, isDeleting } = useDeleteMessages();
+
+  const { downloadMedia, downloading } = useMedia();
+
+  const [showMessageInfo, setShowMessageInfo] = useState(false);
 
   const stickyViewOffset = useMemo(
     () => ({ opened: bottom }),
     [bottom],
   );
-  
-  // const { maybeShowAd } = useDailyMessageOpenAd();
-
-  // useEffect(() => {
-  //   if (!chatId) return;
-  //   maybeShowAd();
-  // }, [chatId, maybeShowAd]);
 
   const ChatScrollView = React.forwardRef((props: any, ref: any) => {
     const { bottom } = useSafeAreaInsets();
@@ -118,6 +129,38 @@ export default function MessageScreen() {
     []
   );
 
+  const getMessageTextForCopy = (selectedMessage: Message) => {
+    if (selectedMessage?.type === MessageType.TEMPLATE || selectedMessage?.template) {
+      const bodyComponent = selectedMessage.template?.components?.find(
+        (component) => component.type === TemplateComponentType.BODY
+      );
+
+      return bodyComponent && "text" in bodyComponent
+        ? bodyComponent.text?.trim() ?? ""
+        : "";
+    }
+
+    return selectedMessage.message?.trim() ?? "";
+  };
+
+  const handleCopySelected = async () => {
+    if (selectedMessages.length !== 1) {
+      showToast({ type: "error", message: "Select exactly one message to copy." });
+      return;
+    }
+
+    const textToCopy = getMessageTextForCopy(selectedMessages[0]);
+
+    if (!textToCopy) {
+      showToast({ type: "error", message: "Nothing to copy from selected message." });
+      return;
+    }
+
+    await Clipboard.setStringAsync(textToCopy);
+    showToast({ type: "success", message: "Message copied" });
+    clearSelection();
+  };
+
   const onInputLayout = useCallback((e: LayoutChangeEvent) => {
     extraContentPadding.value = withTiming(
       Math.max(e.nativeEvent.layout.height - 42, 0),
@@ -126,6 +169,20 @@ export default function MessageScreen() {
   }, []);
 
   const selectedIds = new Set(selectedMessages.map(m => m._id));
+
+  const isSingleMediaSelected =
+    selectedMessages.length === 1 &&
+    (!!selectedMessages[0]?.media || selectedMessages[0]?.type === MessageType.MEDIA);
+
+  // ─── Download selected media to device gallery ─────────────────────────────
+  const handleDownloadMedia = async () => {
+    const selectedMessage = selectedMessages[0];
+    const mediaId = selectedMessage?.media?.id ?? "";
+    const fileName = selectedMessage?.media?.filename;
+    await downloadMedia(mediaId, fileName);
+
+    clearSelection();
+  };
 
   const toggleMessageSelection = (msg: Message) => {
     setSelectedMessages((prev) =>
@@ -140,10 +197,43 @@ export default function MessageScreen() {
     setIsSelectionMode(false);
   };
 
+  // ─── Step 1: User taps delete → store IDs and show confirmation ───────────
   const handleDeleteSelected = () => {
-    const ids = selectedMessages.map(m => m._id);
-    console.log("Delete messages:", ids);
+  const ids = selectedMessages
+    .map((m) => m._id)
+    .filter((id): id is string => Boolean(id));
+
+  if (!ids.length) return;
+
+    pendingDeleteIdsRef.current = ids;
+    setShowDeleteConfirm(true);
+  };
+
+  // ─── Step 2: User confirms → remove from UI immediately, fire API in BG ───
+  const handleConfirmDelete = () => {
+    const ids = pendingDeleteIdsRef.current;
+    if (!ids.length) return;
+
+    // Close sheet & clear selection instantly — UI feels snappy
+    setShowDeleteConfirm(false);
+    setMessages((prev) =>
+      prev.filter((msg) => !msg._id || !ids.includes(msg._id))
+    );
     clearSelection();
+
+    // Fire-and-forget: run API call in background, no await
+    if (ids.length === 1) {
+      deleteMessage(ids[0]);
+    } else {
+      deleteMessagesBulk(ids);
+    }
+
+    pendingDeleteIdsRef.current = [];
+  };
+
+  const handleCancelDelete = () => {
+    setShowDeleteConfirm(false);
+    pendingDeleteIdsRef.current = [];
   };
 
   const sendMessageHandler = () => {
@@ -156,7 +246,6 @@ export default function MessageScreen() {
         chatId: chat?._id
       };
 
-      // Only add context if messageContext exists
       if (messageContext) {
         messagePayload.context = {
           id: messageContext.waMessageId!,
@@ -165,57 +254,65 @@ export default function MessageScreen() {
         };
       }
 
-      sendMessage({ messagePayload });      
+      sendMessage({ messagePayload });
       setMessage("");
       setMessageContext(null);
     }
   };
 
-  const toggleAttachment = () => {
-    if (showAttachmentOptions) {
-      setShowAttachmentOptions(false);
-    } else {
-      setShowAttachmentOptions(true);
-    }
-  };
+  const openMediaViewer = (item: Message) => {
+    if (item.type !== MessageType.MEDIA) return;
 
-  const handleOpenContactInfo = () => { 
-    if (!chat) return; 
-    router.push({ pathname: "/(dashboard)/messages/contactInfo", 
-      params: { 
-        chat: JSON.stringify(chat)
+    router.push({
+      pathname: "/(dashboard)/messages/mediaViewer",
+      params: {
+        mediaId: item.media?.id,
+        mediaType: item.media?.mediaType,
+        filename: item.media?.filename,
       },
     });
   };
 
+  const toggleAttachment = () => {
+    setShowAttachmentOptions((prev) => !prev);
+  };
+
+  const handleOpenContactInfo = () => {
+    if (!chat) return;
+    router.push({
+      pathname: "/(dashboard)/messages/contactInfo",
+      params: { chat: JSON.stringify(chat) },
+    });
+  };
+
+  const handleReplySelected = () => {
+    if (selectedMessages.length === 1) {
+      setMessageContext(selectedMessages[0]);
+      clearSelection();
+      inputRef.current?.focus();   // jump focus to the input
+    }
+  }
+
   const handleCallContact = async () => {
     const number = chat?.participants?.[0]?.number;
     if (!number) return;
-
     await Linking.openURL(`tel:${number}`);
   };
 
   const sendMediaPage = (mediaSourceType: MediaSourceType) => {
     router.push({
       pathname: "/(dashboard)/messages/sendMedia",
-      params: {
-        mediaSourceType, // ✅ just pass value
-        chatId,
-        chatData: JSON.stringify(chat),
-      },
+      params: { mediaSourceType, chatId, chatData: JSON.stringify(chat) },
     });
   };
 
   const sendTemplatePage = () => {
     router.push({
       pathname: "/(dashboard)/messages/sendTemplate",
-      params: {
-        chatId,
-        chatData: JSON.stringify(chat),
-      },
+      params: { chatId, chatData: JSON.stringify(chat) },
     });
   };
-  
+
   if (!chatId) {
     return (
       <View style={styles.center}>
@@ -227,17 +324,12 @@ export default function MessageScreen() {
   const getDateLabel = (dateString: string) => {
     const date = new Date(dateString);
     const today = new Date();
-
     const isToday = date.toDateString() === today.toDateString();
-
     const yesterday = new Date();
     yesterday.setDate(today.getDate() - 1);
-
     const isYesterday = date.toDateString() === yesterday.toDateString();
-
     if (isToday) return "Today";
     if (isYesterday) return "Yesterday";
-
     return date.toLocaleDateString();
   };
 
@@ -248,13 +340,11 @@ export default function MessageScreen() {
     ? chat.chatName || ChatType.BROADCAST
     : partner?.name || formatInternationalPhoneNumber(String(partner?.number)).international || "Unknown";
 
-  const userName =
-    isBroadcast
-      ? chat.chatName || ChatType.BROADCAST
-      : partner?.name || partner?.number || "Unknown";
+  const userName = isBroadcast
+    ? chat.chatName || ChatType.BROADCAST
+    : partner?.name || partner?.number || "Unknown";
 
-  const displayImage =
-    isBroadcast ? chat?.chatImage : partner?.imageUrl;
+  const displayImage = isBroadcast ? chat?.chatImage : partner?.imageUrl;
 
   return (
     <>
@@ -278,25 +368,21 @@ export default function MessageScreen() {
                   size={35}
                   isGroup={isBroadcast}
                 />
-
-                <Text style={styles.headerTitle}>
-                  {displayName}
-                </Text>
+                <Text style={styles.headerTitle}>{displayName}</Text>
               </TouchableOpacity>
             ),
 
           headerLeft: () => (
             <View style={{ paddingRight: 10 }}>
-              {isSelectionMode
-                ?
+              {isSelectionMode ? (
                 <TouchableOpacity onPress={clearSelection}>
                   <X size={22} color={colors.text} />
                 </TouchableOpacity>
-                :
+              ) : (
                 <TouchableOpacity onPress={() => router.back()}>
                   <ArrowLeft size={22} color={colors.text} />
                 </TouchableOpacity>
-              }
+              )}
             </View>
           ),
 
@@ -304,16 +390,16 @@ export default function MessageScreen() {
             <View>
               {isSelectionMode ? (
                 <View style={styles.selectionActionsRight}>
-                  <TouchableOpacity onPress={handleDeleteSelected}>
+                  <TouchableOpacity onPress={handleReplySelected}>
                     <Reply height={20} width={20} fill={colors.text} />
                   </TouchableOpacity>
                   <TouchableOpacity onPress={handleDeleteSelected}>
                     <Delete height={20} width={20} fill={colors.text} />
                   </TouchableOpacity>
-                  <TouchableOpacity onPress={handleDeleteSelected}>
+                  <TouchableOpacity onPress={handleCopySelected}>
                     <Copy height={20} width={20} fill={colors.text} />
                   </TouchableOpacity>
-                  <TouchableOpacity onPress={handleDeleteSelected}>
+                  <TouchableOpacity onPress={clearSelection}>
                     <Forward height={20} width={20} fill={colors.text} />
                   </TouchableOpacity>
                   <AppMenu
@@ -323,7 +409,7 @@ export default function MessageScreen() {
                         label: isBroadcast ? "Report" : "Info",
                         icon: <Info height={20} width={20} fill={colors.text} />,
                         onPress: () => {
-                          if(isBroadcast) {
+                          if (isBroadcast) {
                             router.push({
                               pathname: "/(dashboard)/broadcast/broadcastReport",
                               params: {
@@ -331,10 +417,20 @@ export default function MessageScreen() {
                                 messageId: selectedMessages[0]._id,
                               },
                             });
-                            
+                          } else {
+                            setShowMessageInfo(true);
                           }
                         },
                       },
+                      ...(isSingleMediaSelected
+                        ? [
+                            {
+                              label: "Download",
+                              icon: <Download height={20} width={20} fill={colors.text} />,
+                              onPress: handleDownloadMedia,
+                            },
+                          ]
+                        : []),
                     ]}
                   />
                 </View>
@@ -343,14 +439,13 @@ export default function MessageScreen() {
                   <TouchableOpacity>
                     <Search size={20} color={colors.text} />
                   </TouchableOpacity>
-
                   <AppMenu
                     trigger={<MoreVertical size={22} color={colors.text} />}
                     items={[
                       {
                         label: "Delete All",
                         icon: <Trash2 size={16} color={colors.error} />,
-                        onPress: () => { },
+                        onPress: () => {},
                       },
                     ]}
                   />
@@ -365,16 +460,13 @@ export default function MessageScreen() {
         <KeyboardGestureArea
           interpolator="ios"
           style={{ flex: 1 }}
-          // textInputNativeID="chat-input"
         >
           <ImageBackground
             source={WHATSAPP_BG}
             style={styles.messagesArea}
             imageStyle={styles.bgImage}
           >
-
             <FlatList
-              // ref={ref}
               data={loading ? [] : messages}
               inverted
               keyExtractor={(item) =>
@@ -385,7 +477,6 @@ export default function MessageScreen() {
               }
               ListFooterComponent={
                 <View>
-                  {/* ✅ Show ONLY when no more messages AND not loading */}
                   {!hasMore && !loadingMore && (
                     <MessageContactInfoCard
                       chat={chat}
@@ -398,7 +489,6 @@ export default function MessageScreen() {
               }
               renderItem={({ item, index }) => {
                 const prevMsg = messages[index + 1];
-
                 const showDate =
                   !prevMsg ||
                   new Date(prevMsg.createdAt ?? "").toDateString() !==
@@ -406,7 +496,6 @@ export default function MessageScreen() {
 
                 return (
                   <View>
-                    {/* DATE LABEL */}
                     {showDate && (
                       <View style={styles.dateSeparator}>
                         <Text style={styles.dateText}>
@@ -414,19 +503,25 @@ export default function MessageScreen() {
                         </Text>
                       </View>
                     )}
-
-                    {/* MESSAGE */}
                     <MessageBubble
                       chat={chat}
                       message={item}
                       isSelected={selectedIds.has(item._id)}
-                      isSelectionMode={isSelectionMode}
-                      onPress={() =>
-                        isSelectionMode ? toggleMessageSelection(item) : null
-                      }
+                      onPress={() => {
+                        if (isSelectionMode) {
+                          toggleMessageSelection(item);
+                          return;
+                        }
+
+                        openMediaViewer(item);
+                      }}
                       onLongPress={() => {
                         setIsSelectionMode(true);
                         toggleMessageSelection(item);
+                      }}
+                      onReply={(msg) => { 
+                        setMessageContext(msg);
+                        inputRef.current?.focus();
                       }}
                     />
                   </View>
@@ -449,9 +544,9 @@ export default function MessageScreen() {
                 onSend={sendMessageHandler}
                 onAttachPress={toggleAttachment}
                 onCameraPress={() => sendMediaPage(MediaSourceType.CAMERA)}
-                
+                messageContext={messageContext}
+                onClearReply={() => setMessageContext(null)}
               />
-              {/* ✅ FLOATING LAYER */}
               <AttachmentSheet
                 visible={showAttachmentOptions}
                 onClose={toggleAttachment}
@@ -480,8 +575,6 @@ export default function MessageScreen() {
                     renderIcon: () => <AudioIcon height={25} width={25} />,
                     onPress: () => sendMediaPage(MediaSourceType.AUDIO),
                   },
-
-                  // ❌ Keep these unchanged
                   {
                     key: "location",
                     label: "Location",
@@ -499,6 +592,32 @@ export default function MessageScreen() {
           </ImageBackground>
         </KeyboardGestureArea>
       </SafeAreaView>
+
+      {/* ─── Delete Confirmation Sheet ─────────────────────────────────────── */}
+      <ConfirmSheet
+        visible={showDeleteConfirm}
+        title={
+          pendingDeleteIdsRef.current.length === 1
+            ? "Delete message?"
+            : `Delete ${pendingDeleteIdsRef.current.length} messages?`
+        }
+        description="This action cannot be undone."
+        confirmText="Delete"
+        loading={false}         // never block — we delete optimistically
+        onCancel={handleCancelDelete}
+        onConfirm={handleConfirmDelete}
+        colors={colors}
+      />
+
+      <MessageInfoDialog
+        visible={showMessageInfo}
+        onClose={() => {
+          setShowMessageInfo(false);
+          clearSelection();
+        }}
+        messages={selectedMessages}
+      />
+
     </>
   );
 }
@@ -520,16 +639,14 @@ const getStyles = (colors: typeof lightColors, isDark: boolean) =>
     emojiContainer: {
       height: 300,
     },
-    messagesArea: { 
+    messagesArea: {
       flex: 1,
-      position: "relative"
+      position: "relative",
     },
-
     bgImage: {
       tintColor: isDark ? undefined : "#222",
       opacity: isDark ? 0.15 : 0.08,
     },
-
     loaderWrap: {
       position: "absolute",
       top: 10,
@@ -541,7 +658,6 @@ const getStyles = (colors: typeof lightColors, isDark: boolean) =>
       alignItems: "center",
       marginVertical: 6,
     },
-
     dateText: {
       fontSize: 12,
       paddingHorizontal: 10,
@@ -550,7 +666,7 @@ const getStyles = (colors: typeof lightColors, isDark: boolean) =>
       backgroundColor: isDark ? "#2E2F2F" : "#FFFFFF",
       color: colors.text,
       overflow: "hidden",
-      elevation: 2, // Android shadow
+      elevation: 2,
     },
     loadMoreWrap: {
       paddingVertical: 10,
@@ -560,7 +676,6 @@ const getStyles = (colors: typeof lightColors, isDark: boolean) =>
       paddingVertical: 8,
       flexGrow: 1,
     },
-    
     mediaPreviewContainer: {
       flexDirection: "row",
       alignItems: "center",
@@ -573,13 +688,11 @@ const getStyles = (colors: typeof lightColors, isDark: boolean) =>
       borderColor: colors.border,
       backgroundColor: colors.inputBackground,
     },
-
     mediaPreviewImage: {
       width: 48,
       height: 48,
       borderRadius: 6,
     },
-
     mediaPreviewFallback: {
       width: 48,
       height: 48,
@@ -590,14 +703,12 @@ const getStyles = (colors: typeof lightColors, isDark: boolean) =>
       borderWidth: 1,
       borderColor: colors.border,
     },
-
     mediaPreviewFallbackText: {
       color: colors.text,
       fontSize: 11,
       fontWeight: "600",
       textAlign: "center",
     },
-
     mediaPreviewName: {
       flex: 1,
       color: colors.text,

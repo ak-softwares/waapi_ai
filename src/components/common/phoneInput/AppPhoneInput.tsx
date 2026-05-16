@@ -1,8 +1,9 @@
 import { useTheme } from "@/src/context/ThemeContext";
 import { darkColors, lightColors } from "@/src/theme/colors";
 import parsePhoneNumberFromString from "libphonenumber-js";
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { StyleSheet } from "react-native";
+import { CountryCode, isCountryCode } from "react-native-country-picker-modal";
 import PhoneInput from "react-native-phone-number-input";
 import Icon from "react-native-vector-icons/MaterialIcons";
 
@@ -10,13 +11,14 @@ interface Props {
   value: string;
   onChange: (phone: string) => void;
   autoFocus?: boolean;
+  stopCountryCode?: boolean;
 }
 
-export default function AppPhoneInput({ value, onChange, autoFocus=false }: Props) {
+export default function AppPhoneInput({ value, onChange, autoFocus = false, stopCountryCode = false }: Props) {
   const { theme } = useTheme();
   const colors = theme === "dark" ? darkColors : lightColors;
   const styles = getStyles(colors);
-
+  const [countryCode, setCountryCode] = useState<CountryCode>("IN");
   const phoneRef = useRef<PhoneInput>(null);
 
   // ✅ Sync external value (profile load / reset)
@@ -24,7 +26,7 @@ export default function AppPhoneInput({ value, onChange, autoFocus=false }: Prop
     if (!value || !phoneRef.current) return;
 
     const parsed = parsePhoneNumberFromString("+" + value);
-    const dialCode = parsed?.countryCallingCode || "91"; // ✅ 91
+    const dialCode = parsed?.countryCallingCode || "91";
 
     if (parsed) {
       phoneRef.current.setState({
@@ -34,12 +36,49 @@ export default function AppPhoneInput({ value, onChange, autoFocus=false }: Prop
     }
   }, [value]);
 
+  // Auto-detect default country only when there is no phone value
+  // and country-code auto detection is not disabled.
+  useEffect(() => {
+    if (value || stopCountryCode) return;
+
+    let isMounted = true;
+
+    fetch("https://ipwho.is/")
+      .then(async (res) => {
+        const text = await res.text();
+
+        try {
+          const data = JSON.parse(text);
+
+          if (!isMounted || stopCountryCode) return;
+          if (data?.success && data?.country_code) {
+            const detectedCode = data.country_code.toUpperCase();
+
+            if (isCountryCode(detectedCode)) {
+              setCountryCode(detectedCode);
+            }
+          }
+        } catch (err) {
+          console.log("Invalid JSON response:", text);
+        }
+      })
+      .catch((err) => {
+        if (isMounted && !stopCountryCode) {
+          setCountryCode("IN");
+        }
+      });
+    return () => {
+      isMounted = false;
+    };
+  }, [value, stopCountryCode]);
+
   return (
     <PhoneInput
+      key={countryCode}
       ref={phoneRef}
       withDarkTheme
       autoFocus={autoFocus}
-      defaultCode="IN"
+      defaultCode={countryCode}
       layout="first"
       value={value}
       onChangeFormattedText={(text) => {

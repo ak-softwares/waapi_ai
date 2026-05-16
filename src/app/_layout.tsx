@@ -1,6 +1,7 @@
 import { usePushNotifications } from "@/src/hooks/notifications/usePushNotifications";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { KeyboardProvider } from "react-native-keyboard-controller";
 import { MenuProvider } from "react-native-popup-menu";
 import Toast from "react-native-toast-message";
@@ -54,17 +55,19 @@ const InitialLayout = () => {
 export default function RootLayout() {
 
   return (
-    <ThemeProvider>
-      <KeyboardProvider>
-        <OnboardingProvider>
-          <AuthProvider>
-            <MenuProvider>
-              <InitialLayout />
-              <Toast config={toastConfig} />
-            </MenuProvider>
-          </AuthProvider>
-        </OnboardingProvider>
-      </KeyboardProvider>
-    </ThemeProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <ThemeProvider>
+        <KeyboardProvider>
+          <OnboardingProvider>
+            <AuthProvider>
+              <MenuProvider>
+                <InitialLayout />
+                <Toast config={toastConfig} />
+              </MenuProvider>
+            </AuthProvider>
+          </OnboardingProvider>
+        </KeyboardProvider>
+      </ThemeProvider>
+    </GestureHandlerRootView>
   );
 }

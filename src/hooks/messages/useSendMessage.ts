@@ -2,10 +2,10 @@ import { api } from "@/src/lib/api/apiClient";
 import { emitMessage } from "@/src/lib/events/messageEvents";
 import { convertToMetaSendTemplate } from "@/src/lib/mapping/convertToMetaSendTemplate";
 import {
-    Message,
-    MessagePayload,
-    MessageStatus,
-    MessageType,
+  Message,
+  MessagePayload,
+  MessageStatus,
+  MessageType,
 } from "@/src/types/Messages";
 import { Template } from "@/src/types/Template";
 import { EventType } from "@/src/utils/enums/notification";
@@ -34,6 +34,7 @@ export function useSendMessage(onSent?: (message: Message) => void) {
       chatId: messagePayload?.chatId ?? "",
       from: "me",
       to: messagePayload?.participants?.[0]?.number || "",
+      context: messagePayload.context,
       status: MessageStatus.Pending,
       createdAt: new Date().toISOString(),
     };
@@ -46,7 +47,6 @@ export function useSendMessage(onSent?: (message: Message) => void) {
     });
 
     try {
-      // ✅ Template conversion
       if (
         messagePayload.messageType === MessageType.TEMPLATE &&
         messagePayload.template

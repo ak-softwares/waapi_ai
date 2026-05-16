@@ -1,9 +1,10 @@
+import YoutubeSection from "@/src/components/common/video/YoutubeSection";
 import SettingsTile from "@/src/components/settings/widgets/SettingsTile";
 import { useTheme } from "@/src/context/ThemeContext";
 import { darkColors, lightColors } from "@/src/theme/colors";
 import { Stack } from "expo-router";
 import { Mail, MessageCircle, Phone } from "lucide-react-native";
-import { Linking, StyleSheet, Text, View } from "react-native";
+import { Linking, ScrollView, StyleSheet, Text, View } from "react-native";
 
 export default function SupportScreen() {
   const { theme } = useTheme();
@@ -30,7 +31,7 @@ export default function SupportScreen() {
         }}
       />
 
-      <View style={styles.container}>
+      <ScrollView style={styles.container}>
         <Text style={styles.subtitle}>
           Need help? Contact us using any method below.
         </Text>
@@ -57,7 +58,25 @@ export default function SupportScreen() {
             onPress={handleEmail}
           />
         </View>
-      </View>
+        {/* ── Video Section ── */}
+        <View style={styles.videoSection}>
+          <Text style={styles.title}>Watch tutorials to get started:</Text>
+          <YoutubeSection
+            videoId="Vmm4yY9enqA"
+            title="▶ WhatsApp API Integration"
+            subtitle="Connect & start messaging"
+            autoplay
+            colors={colors}
+          />
+          <YoutubeSection
+            videoId="RMmwtAdY2VE"
+            title="▶ Send Bulk Message"
+            subtitle="Send messages to thousands"
+            autoplay
+            colors={colors}
+          />
+        </View>
+      </ScrollView>
     </>
   );
 }
@@ -80,5 +99,15 @@ const getStyles = (colors: typeof lightColors) =>
     section: {
       paddingHorizontal: 10,
       marginTop: 10,
+    },
+    title: {
+      fontSize: 16,
+      fontWeight: "600",
+      color: colors.mutedText,
+      // marginBottom: 10,
+    },
+    videoSection: {
+      marginTop: 20,
+      paddingHorizontal: 10,
     },
   });

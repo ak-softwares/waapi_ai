@@ -3,18 +3,18 @@ import { useAuth } from "@/src/context/AuthContext";
 import { useTheme } from "@/src/context/ThemeContext";
 import { signUpSchema } from "@/src/schemas/signUpSchema";
 import { darkColors, lightColors } from "@/src/theme/colors";
-import { Ionicons } from "@expo/vector-icons";
+import { AntDesign, Ionicons } from "@expo/vector-icons";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { router } from "expo-router";
-import React from "react";
+import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import {
-    ActivityIndicator,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View
+  ActivityIndicator,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
 } from "react-native";
 import z from "zod";
 
@@ -26,6 +26,7 @@ export default function SignUpScreen() {
   const { theme } = useTheme();
   const colors = theme === "dark" ? darkColors : lightColors;
   const styles = getStyles(colors);
+  const [showPassword, setShowPassword] = useState(false);
 
   const {
     control,
@@ -122,16 +123,28 @@ export default function SignUpScreen() {
         control={control}
         name="password"
         render={({ field: { onChange, value } }) => (
-          <TextInput
-            style={styles.input}
-            placeholder="Enter password"
-            placeholderTextColor={colors.placeHolderText}
-            cursorColor={colors.cursorColor}
-            selectionColor={colors.cursorColor}
-            secureTextEntry
-            value={value}
-            onChangeText={onChange}
-          />
+          <View style={styles.passwordContainer}>
+            <TextInput
+              placeholderTextColor={colors.placeHolderText}
+              selectionColor={colors.cursorColor}
+              cursorColor={colors.cursorColor}
+              style={styles.passwordInput}
+              placeholder="Enter password"
+              secureTextEntry={!showPassword}   // 👈 toggled by state
+              value={value}
+              onChangeText={onChange}
+            />
+            <TouchableOpacity
+              onPress={() => setShowPassword((prev) => !prev)}
+              style={styles.eyeIcon}
+            >
+              <AntDesign
+                name={showPassword ? "eye" : "eye-invisible"}
+                size={20}
+                color={colors.placeHolderText}
+              />
+            </TouchableOpacity>
+          </View>
         )}
       />
       {errors.password && <Text style={styles.error}>{errors.password.message}</Text>}
@@ -197,6 +210,25 @@ const getStyles = (colors: typeof lightColors) =>
       padding: 12,
       marginVertical: 5,
       color: colors.inputText,
+    },
+    passwordContainer: {
+      flexDirection: "row",
+      alignItems: "center",
+      borderWidth: 1,
+      backgroundColor: colors.inputBackground,
+      borderColor: colors.inputBorder,
+      borderRadius: 8,
+      marginBottom: 10,
+    },
+    passwordInput: {
+      flex: 1,
+      padding: 12,
+      color: colors.inputText,
+      fontSize: 14,
+      fontWeight: "500",
+    },
+    eyeIcon: {
+      paddingHorizontal: 12,
     },
     error: {
       color: colors.error,

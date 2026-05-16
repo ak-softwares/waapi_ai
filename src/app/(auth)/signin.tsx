@@ -7,6 +7,7 @@ import { AntDesign } from "@expo/vector-icons";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as Google from "expo-auth-session/providers/google";
 import { useRouter } from "expo-router";
+import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { ActivityIndicator, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import * as z from "zod";
@@ -20,6 +21,7 @@ export default function SignInScreen() {
   const { theme } = useTheme();
   const colors = theme === "dark" ? darkColors : lightColors;
   const styles = getStyles(colors);
+  const [showPassword, setShowPassword] = useState(false);
 
   const {
     control,
@@ -87,16 +89,28 @@ export default function SignInScreen() {
         control={control}
         name="password"
         render={({ field: { onChange, value } }) => (
-          <TextInput
-            placeholderTextColor={colors.placeHolderText}
-            selectionColor={colors.cursorColor}
-            cursorColor={colors.cursorColor}      // Android
-            style={styles.input}
-            placeholder="Enter password"
-            secureTextEntry
-            value={value}
-            onChangeText={onChange}
-          />
+          <View style={styles.passwordContainer}>
+            <TextInput
+              placeholderTextColor={colors.placeHolderText}
+              selectionColor={colors.cursorColor}
+              cursorColor={colors.cursorColor}
+              style={styles.passwordInput}
+              placeholder="Enter password"
+              secureTextEntry={!showPassword}   // 👈 toggled by state
+              value={value}
+              onChangeText={onChange}
+            />
+            <TouchableOpacity
+              onPress={() => setShowPassword((prev) => !prev)}
+              style={styles.eyeIcon}
+            >
+              <AntDesign
+                name={showPassword ? "eye" : "eye-invisible"}
+                size={20}
+                color={colors.placeHolderText}
+              />
+            </TouchableOpacity>
+          </View>
         )}
       />
       {errors.password && <Text style={styles.error}>{errors.password.message}</Text>}
@@ -137,7 +151,7 @@ export default function SignInScreen() {
       </TouchableOpacity>
 
       {/* Google Login */}
-      <TouchableOpacity
+      {/* <TouchableOpacity
         style={[styles.button, styles.outlineButton, styles.socialButton]}
         onPress={() => promptAsync().catch((err) => console.log("Google Signin Error: ", err))}
         disabled={!request || loading}
@@ -146,7 +160,7 @@ export default function SignInScreen() {
         <Text style={styles.outlineText}>
           {loading ? "Signing in..." : "Continue with Google"}
         </Text>
-      </TouchableOpacity>
+      </TouchableOpacity> */}
 
       <Text style={styles.alignCenter}>
         Don’t have an account?{" "}
@@ -199,6 +213,26 @@ const getStyles = (colors: typeof lightColors) => StyleSheet.create({
     color: colors.inputText,
     fontSize: 14,
     fontWeight: "500",
+  },
+  passwordContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    borderWidth: 1,
+    backgroundColor: colors.inputBackground,
+    borderColor: colors.inputBorder,
+    borderRadius: 8,
+    marginBottom: 10,
+  },
+  passwordInput: {
+    flex: 1,
+    padding: 12,
+    color: colors.inputText,
+    fontSize: 14,
+    fontWeight: "500",
+  },
+  eyeIcon: {
+    paddingHorizontal: 12,
+    color: colors.mutedText,
   },
   error: {
     color: colors.error,
